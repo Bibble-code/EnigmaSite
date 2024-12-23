@@ -125,29 +125,32 @@ export default {
         })
 
         const Encrypt = async (data) => {
+            console.log("before", settings.value)
 
-            // const response = await BackendEnigma.getEncryption(data)
-            // //console.log("response",response)
-            // //console.log("responsedata",response.data.parsedBody._value)
+            const response = await BackendEnigma.getEncryption(data)
+            //console.log("response",response)
+            //console.log("responsedata",response.data.parsedBody._value)
             // console.log("settingsvalue", settings.value)
             // console.log("settings", settings)
-            // console.log("response",response.data.parsedBody)
-            // settings.value = response.data.parsedBody
-            // console.log("after   ", settings.value)
+            // console.log("response", response)
+            // console.log("response.data", response.data)
 
-            console.log("Settings", settings.value)
+
+            settings.value = response.data
+            console.log("after   ", settings.value)
+
+            // console.log("Settings", settings.value)
         }
         // console.log("JSON",JSON.stringify(settings))
         // console.log("test1", settings.value)
-        Encrypt(JSON.stringify(settings))
+        Encrypt(JSON.stringify(settings.value))
         // console.log("JSON",JSON.stringify(settings))
         // console.log("test", settings.value)
 
 
         const handleSubmit = async () => {
-            console.log("test")
-            console.log(settings.value.model, settings.value)
-            Encrypt(settings.value)
+            console.log("submit")
+            Encrypt(JSON.stringify(settings.value))
         }
 
 
