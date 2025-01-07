@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import CycleView from '@/views/CycleView.vue'
 import EnigmaRequestView from '@/views/EnigmaRequestView.vue'
+import CyclometerView from '@/views/CyclometerView.vue'
 
 const routes = [
   {
@@ -18,6 +19,11 @@ const routes = [
     path: '/enigma',
     name: 'enigma',
     component: EnigmaRequestView
+  },
+  {
+    path: '/cyclometer',
+    name: 'cyclometer',
+    component: CyclometerView
   }
 ]
 

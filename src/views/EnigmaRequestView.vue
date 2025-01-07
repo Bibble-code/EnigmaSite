@@ -113,6 +113,20 @@ export default {
     setup() {
 
 
+        // const settings = ref({
+        //     enigma: {
+        //         model: "3",
+        //         reflector: "B",
+        //         rotors: ["1", "2", "3"],
+        //         positions: ["0", "0", "0"],
+        //         rings: ["0", "0", "0"],
+        //         plugboard: "",
+        //         input: "TEST",
+        //         output: ""
+        //     }
+        // })                
+
+
         const settings = ref({
             model: "3",
             reflector: "B",
@@ -121,13 +135,22 @@ export default {
             rings: ["0", "0", "0"],
             plugboard: "",
             input: "TEST",
-            output: ""
+            output: "ASDF"
         })
+
 
         const Encrypt = async (data) => {
             console.log("before", settings.value)
 
-            const response = await BackendEnigma.getEncryption(data)
+            try {
+                const response = await BackendEnigma.getEncryption(data)
+                settings.value = response.data
+                console.log("after   ", settings.value)
+
+            } catch (error) {
+                console.log(error)
+            }
+
             //console.log("response",response)
             //console.log("responsedata",response.data.parsedBody._value)
             // console.log("settingsvalue", settings.value)
@@ -136,8 +159,6 @@ export default {
             // console.log("response.data", response.data)
 
 
-            settings.value = response.data
-            console.log("after   ", settings.value)
 
             // console.log("Settings", settings.value)
         }
