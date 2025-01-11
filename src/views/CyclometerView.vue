@@ -19,7 +19,7 @@
             </select>
 
             <div>
-                <label>{{ settings.enigma.rotors[0] }}. Rotor:</label>
+                <label>{{ settings.enigma.rotors[0] }}. Walze:</label>
                 <select v-model="settings.enigma.rotors[0]">
                     <option value=1>1</option>
                     <option value=2>2</option>
@@ -31,7 +31,7 @@
                     <option value=8>8</option>
                     <option value=9>9</option>
                 </select>
-                <label>{{ settings.enigma.rotors[1] }}. Rotor:</label>
+                <label>{{ settings.enigma.rotors[1] }}. Walze:</label>
                 <select v-model="settings.enigma.rotors[1]">
                     <option value=1>1</option>
                     <option value=2>2</option>
@@ -43,7 +43,7 @@
                     <option value=8>8</option>
                     <option value=9>9</option>
                 </select>
-                <label>{{ settings.enigma.rotors[2] }}. Rotor:</label>
+                <label>{{ settings.enigma.rotors[2] }}. Walze:</label>
                 <select v-model="settings.enigma.rotors[2]">
                     <option value=1>1</option>
                     <option value=2>2</option>
@@ -139,8 +139,8 @@
                     <option value=9>9</option>
                 </select>
             </div>
-            <!-- <label>Steckbrett:</label>
-            <input v-model="settings.enigma.plugboard" type="text"> -->
+            <label>Anzahl der Abgefangenen Tagesschlüssel:</label>
+            <input v-model="settings.parameters.daily_key_count" type="text">
 
             <!-- <label>Eingabe:</label>
             <textarea v-model="settings.enigma.input"></textarea>
@@ -184,7 +184,7 @@ export default {
                 output: ""
             },
             parameters: {
-                "daily-key-count": "200"
+                daily_key_count: "200"
             }
         })
 
