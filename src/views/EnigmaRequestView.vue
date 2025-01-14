@@ -19,70 +19,173 @@
             </select>
 
             <div>
-                <label>{{ settings.enigma.rotors[0] }}. Walze:</label>
+                <label>Erste Walze: </label>
                 <select v-model="settings.enigma.rotors[0]">
                     <option value=1>1</option>
                     <option value=2>2</option>
                     <option value=3>3</option>
+                    <option value=4>4</option>
+                    <option value=5>5</option>
+                    <option value=6>6</option>
+                    <option value=7>7</option>
+                    <option value=8>8</option>
+                    <option value=9>9</option>
                 </select>
-                <label>{{ settings.enigma.rotors[1] }}. Walze:</label>
+                <label>Zweite Walze: </label>
                 <select v-model="settings.enigma.rotors[1]">
                     <option value=1>1</option>
                     <option value=2>2</option>
                     <option value=3>3</option>
+                    <option value=4>4</option>
+                    <option value=5>5</option>
+                    <option value=6>6</option>
+                    <option value=7>7</option>
+                    <option value=8>8</option>
+                    <option value=9>9</option>
                 </select>
-                <label>{{ settings.enigma.rotors[2] }}. Walze:</label>
+                <label>Dritte Walze: </label>
                 <select v-model="settings.enigma.rotors[2]">
                     <option value=1>1</option>
                     <option value=2>2</option>
                     <option value=3>3</option>
+                    <option value=4>4</option>
+                    <option value=5>5</option>
+                    <option value=6>6</option>
+                    <option value=7>7</option>
+                    <option value=8>8</option>
+                    <option value=9>9</option>
                 </select>
             </div>
 
             <div>
-                <label>{{ settings.enigma.positions[0] }}. Position:</label>
+                <label>Erste Walzenlage: </label>
                 <select v-model="settings.enigma.positions[0]">
-                    <option value=0>0</option>
-                    <option value=1>1</option>
-                    <option value=2>2</option>
-                    <option value=3>3</option>
+                    <option value=0>A</option>
+                    <option value=1>B</option>
+                    <option value=2>C</option>
+                    <option value=3>D</option>
+                    <option value=4>E</option>
+                    <option value=5>F</option>
+                    <option value=6>G</option>
+                    <option value=7>H</option>
+                    <option value=8>I</option>
+                    <option value=9>J</option>
+                    <option value=10>K</option>
+                    <option value=11>L</option>
+                    <option value=12>M</option>
+                    <option value=13>N</option>
+                    <option value=14>O</option>
+                    <option value=15>P</option>
+                    <option value=16>Q</option>
+                    <option value=17>R</option>
+                    <option value=18>S</option>
+                    <option value=19>T</option>
+                    <option value=20>U</option>
+                    <option value=21>V</option>
+                    <option value=22>W</option>
+                    <option value=23>X</option>
+                    <option value=24>Y</option>
+                    <option value=25>Z</option>
+
                 </select>
-                <label>{{ settings.enigma.positions[1] }}. Position:</label>
+                <label>Zweite Walzenlage: </label>
                 <select v-model="settings.enigma.positions[1]">
-                    <option value=0>0</option>
-                    <option value=1>1</option>
-                    <option value=2>2</option>
-                    <option value=3>3</option>
+                    <option value=0>A</option>
+                    <option value=1>B</option>
+                    <option value=2>C</option>
+                    <option value=3>D</option>
+                    <option value=4>E</option>
+                    <option value=5>F</option>
+                    <option value=6>G</option>
+                    <option value=7>H</option>
+                    <option value=8>I</option>
+                    <option value=9>J</option>
+                    <option value=10>K</option>
+                    <option value=11>L</option>
+                    <option value=12>M</option>
+                    <option value=13>N</option>
+                    <option value=14>O</option>
+                    <option value=15>P</option>
+                    <option value=16>Q</option>
+                    <option value=17>R</option>
+                    <option value=18>S</option>
+                    <option value=19>T</option>
+                    <option value=20>U</option>
+                    <option value=21>V</option>
+                    <option value=22>W</option>
+                    <option value=23>X</option>
+                    <option value=24>Y</option>
+                    <option value=25>Z</option>
                 </select>
-                <label>{{ settings.enigma.positions[2] }}. Position:</label>
+                <label>Dritte Walzenalge: </label>
                 <select v-model="settings.enigma.positions[2]">
-                    <option value=0>0</option>
-                    <option value=1>1</option>
-                    <option value=2>2</option>
-                    <option value=3>3</option>
+                    <option value=0>A</option>
+                    <option value=1>B</option>
+                    <option value=2>C</option>
+                    <option value=3>D</option>
+                    <option value=4>E</option>
+                    <option value=5>F</option>
+                    <option value=6>G</option>
+                    <option value=7>H</option>
+                    <option value=8>I</option>
+                    <option value=9>J</option>
+                    <option value=10>K</option>
+                    <option value=11>L</option>
+                    <option value=12>M</option>
+                    <option value=13>N</option>
+                    <option value=14>O</option>
+                    <option value=15>P</option>
+                    <option value=16>Q</option>
+                    <option value=17>R</option>
+                    <option value=18>S</option>
+                    <option value=19>T</option>
+                    <option value=20>U</option>
+                    <option value=21>V</option>
+                    <option value=22>W</option>
+                    <option value=23>X</option>
+                    <option value=24>Y</option>
+                    <option value=25>Z</option>
                 </select>
             </div>
             <div>
-                <label>{{ settings.enigma.rings[0] }}. Ring:</label>
+                <label>1. Ring: </label>
                 <select v-model="settings.enigma.rings[0]">
                     <option value=0>0</option>
                     <option value=1>1</option>
                     <option value=2>2</option>
                     <option value=3>3</option>
+                    <option value=4>4</option>
+                    <option value=5>5</option>
+                    <option value=6>6</option>
+                    <option value=7>7</option>
+                    <option value=8>8</option>
+                    <option value=9>9</option>
                 </select>
-                <label>{{ settings.enigma.rings[1] }}. Ring:</label>
+                <label>2. Ring: </label>
                 <select v-model="settings.enigma.rings[1]">
                     <option value=0>0</option>
                     <option value=1>1</option>
                     <option value=2>2</option>
                     <option value=3>3</option>
+                    <option value=4>4</option>
+                    <option value=5>5</option>
+                    <option value=6>6</option>
+                    <option value=7>7</option>
+                    <option value=8>8</option>
+                    <option value=9>9</option>
                 </select>
-                <label>{{ settings.enigma.rings[2] }}. Ring:</label>
+                <label>3. Ring: </label>
                 <select v-model="settings.enigma.rings[2]">
                     <option value=0>0</option>
                     <option value=1>1</option>
                     <option value=2>2</option>
                     <option value=3>3</option>
+                    <option value=4>4</option>
+                    <option value=5>5</option>
+                    <option value=6>6</option>
+                    <option value=7>7</option>
+                    <option value=8>8</option>
+                    <option value=9>9</option>
                 </select>
             </div>
             <label>Steckbrett:</label>
