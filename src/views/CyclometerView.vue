@@ -1,7 +1,7 @@
 <template>
     <div v-if="settings">
         <p>{{ settings }}</p>
-        <form @submit.prevent="handleSubmit">
+        <form @submit.prevent="handleCyclometer">
 
             <label>Modell: </label>
             <select v-model="settings.enigma.model">
@@ -206,9 +206,37 @@
             <p>Zyklen des ersten Rotors: {{ first_rotor_cycle }}</p>
             <p>Zyklen des zweiten Rotors: {{ second_rotor_cycle }}</p>
             <p>Zyklen des dritten Rotors: {{ third_rotor_cycle }}</p>
+
         </div>
+        <div v-if="cataloguerequest">
+            <form @submit.prevent="handleCatalogue">
+                <div>
+                    <p>Zyklen des ersten Rotors: {{ cataloguerequest.cycles.one_to_four_permut }}</p>
+                    <p>Zyklen des zweiten Rotors: {{ cataloguerequest.cycles.two_to_five_permut }}</p>
+                    <p>Zyklen des dritten Rotors: {{ cataloguerequest.cycles.three_to_six_permut }}</p>
+                </div>
+                <label>Anzahl der Seiten: </label>
+                <input v-model="cataloguerequest.parameters.page" type="text">
+
+                <div class="submit">
+                    <button>Katalog:</button>
+                </div>
+            </form>
+        </div>
+
     </div>
 
+    <div v-if="catalogueres">
+        <div v-if="catalogueres.content">
+            <p v-for="object in catalogueres.content" :key="object.id">
+                rotor_position: {{ object.enigmaConfiguration.rotor_position }},
+                rotor_order: {{ object.enigmaConfiguration.rotor_order }},
+                1to4: {{ object.cycles.one_to_four_permut }},
+                2to5: {{ object.cycles.two_to_five_permut }},
+                3to6: {{ object.cycles.three_to_six_permut }}
+            </p>
+        </div>
+    </div>
 
 
 </template>
@@ -237,11 +265,32 @@ export default {
             }
         })
 
+        console.log("Csettings111")
+        console.log(settings.value)
+
         const first_rotor_cycle = ref(0)
         const second_rotor_cycle = ref(0)
         const third_rotor_cycle = ref(0)
 
         const res = ref()
+
+        const catalogueres = ref()
+
+        const cataloguerequest = ref({
+            cycles: {
+                one_to_four_permut: ["13", "13"],
+                two_to_five_permut: ["13", "13"],
+                three_to_six_permut: ["13", "13"]
+            },
+            parameters: {
+                page: "1"
+            }
+        })
+        console.log("catalogue_req111")
+        console.log(cataloguerequest.value)
+        console.log(cataloguerequest.value.cycles)
+
+        
 
 
 
@@ -254,43 +303,51 @@ export default {
                 res.value = response.data
                 console.log("res.value", res.value)
 
-                first_rotor_cycle.value = response.data.first_rotor
-                second_rotor_cycle.value = response.data.second_rotor
-                third_rotor_cycle.value = response.data.third_rotor
+                first_rotor_cycle.value = response.data.computedCycles.one_to_four_permut
+                second_rotor_cycle.value = response.data.computedCycles.two_to_five_permut
+                third_rotor_cycle.value = response.data.computedCycles.three_to_six_permut
+                cataloguerequest.value.cycles.one_to_four_permut = response.data.computedCycles.one_to_four_permut
+                cataloguerequest.value.cycles.two_to_five_permut = response.data.computedCycles.two_to_five_permut
+                cataloguerequest.value.cycles.three_to_six_permut = response.data.computedCycles.three_to_six_permut
             } catch (error) {
                 console.log("error", error)
             }
 
-            //console.log("response",response)
-            //console.log("responsedata",response.data.parsedBody._value)
-            // console.log("settingsvalue", settings.value)
-            // console.log("settings", settings)
-            // 
-            //console.log("response", response.data)
-            // console.log("response.data", response.data)
-
-
-
-
-            //settings.value = response.data
-            //console.log("after   ", settings.value)
-
-            // console.log("Settings", settings.value)
         }
-        // console.log("JSON",JSON.stringify(settings))
-        // console.log("test1", settings.value)
-        Cyclometer(JSON.stringify(settings.value))
-        // console.log("JSON",JSON.stringify(settings))
-        // console.log("test", settings.value)
+
+        const Catalogue = async (data) => {
+            console.log("before", cataloguerequest.value)
+
+            try {
+                const resp = await BackendEnigma.getCatalogue(data)
+                catalogueres.value = resp.data
+                console.log("catalogueres.value", catalogueres.value)
+                console.log("catalogueres.value.content0", catalogueres.value.content[0])
+
+            } catch (error) {
+                console.log("error", error)
+            }
+
+        }
+
+        //Cyclometer(JSON.stringify(settings.value))
 
 
-        const handleSubmit = async () => {
+
+        const handleCyclometer = async () => {
             console.log("submit")
             Cyclometer(JSON.stringify(settings.value))
         }
 
+        const handleCatalogue = async () => {
+            console.log("Catalogue")
+            console.log(cataloguerequest.value)
+            Catalogue(JSON.stringify(cataloguerequest.value))
+        }
 
-        return { Cyclometer, settings, handleSubmit, first_rotor_cycle, second_rotor_cycle, third_rotor_cycle }
+
+
+        return { Cyclometer, settings, handleCyclometer, handleCatalogue, first_rotor_cycle, second_rotor_cycle, third_rotor_cycle, catalogueres, cataloguerequest}
     }
 }
 </script>
