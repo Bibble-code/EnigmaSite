@@ -191,15 +191,21 @@
             <label>Anzahl der Abgefangenen Tagesschlüssel: </label>
             <input v-model="settings.parameters.daily_key_count" type="text">
 
-            <!-- <label>Eingabe:</label>
-            <textarea v-model="settings.enigma.input"></textarea>
 
-            <label>Ausgabe:</label>
-            <textarea v-model="settings.enigma.output"></textarea> -->
+            <div v-for="(key, index) in settings.parameters.manual_keys" :key="index" style="margin-bottom: 1rem;">
+                <label>Key {{ index + 1 }}</label>
+                <br />
+                <input ref="manualKeyInput" type="text" v-model="settings.parameters.manual_keys[index]"
+                    :class="{ invalid: !isValidKey(key) }" maxlength="6" @input="formatKey(index)"
+                    @keydown.enter.prevent="addManualKey" />
+                <br />
+                <button @click="deleteManualKey(index)">Delete</button>
+            </div>
+            <button @click="addManualKey" type="button">Add Key</button>
 
 
             <div class="submit">
-                <button>Zyklen erzeugen</button>
+                <button type="submit">Zyklen erzeugen</button>
             </div>
         </form>
         <div>
@@ -223,9 +229,7 @@
                 </div>
             </form>
         </div>
-
     </div>
-
     <div v-if="catalogueres">
         <div v-if="catalogueres.content">
             <p v-for="object in catalogueres.content" :key="object.id">
@@ -243,7 +247,7 @@
 
 <script>
 import BackendEnigma from '@/services/Enigma/BackendEnigma';
-import { ref } from 'vue';
+import { ref, nextTick, getCurrentInstance } from 'vue';
 
 export default {
     setup() {
@@ -261,9 +265,12 @@ export default {
                 output: ""
             },
             parameters: {
-                daily_key_count: "200"
+                daily_key_count: "200",
+                manual_keys: [""]
             }
         })
+
+        const inputRefs = ref([]) // Refs to the input fields
 
         console.log("Csettings111")
         console.log(settings.value)
@@ -289,11 +296,6 @@ export default {
         console.log("catalogue_req111")
         console.log(cataloguerequest.value)
         console.log(cataloguerequest.value.cycles)
-
-        
-
-
-
 
         const Cyclometer = async (data) => {
             console.log("before", settings.value)
@@ -330,12 +332,10 @@ export default {
 
         }
 
-        //Cyclometer(JSON.stringify(settings.value))
-
-
-
         const handleCyclometer = async () => {
             console.log("submit")
+            filterValidKeys()
+            console.log("Filtered keys to submit:", settings.value.parameters.manual_keys)
             Cyclometer(JSON.stringify(settings.value))
         }
 
@@ -345,11 +345,44 @@ export default {
             Catalogue(JSON.stringify(cataloguerequest.value))
         }
 
+        const instance = getCurrentInstance()
+        const addManualKey = async () => {
+            settings.value.parameters.manual_keys.push("")
+            await nextTick()
 
+            const inputs = instance.refs.manualKeyInput
+            const lastInput = Array.isArray(inputs) ? inputs[inputs.length - 1] : inputs
+            if (lastInput) lastInput.focus()
+        }
 
-        return { Cyclometer, settings, handleCyclometer, handleCatalogue, first_rotor_cycle, second_rotor_cycle, third_rotor_cycle, catalogueres, cataloguerequest}
+        const deleteManualKey = (index) => {
+            settings.value.parameters.manual_keys.splice(index, 1)
+        }
+
+        // Same regex as backend
+        const isValidKey = (key) => {
+            const regex = /^([A-Z])([A-Z])([A-Z])\1\2\3$/
+            return regex.test(key)
+        }
+
+        const filterValidKeys = () => {
+            settings.value.parameters.manual_keys = settings.value.parameters.manual_keys.filter(isValidKey)
+        }
+
+        const formatKey = (index) => {
+            // Force uppercase letters only
+            const val = settings.value.parameters.manual_keys[index]
+            settings.value.parameters.manual_keys[index] = val.toUpperCase().replace(/[^A-Z]/g, "")
+        }
+
+        return { Cyclometer, settings, handleCyclometer, handleCatalogue, first_rotor_cycle, second_rotor_cycle, third_rotor_cycle, catalogueres, cataloguerequest, addManualKey, deleteManualKey, isValidKey, formatKey, inputRefs }
     }
 }
 </script>
 
-<style></style>
+<style scoped>
+.invalid {
+    background-color: lightcoral;
+    /* Light red background for invalid keys */
+}
+</style>

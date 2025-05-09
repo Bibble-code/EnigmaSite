@@ -3,7 +3,6 @@ import Enigma from "./Enigma"
 
 export default {
     getEncryption(data) {
-        //return Enigma('https://echo.free.beeceptor.com').post("/application/json", data)
         return Enigma().post("/enigma", data, {
             headers: {
                 'Content-Type': 'application/json',
@@ -12,7 +11,7 @@ export default {
         )
     },
     getCyclometer(data) {
-        return Enigma().post("/cyclometer", data, {
+        return Enigma().post("/manualcyclometer", data, {
             headers: {
                 'Content-Type': 'application/json',
             }
