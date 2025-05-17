@@ -1,196 +1,80 @@
 <template>
     <div v-if="settings.enigma">
-        <p>{{ settings.enigma }}</p>
         <form @submit.prevent="handleSubmit">
 
-            <label>Modell: </label>
-            <select v-model="settings.enigma.model">
-                <option value=1>I</option>
-                <option value=2>II</option>
-                <option value=3>III</option>
-                <option value=4>IV</option>
-            </select>
-
-            <label>Reflector:</label>
-            <select v-model="settings.enigma.reflector">
-                <option value="A">A</option>
-                <option value="B">B</option>
-                <option value="C">C</option>
-            </select>
-
-            <div>
-                <label>Erste Walze: </label>
-                <select v-model="settings.enigma.rotors[0]">
-                    <option value=1>1</option>
-                    <option value=2>2</option>
-                    <option value=3>3</option>
-                    <option value=4>4</option>
-                    <option value=5>5</option>
-                    <option value=6>6</option>
-                    <option value=7>7</option>
-                    <option value=8>8</option>
-                    <option value=9>9</option>
-                </select>
-                <label>Zweite Walze: </label>
-                <select v-model="settings.enigma.rotors[1]">
-                    <option value=1>1</option>
-                    <option value=2>2</option>
-                    <option value=3>3</option>
-                    <option value=4>4</option>
-                    <option value=5>5</option>
-                    <option value=6>6</option>
-                    <option value=7>7</option>
-                    <option value=8>8</option>
-                    <option value=9>9</option>
-                </select>
-                <label>Dritte Walze: </label>
-                <select v-model="settings.enigma.rotors[2]">
-                    <option value=1>1</option>
-                    <option value=2>2</option>
-                    <option value=3>3</option>
-                    <option value=4>4</option>
-                    <option value=5>5</option>
-                    <option value=6>6</option>
-                    <option value=7>7</option>
-                    <option value=8>8</option>
-                    <option value=9>9</option>
-                </select>
+            <!-- Model Selection (Disabled) -->
+            <div class="enigma-setting">
+                <label>Modell:</label>
+                <div class="dropdowns">
+                    <select v-model.number="settings.enigma.model">
+                        <option v-for="model in enigmaModels" :key="model.value" :value="model.value">
+                            {{ model.label }}
+                        </option>
+                    </select>
+                </div>
             </div>
 
-            <div>
-                <label>Erste Walzenlage: </label>
-                <select v-model="settings.enigma.positions[0]">
-                    <option value=0>A</option>
-                    <option value=1>B</option>
-                    <option value=2>C</option>
-                    <option value=3>D</option>
-                    <option value=4>E</option>
-                    <option value=5>F</option>
-                    <option value=6>G</option>
-                    <option value=7>H</option>
-                    <option value=8>I</option>
-                    <option value=9>J</option>
-                    <option value=10>K</option>
-                    <option value=11>L</option>
-                    <option value=12>M</option>
-                    <option value=13>N</option>
-                    <option value=14>O</option>
-                    <option value=15>P</option>
-                    <option value=16>Q</option>
-                    <option value=17>R</option>
-                    <option value=18>S</option>
-                    <option value=19>T</option>
-                    <option value=20>U</option>
-                    <option value=21>V</option>
-                    <option value=22>W</option>
-                    <option value=23>X</option>
-                    <option value=24>Y</option>
-                    <option value=25>Z</option>
-
-                </select>
-                <label>Zweite Walzenlage: </label>
-                <select v-model="settings.enigma.positions[1]">
-                    <option value=0>A</option>
-                    <option value=1>B</option>
-                    <option value=2>C</option>
-                    <option value=3>D</option>
-                    <option value=4>E</option>
-                    <option value=5>F</option>
-                    <option value=6>G</option>
-                    <option value=7>H</option>
-                    <option value=8>I</option>
-                    <option value=9>J</option>
-                    <option value=10>K</option>
-                    <option value=11>L</option>
-                    <option value=12>M</option>
-                    <option value=13>N</option>
-                    <option value=14>O</option>
-                    <option value=15>P</option>
-                    <option value=16>Q</option>
-                    <option value=17>R</option>
-                    <option value=18>S</option>
-                    <option value=19>T</option>
-                    <option value=20>U</option>
-                    <option value=21>V</option>
-                    <option value=22>W</option>
-                    <option value=23>X</option>
-                    <option value=24>Y</option>
-                    <option value=25>Z</option>
-                </select>
-                <label>Dritte Walzenalge: </label>
-                <select v-model="settings.enigma.positions[2]">
-                    <option value=0>A</option>
-                    <option value=1>B</option>
-                    <option value=2>C</option>
-                    <option value=3>D</option>
-                    <option value=4>E</option>
-                    <option value=5>F</option>
-                    <option value=6>G</option>
-                    <option value=7>H</option>
-                    <option value=8>I</option>
-                    <option value=9>J</option>
-                    <option value=10>K</option>
-                    <option value=11>L</option>
-                    <option value=12>M</option>
-                    <option value=13>N</option>
-                    <option value=14>O</option>
-                    <option value=15>P</option>
-                    <option value=16>Q</option>
-                    <option value=17>R</option>
-                    <option value=18>S</option>
-                    <option value=19>T</option>
-                    <option value=20>U</option>
-                    <option value=21>V</option>
-                    <option value=22>W</option>
-                    <option value=23>X</option>
-                    <option value=24>Y</option>
-                    <option value=25>Z</option>
-                </select>
+            <!-- Reflector Selection (Disabled) -->
+            <div class="enigma-setting">
+                <label>Reflektor:</label>
+                <div class="dropdowns">
+                    <select v-model="settings.enigma.reflector">
+                        <option v-for="r in reflectors" :key="r" :value="r">{{ r }}</option>
+                    </select>
+                </div>
             </div>
-            <div>
-                <label>1. Ring: </label>
-                <select v-model="settings.enigma.rings[0]">
-                    <option value=0>0</option>
-                    <option value=1>1</option>
-                    <option value=2>2</option>
-                    <option value=3>3</option>
-                    <option value=4>4</option>
-                    <option value=5>5</option>
-                    <option value=6>6</option>
-                    <option value=7>7</option>
-                    <option value=8>8</option>
-                    <option value=9>9</option>
-                </select>
-                <label>2. Ring: </label>
-                <select v-model="settings.enigma.rings[1]">
-                    <option value=0>0</option>
-                    <option value=1>1</option>
-                    <option value=2>2</option>
-                    <option value=3>3</option>
-                    <option value=4>4</option>
-                    <option value=5>5</option>
-                    <option value=6>6</option>
-                    <option value=7>7</option>
-                    <option value=8>8</option>
-                    <option value=9>9</option>
-                </select>
-                <label>3. Ring: </label>
-                <select v-model="settings.enigma.rings[2]">
-                    <option value=0>0</option>
-                    <option value=1>1</option>
-                    <option value=2>2</option>
-                    <option value=3>3</option>
-                    <option value=4>4</option>
-                    <option value=5>5</option>
-                    <option value=6>6</option>
-                    <option value=7>7</option>
-                    <option value=8>8</option>
-                    <option value=9>9</option>
-                </select>
-            </div>
-            <label>Steckbrett:</label>
-            <input v-model="settings.enigma.plugboard" type="text">
 
+            <!-- Rotor Selection -->
+            <div class="enigma-setting">
+                <label>Walzenlage:</label>
+                <div class="dropdowns">
+                    <template v-for="index in 3" :key="'rotor-' + index">
+                        <select v-model.number="settings.enigma.rotors[index - 1]">
+                            <option v-for="r in rotorOptions" :key="r" :value="r">{{ r }}</option>
+                        </select>
+                        <span v-if="index < 3">|</span>
+                    </template>
+                </div>
+            </div>
+
+            <!-- Rotor Positions -->
+            <div class="enigma-setting">
+                <label>Walzenstellung:</label>
+                <div class="dropdowns">
+                    <template v-for="index in 3" :key="'position-' + index">
+                        <select v-model.number="settings.enigma.positions[index - 1]">
+                            <option v-for="opt in alphabetOptions" :key="opt.value" :value="opt.value">
+                                {{ opt.label }}
+                            </option>
+                        </select>
+                        <span v-if="index < 3">|</span>
+                    </template>
+                </div>
+            </div>
+
+            <!-- Ring Settings with Toggle -->
+            <div class="enigma-setting">
+                <label>Ringstellung:</label>
+                <div class="dropdowns">
+                    <template v-for="index in 3" :key="'ring-' + index">
+                        <select v-model.number="settings.enigma.rings[index - 1]">
+                            <option v-for="opt in alphabetOptions" :key="opt.value" :value="opt.value">
+                                {{ opt.label }}
+                            </option>
+                        </select>
+                        <span v-if="index < 3">|</span>
+                    </template>
+                </div>
+            </div>
+
+            <!-- Ring Settings with Toggle -->
+            <div class="enigma-setting">
+                <label>Steckbrett:</label>
+                <div class="dropdowns">
+                    <input v-model="settings.enigma.plugboard" type="text" placeholder="z.B. AB, QW, CD">
+                </div>
+            </div>
+<!-- 
             <label>Eingabe:</label>
             <textarea v-model="settings.enigma.input"></textarea>
 
@@ -200,12 +84,42 @@
 
             <div class="submit">
                 <button>Verschlüsseln</button>
+            </div> -->
+            <div class="form-container">
+                <!-- Left Section (Eingabe) -->
+                <div class="form-section">
+                    <div class="enigma-setting textarea-wrapper">
+                        <label>Eingabe:</label>
+                        <textarea 
+                            ref="inputTextarea" 
+                            v-model="settings.enigma.input" 
+                            @input="syncTextareas"
+                        ></textarea>
+                    </div>
+                </div>
+
+                <!-- Center Section (Verschlüsseln Button) -->
+                <div class="form-center">
+                    <div class="submit">
+                        <button type="submit">Verschlüsseln</button>
+                    </div>
+                </div>
+
+                <!-- Right Section (Ausgabe) -->
+                <div class="form-section">
+                    <div class="enigma-setting textarea-wrapper">
+                        <label>Ausgabe:</label>
+                        <textarea 
+                            ref="outputTextarea" 
+                            v-model="settings.enigma.output" 
+                            @input="syncTextareas"
+                        ></textarea>
+                    </div>
+                </div>
             </div>
+
         </form>
     </div>
-
-
-
 </template>
 
 <script>
@@ -214,37 +128,37 @@ import { ref } from 'vue';
 
 export default {
     setup() {
+        const enigmaModels = [
+            { value: 1, label: "I" },
+            { value: 2, label: "II" },
+            { value: 3, label: "III" },
+            { value: 4, label: "IV" }
+        ];
+
+        const reflectors = ["A", "B", "C"];
+
+        const rotorOptions = [1, 2, 3, 4, 5];
+        const ringOptions = Array.from({ length: 26 }, (_, i) => i);  // Array from 0 to 25
+
+        const alphabetOptions = Array.from({ length: 26 }, (_, i) => ({
+            value: i,
+            label: `${String.fromCharCode(65 + i)} (${i})`
+        }));
 
 
         const settings = ref({
             enigma: {
-                model: "3",
+                model: 3,
                 reflector: "B",
-                rotors: ["1", "2", "3"],
-                positions: ["0", "0", "0"],
-                rings: ["0", "0", "0"],
+                rotors: [1, 2, 3],
+                positions: [0, 0, 0],
+                rings: [0, 0, 0],
                 plugboard: "",
-                input: "TEST",
+                input: "",
                 output: ""
             }
         })
-
-
-        // const settings = ref({
-        //     model: "3",
-        //     reflector: "B",
-        //     rotors: ["1", "2", "3"],
-        //     positions: ["0", "0", "0"],
-        //     rings: ["0", "0", "0"],
-        //     plugboard: "",
-        //     input: "TEST",
-        //     output: "ASDF"
-        // })
-
-
         const Encrypt = async (data) => {
-            
-
             try {
                 const response = await BackendEnigma.getEncryption(data)
                 console.log("before", settings.value)
@@ -255,34 +169,180 @@ export default {
             } catch (error) {
                 console.log(error)
             }
-
-            //console.log("response",response)
-            //console.log("responsedata",response.data.parsedBody._value)
-            // console.log("settingsvalue", settings.value)
-            // console.log("settings", settings)
-            // console.log("response", response)
-            // console.log("response.data", response.data)
-
-
-
-            // console.log("Settings", settings.value)
         }
-        // console.log("JSON",JSON.stringify(settings))
-        // console.log("test1", settings.value)
-        Encrypt(JSON.stringify(settings.value))
-        // console.log("JSON",JSON.stringify(settings))
-        // console.log("test", settings.value)
 
+        Encrypt(JSON.stringify(settings.value))
 
         const handleSubmit = async () => {
             console.log("submit")
             Encrypt(JSON.stringify(settings.value))
         }
 
+        return {
+            enigmaModels,
+            reflectors,
+            rotorOptions,
+            ringOptions,
+            alphabetOptions,
 
-        return { Encrypt, settings, handleSubmit }
+            Encrypt,
+            settings,
+            handleSubmit
+        }
     }
 }
 </script>
 
-<style></style>
+<style>
+.enigma-setting {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+    /* text-align: right; */
+}
+
+.enigma-setting>label {
+    width: 220px;
+    /* or any size that fits your longest label */
+    font-weight: bold;
+    padding-top: 0.2rem;
+}
+
+.enigma-setting select,
+.enigma-setting input[type="text"],
+.enigma-setting input[type="number"] {
+    min-width: 150px;
+    padding: 0.3rem;
+}
+
+.enigma-setting select {
+    min-width: 80px;
+}
+
+.enigma-setting button {
+    margin-left: 0.5rem;
+    padding: 0.3rem 0.6rem;
+}
+
+/* Stil für Eingabe und Ausgabe Textareas */
+.enigma-setting textarea {
+    width: 100%;
+    height: 150px;
+    padding: 0.5rem;
+    font-size: 1rem;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+}
+
+.dropdowns {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-align: center;
+    flex: 1;
+}
+
+/* Wrapper für das gesamte Formular */
+.form-container {
+    display: flex;
+    justify-content: space-between;
+    gap: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Jede Sektion (Eingabe/Ausgabe) */
+.form-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;  /* Vertikale Ausrichtung */
+    gap: 1rem;
+}
+
+/* Zentrierter Bereich für den Button */
+.form-center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 0.2; /* Für zentrierten Bereich */
+}
+
+
+/* Neue Klasse für Textarea und Label */
+.textarea-wrapper {
+    display: flex;
+    flex-direction: column; /* Label und Textarea vertikal anordnen */
+    gap: 0.5rem; /* Abstand zwischen Label und Textarea */
+    width: 100%; /* Textarea füllt den gesamten Container */
+    box-sizing: border-box; /* sorgt dafür, dass Padding und Border in der Breite mitgerechnet werden */
+}
+
+.textarea-wrapper label {
+    font-weight: bold;
+    padding-bottom: 0.5rem; /* Abstand unter dem Label */
+}
+
+.textarea-wrapper textarea {
+    width: 100%;  /* Textarea nimmt die gesamte Breite des Containers ein */
+    min-height: 150px; /* Starthöhe für die Textareas */
+    padding: 0.5rem;
+    font-size: 1rem;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    resize: vertical; /* Nur vertikal veränderbar */
+    box-sizing: border-box; /* Padding und Border innerhalb der Breite und Höhe des Elements */
+}
+
+
+.submit-btn {
+    padding: 0.5rem 1rem;
+    font-weight: bold;
+    background-color: #4caf50;
+    /* Green theme */
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.submit-btn:hover {
+    background-color: #45a049;
+}
+
+.submit-button {
+    margin-top: 1.5rem;
+}
+
+/* Verschlüsseln Button */
+.submit button {
+    padding: 1rem 2rem;
+    font-size: 1rem;
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.submit button:hover {
+    background-color: #45a049;
+}
+
+/* Media Queries für kleinere Bildschirme */
+@media (max-width: 768px) {
+    .form-container {
+        flex-direction: column;  /* Auf kleinen Bildschirmen unterbrechen wir das Layout in eine Spalte */
+    }
+
+    .form-section {
+        flex: 1 1 100%;  /* Jede Sektion nimmt 100% der Breite ein */
+        margin-bottom: 1rem;  /* Abstand zwischen den Abschnitten */
+    }
+
+    .form-center {
+        flex: 0 1 auto;  /* Der Button bleibt zentriert, aber flexibel */
+    }
+}
+
+</style>

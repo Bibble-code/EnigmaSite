@@ -1,7 +1,7 @@
 <template>
   <nav>
     <router-link to="/">Home</router-link> |
-    <router-link to="/cycles">Cycles</router-link> |
+    <!-- <router-link to="/cycles">Cycles</router-link> | -->
     <router-link to="/enigma">enigma</router-link> |
     <router-link to="/cyclometer">Cyclometer</router-link>  
 

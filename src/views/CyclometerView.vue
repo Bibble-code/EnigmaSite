@@ -1,249 +1,286 @@
 <template>
     <div v-if="settings">
-        <p>{{ settings }}</p>
         <form @submit.prevent="handleCyclometer">
 
-            <label>Modell: </label>
-            <select v-model="settings.enigma.model">
-                <option value=1>I</option>
-                <option value=2>II</option>
-                <option value=3>III</option>
-                <option value=4>IV</option>
-            </select>
-
-            <label>Reflector: </label>
-            <select v-model="settings.enigma.reflector">
-                <option value="A">A</option>
-                <option value="B">B</option>
-                <option value="C">C</option>
-            </select>
-
-            <div>
-                <label>Erste Walze: </label>
-                <select v-model="settings.enigma.rotors[0]">
-                    <option value=1>1</option>
-                    <option value=2>2</option>
-                    <option value=3>3</option>
-                    <option value=4>4</option>
-                    <option value=5>5</option>
-                    <option value=6>6</option>
-                    <option value=7>7</option>
-                    <option value=8>8</option>
-                    <option value=9>9</option>
-                </select>
-                <label>Zweite Walze: </label>
-                <select v-model="settings.enigma.rotors[1]">
-                    <option value=1>1</option>
-                    <option value=2>2</option>
-                    <option value=3>3</option>
-                    <option value=4>4</option>
-                    <option value=5>5</option>
-                    <option value=6>6</option>
-                    <option value=7>7</option>
-                    <option value=8>8</option>
-                    <option value=9>9</option>
-                </select>
-                <label>Dritte Walze: </label>
-                <select v-model="settings.enigma.rotors[2]">
-                    <option value=1>1</option>
-                    <option value=2>2</option>
-                    <option value=3>3</option>
-                    <option value=4>4</option>
-                    <option value=5>5</option>
-                    <option value=6>6</option>
-                    <option value=7>7</option>
-                    <option value=8>8</option>
-                    <option value=9>9</option>
-                </select>
+            <!-- Model Selection (Disabled) -->
+            <div class="enigma-setting">
+                <label>Modell:</label>
+                <div class="dropdowns">
+                    <select v-model.number="settings.enigma.model" disabled>
+                        <option v-for="model in enigmaModels" :key="model.value" :value="model.value">
+                            {{ model.label }}
+                        </option>
+                    </select>
+                </div>
             </div>
 
-            <div>
-                <label>Erste Walzenlage: </label>
-                <select v-model="settings.enigma.positions[0]">
-                    <option value=0>A</option>
-                    <option value=1>B</option>
-                    <option value=2>C</option>
-                    <option value=3>D</option>
-                    <option value=4>E</option>
-                    <option value=5>F</option>
-                    <option value=6>G</option>
-                    <option value=7>H</option>
-                    <option value=8>I</option>
-                    <option value=9>J</option>
-                    <option value=10>K</option>
-                    <option value=11>L</option>
-                    <option value=12>M</option>
-                    <option value=13>N</option>
-                    <option value=14>O</option>
-                    <option value=15>P</option>
-                    <option value=16>Q</option>
-                    <option value=17>R</option>
-                    <option value=18>S</option>
-                    <option value=19>T</option>
-                    <option value=20>U</option>
-                    <option value=21>V</option>
-                    <option value=22>W</option>
-                    <option value=23>X</option>
-                    <option value=24>Y</option>
-                    <option value=25>Z</option>
-
-                </select>
-                <label>Zweite Walzenlage: </label>
-                <select v-model="settings.enigma.positions[1]">
-                    <option value=0>A</option>
-                    <option value=1>B</option>
-                    <option value=2>C</option>
-                    <option value=3>D</option>
-                    <option value=4>E</option>
-                    <option value=5>F</option>
-                    <option value=6>G</option>
-                    <option value=7>H</option>
-                    <option value=8>I</option>
-                    <option value=9>J</option>
-                    <option value=10>K</option>
-                    <option value=11>L</option>
-                    <option value=12>M</option>
-                    <option value=13>N</option>
-                    <option value=14>O</option>
-                    <option value=15>P</option>
-                    <option value=16>Q</option>
-                    <option value=17>R</option>
-                    <option value=18>S</option>
-                    <option value=19>T</option>
-                    <option value=20>U</option>
-                    <option value=21>V</option>
-                    <option value=22>W</option>
-                    <option value=23>X</option>
-                    <option value=24>Y</option>
-                    <option value=25>Z</option>
-                </select>
-                <label>Dritte Walzenalge: </label>
-                <select v-model="settings.enigma.positions[2]">
-                    <option value=0>A</option>
-                    <option value=1>B</option>
-                    <option value=2>C</option>
-                    <option value=3>D</option>
-                    <option value=4>E</option>
-                    <option value=5>F</option>
-                    <option value=6>G</option>
-                    <option value=7>H</option>
-                    <option value=8>I</option>
-                    <option value=9>J</option>
-                    <option value=10>K</option>
-                    <option value=11>L</option>
-                    <option value=12>M</option>
-                    <option value=13>N</option>
-                    <option value=14>O</option>
-                    <option value=15>P</option>
-                    <option value=16>Q</option>
-                    <option value=17>R</option>
-                    <option value=18>S</option>
-                    <option value=19>T</option>
-                    <option value=20>U</option>
-                    <option value=21>V</option>
-                    <option value=22>W</option>
-                    <option value=23>X</option>
-                    <option value=24>Y</option>
-                    <option value=25>Z</option>
-                </select>
+            <!-- Reflector Selection (Disabled) -->
+            <div class="enigma-setting">
+                <label>Reflektor:</label>
+                <div class="dropdowns">
+                    <select v-model="settings.enigma.reflector" disabled>
+                        <option v-for="r in reflectors" :key="r" :value="r">{{ r }}</option>
+                    </select>
+                </div>
             </div>
-            <div>
-                <label>1. Ring: </label>
-                <select v-model="settings.enigma.rings[0]">
-                    <option value=0>0</option>
-                    <option value=1>1</option>
-                    <option value=2>2</option>
-                    <option value=3>3</option>
-                    <option value=4>4</option>
-                    <option value=5>5</option>
-                    <option value=6>6</option>
-                    <option value=7>7</option>
-                    <option value=8>8</option>
-                    <option value=9>9</option>
-                </select>
-                <label>2. Ring: </label>
-                <select v-model="settings.enigma.rings[1]">
-                    <option value=0>0</option>
-                    <option value=1>1</option>
-                    <option value=2>2</option>
-                    <option value=3>3</option>
-                    <option value=4>4</option>
-                    <option value=5>5</option>
-                    <option value=6>6</option>
-                    <option value=7>7</option>
-                    <option value=8>8</option>
-                    <option value=9>9</option>
-                </select>
-                <label>3. Ring: </label>
-                <select v-model="settings.enigma.rings[2]">
-                    <option value=0>0</option>
-                    <option value=1>1</option>
-                    <option value=2>2</option>
-                    <option value=3>3</option>
-                    <option value=4>4</option>
-                    <option value=5>5</option>
-                    <option value=6>6</option>
-                    <option value=7>7</option>
-                    <option value=8>8</option>
-                    <option value=9>9</option>
-                </select>
+
+            <!-- Rotor Selection -->
+            <div class="enigma-setting">
+                <label>Walzenlage:</label>
+                <div class="dropdowns">
+                    <template v-for="index in 3" :key="'rotor-' + index">
+                        <select v-model.number="settings.enigma.rotors[index - 1]">
+                            <option v-for="r in rotorOptions" :key="r" :value="r">{{ r }}</option>
+                        </select>
+                        <span v-if="index < 3">|</span>
+                    </template>
+                </div>
             </div>
-            <label>Anzahl der Abgefangenen Tagesschlüssel: </label>
-            <input v-model="settings.parameters.daily_key_count" type="text">
 
-
-            <div v-for="(key, index) in settings.parameters.manual_keys" :key="index" style="margin-bottom: 1rem;">
-                <label>Key {{ index + 1 }}</label>
-                <br />
-                <input ref="manualKeyInput" type="text" v-model="settings.parameters.manual_keys[index]"
-                    :class="{ invalid: !isValidKey(key) }" maxlength="6" @input="formatKey(index)"
-                    @keydown.enter.prevent="addManualKey" />
-                <br />
-                <button @click="deleteManualKey(index)">Delete</button>
+            <!-- Rotor Positions -->
+            <div class="enigma-setting">
+                <label>Walzenstellung:</label>
+                <div class="dropdowns">
+                    <template v-for="index in 3" :key="'position-' + index">
+                        <select v-model.number="settings.enigma.positions[index - 1]">
+                            <option v-for="opt in alphabetOptions" :key="opt.value" :value="opt.value">
+                                {{ opt.label }}
+                            </option>
+                        </select>
+                        <span v-if="index < 3">|</span>
+                    </template>
+                </div>
             </div>
-            <button @click="addManualKey" type="button">Add Key</button>
 
-
-            <div class="submit">
-                <button type="submit">Zyklen erzeugen</button>
+            <!-- Ring Settings with Toggle -->
+            <div class="enigma-setting">
+                <label>Ringstellung:</label>
+                <div class="dropdowns">
+                    <template v-for="index in 3" :key="'ring-' + index">
+                        <select v-model.number="settings.enigma.rings[index - 1]" :disabled="!ringstellungEnabled">
+                            <option v-for="opt in alphabetOptions" :key="opt.value" :value="opt.value">
+                                {{ opt.label }}
+                            </option>
+                        </select>
+                        <span v-if="index < 3">|</span>
+                    </template>
+                    <button type="button" @click="toggleRingstellung">
+                        {{ ringstellungEnabled ? 'Deaktivieren' : 'Aktivieren' }}
+                    </button>
+                </div>
             </div>
+
+            <!-- Ring Settings with Toggle -->
+            <div class="enigma-setting">
+                <label>Steckbrett:</label>
+                <div class="dropdowns">
+                    <input v-model="settings.enigma.plugboard" type="text" placeholder="z.B. AB, QW, CD"
+                        :disabled="!steckerbrettEnabled">
+                    <button type="button" @click="toggleSteckerbrett">
+                        {{ steckerbrettEnabled ? 'Deaktivieren' : 'Aktivieren' }}
+                    </button>
+                </div>
+            </div>
+
+            <div class="enigma-setting">
+                <label>Anzahl der zufälligen Tagesschlüssel:</label>
+                <div class="dropdowns">
+                    <input v-model="settings.parameters.daily_key_count" type="number" min="0" />
+                </div>
+            </div>
+
+            <!-- Eigene Tagesschlüssel with aligned button -->
+            <div class="enigma-setting">
+                <label>Eigene Tagesschlüssel:</label>
+                <div class="dropdowns">
+                    <button type="button" @click="addManualKey" class="square-button">+ Key hinzufügen</button>
+                    <button type="button" @click="deleteLastManualKey" class="square-button">Lösche letzten
+                        Schlüssel</button>
+                </div>
+            </div>
+
+
+            <div class="manual-keys-grid">
+                <div v-for="(key, index) in settings.parameters.manual_keys" :key="index" class="manual-key-row">
+                    <label>Key {{ index + 1 }}</label>
+                    <input ref="manualKeyRefs" type="text" v-model="settings.parameters.manual_keys[index]"
+                        :class="{ invalid: !isValidKey(key) }" maxlength="6" @input="formatKey(index)"
+                        placeholder="ABCABC" />
+                </div>
+            </div>
+
+            <div class="enigma-setting submit-button">
+                <label></label>
+                <div class="dropdowns">
+                    <button type="submit" class="submit-btn">Zyklen erzeugen</button>
+                </div>
+            </div>
+
         </form>
-        <div>
-            <p>Zyklen des ersten Rotors: {{ first_rotor_cycle }}</p>
-            <p>Zyklen des zweiten Rotors: {{ second_rotor_cycle }}</p>
-            <p>Zyklen des dritten Rotors: {{ third_rotor_cycle }}</p>
 
-        </div>
         <div v-if="cataloguerequest">
             <form @submit.prevent="handleCatalogue">
-                <div>
-                    <p>Zyklen des ersten Rotors: {{ cataloguerequest.cycles.one_to_four_permut }}</p>
-                    <p>Zyklen des zweiten Rotors: {{ cataloguerequest.cycles.two_to_five_permut }}</p>
-                    <p>Zyklen des dritten Rotors: {{ cataloguerequest.cycles.three_to_six_permut }}</p>
+                <div class="enigma-setting">
+                    <label>Zyklen des ersten Rotors:</label>
+                    <div class="dropdowns rotor-line">
+                        <span v-for="(cycle, i) in cataloguerequest.cycles.one_to_four_permut" :key="'r1-' + i"
+                            class="cycle-item">
+                            {{ cycle }}
+                        </span>
+                    </div>
                 </div>
-                <label>Anzahl der Seiten: </label>
-                <input v-model="cataloguerequest.parameters.page" type="text">
 
-                <div class="submit">
-                    <button>Katalog:</button>
+                <div class="enigma-setting">
+                    <label>Zyklen des zweiten Rotors:</label>
+                    <div class="dropdowns rotor-line">
+                        <span v-for="(cycle, i) in cataloguerequest.cycles.two_to_five_permut" :key="'r2-' + i"
+                            class="cycle-item">
+                            {{ cycle }}
+                        </span>
+                    </div>
                 </div>
+
+                <div class="enigma-setting">
+                    <label>Zyklen des dritten Rotors:</label>
+                    <div class="dropdowns rotor-line">
+                        <span v-for="(cycle, i) in cataloguerequest.cycles.three_to_six_permut" :key="'r3-' + i"
+                            class="cycle-item">
+                            {{ cycle }}
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Sortiere nach -->
+                <div class="enigma-setting">
+                    <label>Sortiere nach:</label>
+                    <div class="dropdowns">
+                        <select v-model="cataloguerequest.parameters.sortBy">
+                            <option value="rotor_order">Rotorreihenfolge</option>
+                            <option value="rotor_position">Rotorposition</option>
+                            <option value="one_to_four_permut">Zyklen des ersten Rotors</option>
+                            <option value="two_to_five_permut">Zyklen des zweiten Rotors</option>
+                            <option value="three_to_six_permut">Zyklen des dritten Rotors</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Sortierrichtung -->
+                <div class="enigma-setting">
+                    <label>Sortierrichtung:</label>
+                    <div class="dropdowns">
+                        <select v-model="cataloguerequest.parameters.sortDir">
+                            <option value="asc">Aufsteigend</option>
+                            <option value="desc">Absteigend</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Rotor order filter -->
+                <div class="enigma-setting">
+                    <div class="filter-toggle-row">
+                        <button type="button" @click="toggleRotorOrderFilter">
+                            {{ showRotorOrderFilter ? 'Rotorreihenfolge ausblenden' : 'Nach Rotorreihenfolge filtern:'
+                            }}
+                        </button>
+                        <div v-if="showRotorOrderFilter" class="filter-inputs">
+                            <input v-for="(value, index) in cataloguerequest.parameters.rotorOrder"
+                                :key="'rotorOrder-' + index" type="number"
+                                v-model.number="cataloguerequest.parameters.rotorOrder[index]"
+                                :placeholder="`Rotor ${index + 1}`" min="1" max="5" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Rotor position filter -->
+                <div class="enigma-setting">
+                    <div class="filter-toggle-row">
+                        <button type="button" @click="toggleRotorPositionFilter">
+                            {{ showRotorPositionFilter ? 'Rotorpositionen ausblenden' : 'Nach Rotorpositionen filtern:'
+                            }}
+                        </button>
+                        <div v-if="showRotorPositionFilter" class="filter-inputs">
+                            <input v-for="(value, index) in cataloguerequest.parameters.rotorPosition"
+                                :key="'rotorPosition-' + index" type="number"
+                                v-model.number="cataloguerequest.parameters.rotorPosition[index]"
+                                :placeholder="`Pos ${index + 1}`" min="0" max="25" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="enigma-setting submit-button">
+                    <label></label>
+                    <div class="dropdowns">
+                        <button type="submit" class="submit-btn">Katalog</button>
+                    </div>
+                </div>
+
             </form>
         </div>
     </div>
-    <div v-if="catalogueres">
-        <div v-if="catalogueres.content">
-            <p v-for="object in catalogueres.content" :key="object.id">
-                rotor_position: {{ object.enigmaConfiguration.rotor_position }},
-                rotor_order: {{ object.enigmaConfiguration.rotor_order }},
-                1to4: {{ object.cycles.one_to_four_permut }},
-                2to5: {{ object.cycles.two_to_five_permut }},
-                3to6: {{ object.cycles.three_to_six_permut }}
-            </p>
-        </div>
-    </div>
 
+    <div v-if="catalogueres && catalogueres.content && catalogueres.content.length">
+        <!-- Total found and loaded info in a row -->
+        <div class="enigma-setting load-controls" style="display: flex; align-items: center; gap: 1rem;">
+            <!-- Gefundene Konfigurationen -->
+            <div class="info-item">
+                <label>Gefundene Konfigurationen:</label>
+                <span>{{ catalogueres.totalElements }}</span>
+            </div>
+
+            <!-- Geladene Konfigurationen -->
+            <div class="info-item">
+                <label>Geladene Konfigurationen:</label>
+                <span>{{ catalogueres.content.length }}</span>
+            </div>
+
+            <!-- Letzte geladene Seite -->
+            <div class="info-item">
+                <label>Letzte geladene Seite:</label>
+                <span>{{ catalogueres.pageNumber }}</span>
+            </div>
+
+            <!-- Load buttons -->
+            <div>
+                <button type="button" @click="loadNextPage" class="square-button"
+                    :disabled="(catalogueres.pageNumber + 1) >= catalogueres.totalPages">
+                    +100 laden
+                </button>
+
+                <button type="button" @click="loadAllPages" class="square-button"
+                    :disabled="(catalogueres.pageNumber + 1) >= catalogueres.totalPages">
+                    Alle laden
+                </button>
+            </div>
+        </div>
+        <!-- Table displaying configurations -->
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Rotorreihenfolge</th>
+                    <th>Rotorposition</th>
+                    <th>Zyklen d. 1. Walze</th>
+                    <th>Zyklen d. 2. Walze</th>
+                    <th>Zyklen d. 3. Walze</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="(object, index) in catalogueres.content" :key="index">
+                    <td>{{ index + 1 + catalogueres.pageNumber * catalogueres.pageSize }}</td>
+                    <td>{{ object.enigmaConfiguration.rotor_order.join(", ") }}</td>
+                    <td>{{ object.enigmaConfiguration.rotor_position.join(", ") }}</td>
+                    <td>{{ object.cycles.one_to_four_permut.join(", ") }}</td>
+                    <td>{{ object.cycles.two_to_five_permut.join(", ") }}</td>
+                    <td>{{ object.cycles.three_to_six_permut.join(", ") }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="scroll-buffer"></div>
 
 </template>
+
 
 <script>
 import BackendEnigma from '@/services/Enigma/BackendEnigma';
@@ -251,138 +288,454 @@ import { ref, nextTick, getCurrentInstance } from 'vue';
 
 export default {
     setup() {
+        // Static data
+        const enigmaModels = [
+            { value: 1, label: "I" },
+            { value: 2, label: "II" },
+            { value: 3, label: "III" },
+            { value: 4, label: "IV" },
+        ];
+        const reflectors = ["A", "B", "C"];
+        const rotorOptions = [1, 2, 3, 4, 5];
+        const ringOptions = Array.from({ length: 26 }, (_, i) => i);
+        const alphabetOptions = Array.from({ length: 26 }, (_, i) => ({
+            value: i,
+            label: `${String.fromCharCode(65 + i)} (${i})`,
+        }));
 
-
+        // UI State
         const settings = ref({
             enigma: {
-                model: "3",
+                model: 3,
                 reflector: "B",
-                rotors: ["2", "5", "3"],
-                positions: ["0", "0", "0"],
-                rings: ["0", "0", "0"],
+                rotors: [3, 2, 1],
+                positions: [0, 0, 0],
+                rings: [0, 0, 0],
                 plugboard: "",
                 input: "",
-                output: ""
+                output: "",
             },
             parameters: {
-                daily_key_count: "200",
-                manual_keys: [""]
-            }
-        })
+                daily_key_count: 100,
+                manual_keys: [],
+            },
+        });
 
-        const inputRefs = ref([]) // Refs to the input fields
+        const first_rotor_cycle = ref(0);
+        const second_rotor_cycle = ref(0);
+        const third_rotor_cycle = ref(0);
+        const cyclometerResult = ref();
 
-        console.log("Csettings111")
-        console.log(settings.value)
-
-        const first_rotor_cycle = ref(0)
-        const second_rotor_cycle = ref(0)
-        const third_rotor_cycle = ref(0)
-
-        const res = ref()
-
-        const catalogueres = ref()
+        const catalogueres = ref();
 
         const cataloguerequest = ref({
             cycles: {
-                one_to_four_permut: ["13", "13"],
-                two_to_five_permut: ["13", "13"],
-                three_to_six_permut: ["13", "13"]
+                one_to_four_permut: [],
+                two_to_five_permut: [],
+                three_to_six_permut: [],
             },
             parameters: {
-                page: "1"
-            }
-        })
-        console.log("catalogue_req111")
-        console.log(cataloguerequest.value)
-        console.log(cataloguerequest.value.cycles)
+                page: 0,
+                sortBy: "rotor_order",
+                sortDir: "asc",
+                rotorOrder: [],
+                rotorPosition: [],
+            },
+        });
 
-        const Cyclometer = async (data) => {
-            console.log("before", settings.value)
+        // UI toggles
+        const showRotorOrderFilter = ref(false);
+        const showRotorPositionFilter = ref(false);
 
-            try {
-                const response = await BackendEnigma.getCyclometer(data)
-                res.value = response.data
-                console.log("res.value", res.value)
-
-                first_rotor_cycle.value = response.data.computedCycles.one_to_four_permut
-                second_rotor_cycle.value = response.data.computedCycles.two_to_five_permut
-                third_rotor_cycle.value = response.data.computedCycles.three_to_six_permut
-                cataloguerequest.value.cycles.one_to_four_permut = response.data.computedCycles.one_to_four_permut
-                cataloguerequest.value.cycles.two_to_five_permut = response.data.computedCycles.two_to_five_permut
-                cataloguerequest.value.cycles.three_to_six_permut = response.data.computedCycles.three_to_six_permut
-            } catch (error) {
-                console.log("error", error)
-            }
-
-        }
-
-        const Catalogue = async (data) => {
-            console.log("before", cataloguerequest.value)
-
-            try {
-                const resp = await BackendEnigma.getCatalogue(data)
-                catalogueres.value = resp.data
-                console.log("catalogueres.value", catalogueres.value)
-                console.log("catalogueres.value.content0", catalogueres.value.content[0])
-
-            } catch (error) {
-                console.log("error", error)
-            }
-
-        }
-
+        // Action handlers
         const handleCyclometer = async () => {
-            console.log("submit")
-            filterValidKeys()
-            console.log("Filtered keys to submit:", settings.value.parameters.manual_keys)
-            Cyclometer(JSON.stringify(settings.value))
-        }
+            filterValidKeys();
+            await Cyclometer(JSON.stringify(settings.value));
+        };
 
         const handleCatalogue = async () => {
-            console.log("Catalogue")
-            console.log(cataloguerequest.value)
-            Catalogue(JSON.stringify(cataloguerequest.value))
-        }
+            cataloguerequest.value.parameters.page = 0;
 
-        const instance = getCurrentInstance()
+            const req = structuredClone(cataloguerequest.value);
+
+            if (!showRotorOrderFilter.value) req.parameters.rotorOrder = [];
+            if (!showRotorPositionFilter.value) req.parameters.rotorPosition = [];
+
+            await Catalogue(JSON.stringify(req));
+        };
+
+        const Cyclometer = async (data) => {
+            try {
+                const response = await BackendEnigma.getCyclometer(data);
+                cyclometerResult.value = response.data;
+
+                first_rotor_cycle.value = response.data.computedCycles.one_to_four_permut;
+                second_rotor_cycle.value = response.data.computedCycles.two_to_five_permut;
+                third_rotor_cycle.value = response.data.computedCycles.three_to_six_permut;
+
+                cataloguerequest.value.cycles = { ...response.data.computedCycles };
+            } catch (error) {
+                console.error("Cyclometer error:", error);
+            }
+        };
+
+        const Catalogue = async (data) => {
+            try {
+                const response = await BackendEnigma.getCatalogue(data);
+                catalogueres.value = response.data;
+            } catch (error) {
+                console.error("Catalogue error:", error);
+            }
+        };
+
+
+        const manualKeyRefs = ref([]);
+
         const addManualKey = async () => {
-            settings.value.parameters.manual_keys.push("")
-            await nextTick()
+            settings.value.parameters.manual_keys.push(""); // Add new key
+            await nextTick(); // Ensure DOM updates before focusing
+            const lastInput = manualKeyRefs.value.at(-1);
+            if (lastInput) lastInput.focus(); // Focus the newly added input field
+        };
 
-            const inputs = instance.refs.manualKeyInput
-            const lastInput = Array.isArray(inputs) ? inputs[inputs.length - 1] : inputs
-            if (lastInput) lastInput.focus()
-        }
+        const deleteLastManualKey = () => {
+            // Only delete the last key if there are keys in the array
+            if (settings.value.parameters.manual_keys.length > 0) {
+                settings.value.parameters.manual_keys.pop(); // Remove the last key from the array
+            }
+        };
 
-        const deleteManualKey = (index) => {
-            settings.value.parameters.manual_keys.splice(index, 1)
-        }
 
-        // Same regex as backend
-        const isValidKey = (key) => {
-            const regex = /^([A-Z])([A-Z])([A-Z])\1\2\3$/
-            return regex.test(key)
-        }
+        const isValidKey = (key) => /^([A-Z])([A-Z])([A-Z])\1\2\3$/.test(key);
 
         const filterValidKeys = () => {
-            settings.value.parameters.manual_keys = settings.value.parameters.manual_keys.filter(isValidKey)
-        }
+            settings.value.parameters.manual_keys = settings.value.parameters.manual_keys.filter(isValidKey);
+        };
 
         const formatKey = (index) => {
-            // Force uppercase letters only
-            const val = settings.value.parameters.manual_keys[index]
-            settings.value.parameters.manual_keys[index] = val.toUpperCase().replace(/[^A-Z]/g, "")
-        }
+            const val = settings.value.parameters.manual_keys[index] || "";
+            settings.value.parameters.manual_keys[index] = val.toUpperCase().replace(/[^A-Z]/g, "");
+        };
 
-        return { Cyclometer, settings, handleCyclometer, handleCatalogue, first_rotor_cycle, second_rotor_cycle, third_rotor_cycle, catalogueres, cataloguerequest, addManualKey, deleteManualKey, isValidKey, formatKey, inputRefs }
-    }
-}
+        // Toggle filters
+        const toggleRotorOrderFilter = () => {
+            showRotorOrderFilter.value = !showRotorOrderFilter.value;
+            cataloguerequest.value.parameters.rotorOrder = showRotorOrderFilter.value ? [1, 2, 3] : [];
+        };
+
+        const toggleRotorPositionFilter = () => {
+            showRotorPositionFilter.value = !showRotorPositionFilter.value;
+            cataloguerequest.value.parameters.rotorPosition = showRotorPositionFilter.value ? [0, 0, 0] : [];
+        };
+
+        const ringstellungEnabled = ref(false);
+        const toggleRingstellung = () => {
+            ringstellungEnabled.value = !ringstellungEnabled.value;
+        };
+
+        const steckerbrettEnabled = ref(false);
+        const toggleSteckerbrett = () => {
+            steckerbrettEnabled.value = !steckerbrettEnabled.value;
+        };
+
+        // Paging
+        const loadNextPage = async () => {
+            const nextPage = cataloguerequest.value.parameters.page + 1;
+            if (nextPage < catalogueres.value.totalPages) {
+                cataloguerequest.value.parameters.page = nextPage;
+                const { data } = await BackendEnigma.getCatalogue(JSON.stringify(cataloguerequest.value));
+                catalogueres.value.content.push(...data.content);
+                Object.assign(catalogueres.value, {
+                    pageNumber: data.pageNumber,
+                    totalPages: data.totalPages,
+                    totalElements: data.totalElements,
+                });
+            }
+        };
+
+        const loadAllPages = async () => {
+            let page = cataloguerequest.value.parameters.page + 1;
+            while (page < catalogueres.value.totalPages) {
+                cataloguerequest.value.parameters.page = page;
+                const { data } = await BackendEnigma.getCatalogue(JSON.stringify(cataloguerequest.value));
+                catalogueres.value.content.push(...data.content);
+                page++;
+            }
+            cataloguerequest.value.parameters.page = page - 1;
+        };
+
+        return {
+            addManualKey,
+            alphabetOptions,
+            catalogueres,
+            cataloguerequest,
+            Cyclometer,
+            deleteLastManualKey,
+            enigmaModels,
+            first_rotor_cycle,
+            formatKey,
+            handleCatalogue,
+            handleCyclometer,
+            isValidKey,
+            loadAllPages,
+            loadNextPage,
+            reflectors,
+            ringOptions,
+            rotorOptions,
+            second_rotor_cycle,
+            settings,
+            showRotorOrderFilter,
+            showRotorPositionFilter,
+            third_rotor_cycle,
+            toggleRingstellung,
+            ringstellungEnabled,
+            toggleSteckerbrett,
+            steckerbrettEnabled,
+            toggleRotorOrderFilter,
+            toggleRotorPositionFilter,
+            manualKeyRefs
+        };
+    },
+};
 </script>
 
+
 <style scoped>
+.enigma-setting {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+    /* text-align: right; */
+}
+
+.enigma-setting>label {
+    width: 220px;
+    /* or any size that fits your longest label */
+    font-weight: bold;
+    padding-top: 0.2rem;
+}
+
+.enigma-setting select,
+.enigma-setting input[type="text"],
+.enigma-setting input[type="number"] {
+    min-width: 150px;
+    padding: 0.3rem;
+}
+
+.enigma-setting select {
+    min-width: 80px;
+}
+
+.enigma-setting button {
+    margin-left: 0.5rem;
+    padding: 0.3rem 0.6rem;
+}
+
+.dropdowns {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-align: center;
+    flex: 1;
+}
+
+.manual-keys-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    /* Adjust based on available space */
+    gap: 1rem;
+    padding: 1rem;
+    /* Optional: Adds some padding around the grid */
+}
+
+.manual-key-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.3rem;
+}
+
+.manual-key-row label {
+    width: 80px;
+    /* Fixed width for the label */
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.manual-key-row input {
+    width: 9ch;
+    /* Limit input width to 9 characters */
+    padding: 0.3rem;
+    font-size: 0.9rem;
+}
+
+.square-button,
+.delete-last-btn .load-controls {
+    background-color: #eee;
+    border: 1px solid #ccc;
+    padding: 0.3rem 0.6rem;
+    font-size: 0.85rem;
+    height: 2.3rem;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.square-button:hover,
+.delete-last-btn:hover .load-controls {
+    background-color: #ddd;
+}
+
+
 .invalid {
-    background-color: lightcoral;
-    /* Light red background for invalid keys */
+    background-color: rgb(255, 180, 180);
+}
+
+
+.submit-button {
+    margin-top: 1.5rem;
+}
+
+.submit-btn {
+    padding: 0.5rem 1rem;
+    font-weight: bold;
+    background-color: #4caf50;
+    /* Green theme */
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.submit-btn:hover {
+    background-color: #45a049;
+}
+
+.cycle-item {
+    background-color: #f0f0f0;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 0.95rem;
+}
+
+.filter-toggle-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1rem;
+    flex-wrap: wrap;
+}
+
+.filter-inputs {
+    display: flex;
+    gap: 0.5rem;
+}
+
+/* Container for the information items and buttons */
+.load-controls {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    flex-wrap: wrap;
+}
+
+/* Info Item Styling for consistency */
+.info-item {
+    display: flex;
+    justify-content: space-between;
+    width: 200px;
+    /* Same width as Zyklen fields */
+}
+
+.info-item label {
+    font-weight: bold;
+}
+
+.info-item span {
+    display: inline-block;
+    min-width: 80px;
+    /* Minimum width for the value to ensure alignment */
+    text-align: right;
+}
+
+/* Table Styling */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+table th,
+table td {
+    padding: 0.5rem;
+    /* Reduced padding for more compact cells */
+    text-align: left;
+    border: 1px solid #ddd;
+    font-size: 0.9rem;
+    /* Slightly smaller font size for compactness */
+}
+
+/* Header styling */
+table th {
+    background-color: #f6f6f6;
+    font-weight: bold;
+    white-space: nowrap;
+    /* Prevents header text from wrapping */
+}
+
+/* Column-specific widths */
+table th:nth-child(1),
+table td:nth-child(1) {
+    width: 5%;
+    /* Compact the first column (index) */
+}
+
+table th:nth-child(2),
+table td:nth-child(2) {
+    width: 20%;
+    /* Limit width for rotor order */
+}
+
+table th:nth-child(3),
+table td:nth-child(3) {
+    width: 20%;
+    /* Limit width for rotor position */
+}
+
+table th:nth-child(4),
+table td:nth-child(4),
+table th:nth-child(5),
+table td:nth-child(5),
+table th:nth-child(6),
+table td:nth-child(6) {
+    width: 15%;
+    /* Adjust widths of cycle columns to make them more compact */
+}
+
+/* Text wrapping for long text in cells */
+table td {
+    word-wrap: break-word;
+    /* Allows long text to wrap and not overflow */
+    white-space: normal;
+    /* Allows wrapping inside cells */
+}
+
+/* Optional: Truncate text with ellipsis for overflow */
+table td:nth-child(2),
+table td:nth-child(3) {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    /* Prevents text from wrapping in these columns */
+}
+
+
+table tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.scroll-buffer {
+    height: 200px;
+    /* Oder mehr, je nach Bedarf */
 }
 </style>
