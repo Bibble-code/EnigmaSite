@@ -29,16 +29,16 @@
 
                     <!-- Rotor Selection -->
                     <div class="enigma-setting">
-  <label>Walzenlage:</label>
-  <div class="dropdowns">
-    <template v-for="(index, i) in [0, 1, 2]" :key="'rotor-' + index">
-      <select v-model.number="settings.enigma.rotors[i]">
-        <option v-for="r in availableRotors[i]" :key="r" :value="r">{{ r }}</option>
-      </select>
-      <span v-if="i < 2">|</span>
-    </template>
-  </div>
-</div>
+                        <label>Walzenlage:</label>
+                        <div class="dropdowns">
+                            <template v-for="(index, i) in [0, 1, 2]" :key="'rotor-' + index">
+                                <select v-model.number="settings.enigma.rotors[i]">
+                                    <option v-for="r in availableRotors[i]" :key="r" :value="r">{{ r }}</option>
+                                </select>
+                                <span v-if="i < 2">|</span>
+                            </template>
+                        </div>
+                    </div>
 
                     <!-- Rotor Positions -->
                     <div class="enigma-setting">
@@ -80,7 +80,7 @@
                     <div class="enigma-setting">
                         <label>Steckerbrett:</label>
                         <div class="dropdowns">
-                            <input v-model="settings.enigma.plugboard" type="text" placeholder="z.B. AB, QW, CD">
+                            <input v-model="settings.enigma.plugboard" type="text" placeholder="z.B. ABQWCD">
                         </div>
                     </div>
 
@@ -153,7 +153,7 @@
 
             <div class="right-form">
                 <form v-if="cataloguerequest" @submit.prevent="handleCatalogue" class="right-form">
-                    
+
                     <!-- Sortiere nach -->
                     <div class="enigma-setting">
                         <label>Sortiere nach:</label>
@@ -186,20 +186,21 @@
                         <div class="dropdowns">
                             <input type="checkbox" :checked="showRotorOrderFilter" @change="toggleRotorOrderFilter" />
                             <div class="dropdown-wrapper">
-                            <div class="dropdowns" v-if="showRotorOrderFilter">
-                                <template v-for="index in [0, 1, 2]" :key="'rotor-' + index">
-                                    <select v-model.number="cataloguerequest.parameters.rotorOrder[index]">
-                                        <option v-for="r in availableRotors_filter[index]" :key="r" :value="r">{{ r }}</option>
-                                    </select>
-                                    <span v-if="index < 2">|</span>
-                                </template>
+                                <div class="dropdowns" v-if="showRotorOrderFilter">
+                                    <template v-for="index in [0, 1, 2]" :key="'rotor-' + index">
+                                        <select v-model.number="cataloguerequest.parameters.rotorOrder[index]">
+                                            <option v-for="r in availableRotors_filter[index]" :key="r" :value="r">{{ r
+                                                }}</option>
+                                        </select>
+                                        <span v-if="index < 2">|</span>
+                                    </template>
                                 </div>
                             </div>
                         </div>
                     </div>
 
 
-                    
+
 
                     <!-- Ringstellung button -->
                     <div class="enigma-setting">
@@ -207,16 +208,16 @@
                         <div class="dropdowns">
                             <input type="checkbox" :checked="showRotorPositionFilter"
                                 @change="toggleRotorPositionFilter" />
-                                <div class="dropdown-wrapper">
-                            <div class="dropdowns" v-if="showRotorPositionFilter">
-                                <template v-for="index in [0, 1, 2]" :key="'rotor-' + index">
-                                    <select v-model.number="cataloguerequest.parameters.rotorPosition[index]">
-                                        <option v-for="opt in alphabetOptions" :key="opt.value" :value="opt.value">
-                                            {{ opt.label }}
-                                        </option>
-                                    </select>
-                                    <span v-if="index < 2">|</span>
-                                </template>
+                            <div class="dropdown-wrapper">
+                                <div class="dropdowns" v-if="showRotorPositionFilter">
+                                    <template v-for="index in [0, 1, 2]" :key="'rotor-' + index">
+                                        <select v-model.number="cataloguerequest.parameters.rotorPosition[index]">
+                                            <option v-for="opt in alphabetOptions" :key="opt.value" :value="opt.value">
+                                                {{ opt.label }}
+                                            </option>
+                                        </select>
+                                        <span v-if="index < 2">|</span>
+                                    </template>
                                 </div>
                             </div>
                         </div>
@@ -265,48 +266,45 @@
 
                 </form>
             </div>
-
         </div>
-
     </div>
 
     <div v-if="catalogueres && catalogueres.content && catalogueres.content.length">
         <!-- Total found and loaded info in a row -->
-        <div class="enigma-setting load-controls" style="display: flex; align-items: center; gap: 1rem;">
+        <div class="load-controls" style="display: flex; align-items: center; gap: 1rem;">
             <!-- Gefundene Konfigurationen -->
-             <div class="centered-container">
-            <div class="info-item">
-                <label>Gefundene Konfigurationen:</label>
-                <span>{{ formatNumber(catalogueres.totalElements) }}</span>
+            <div class="centered-container">
+                <div class="info-item">
+                    <label>Gefundene Konfigurationen: </label>
+                    <span>{{ formatNumber(catalogueres.totalElements) }}</span>
+                </div>
 
-            </div>
+                <!-- Geladene Konfigurationen -->
+                <div class="info-item">
+                    <label>Geladene Konfigurationen: </label>
+                    <span>{{ formatNumber(catalogueres.content.length) }}</span>
+                </div>
 
-            <!-- Geladene Konfigurationen -->
-            <div class="info-item">
-                <label>Geladene Konfigurationen:</label>
-                <span>{{ formatNumber(catalogueres.content.length) }}</span>
-            </div>
+                <!-- Letzte geladene Seite
+                <div class="info-item">
+                    <label>: </label>
+                    <span>{{ formatNumber(catalogueres.pageNumber) }}</span>
+                </div> -->
 
-            <!-- Letzte geladene Seite -->
-            <div class="info-item">
-                <label>Letzte geladene Seite:</label>
-                <span>{{ formatNumber(catalogueres.pageNumber) }}</span>
-            </div>
+                <!-- Load buttons -->
+                <div>
+                    <button type="button" @click="loadNextPage" class="square-button"
+                        :disabled="(catalogueres.pageNumber + 1) >= catalogueres.totalPages">
+                        +100 laden
+                    </button>
 
-            <!-- Load buttons -->
-            <div>
-                <button type="button" @click="loadNextPage" class="square-button"
-                    :disabled="(catalogueres.pageNumber + 1) >= catalogueres.totalPages">
-                    +100 laden
-                </button>
-
-                <!-- <button type="button" @click="loadAllPages" class="square-button"
+                    <!-- <button type="button" @click="loadAllPages" class="square-button"
                     :disabled="(catalogueres.pageNumber + 1) >= catalogueres.totalPages">
                     Alle laden
                 </button> -->
+                </div>
             </div>
-        </div>                
-             </div>
+        </div>
 
         <!-- Table displaying configurations -->
         <table>
@@ -517,17 +515,17 @@ export default {
         };
 
         // Toggle filters
-const toggleRotorOrderFilter = () => {
-  showRotorOrderFilter.value = !showRotorOrderFilter.value;
+        const toggleRotorOrderFilter = () => {
+            showRotorOrderFilter.value = !showRotorOrderFilter.value;
 
-  // Defensive Absicherung, falls parameters noch nicht existiert
-  if (!cataloguerequest.value.parameters) {
-    cataloguerequest.value.parameters = {};
-  }
+            // Defensive Absicherung, falls parameters noch nicht existiert
+            if (!cataloguerequest.value.parameters) {
+                cataloguerequest.value.parameters = {};
+            }
 
-  // Setze rotorOrder je nachdem ob Filter aktiv ist
-  cataloguerequest.value.parameters.rotorOrder = showRotorOrderFilter.value ? [1, 2, 3] : [];
-};
+            // Setze rotorOrder je nachdem ob Filter aktiv ist
+            cataloguerequest.value.parameters.rotorOrder = showRotorOrderFilter.value ? [1, 2, 3] : [];
+        };
 
 
         const toggleRotorPositionFilter = () => {
@@ -571,29 +569,29 @@ const toggleRotorOrderFilter = () => {
             cataloguerequest.value.parameters.page = page - 1;
         };
 
-const formatNumber = (value) => {
-  return new Intl.NumberFormat('de-DE').format(value);
-};
+        const formatNumber = (value) => {
+            return new Intl.NumberFormat('de-DE').format(value);
+        };
 
 
-                // Computed property, die für jeden Index die passenden Optionen liefert
-const availableRotors = computed(() => {
-  return settings.value.enigma.rotors.map((currentValue, idx) => {
-    // Alle Werte außer dem aktuellen Index
-    const otherSelected = settings.value.enigma.rotors.filter((_, i) => i !== idx);
-    // Filtere rotorOptions, die nicht in otherSelected sind, plus den aktuellen Wert (damit aktueller Wert immer drin bleibt)
-    return rotorOptions.filter(r => !otherSelected.includes(r) || r === currentValue);
-  });
-});
+        // Computed property, die für jeden Index die passenden Optionen liefert
+        const availableRotors = computed(() => {
+            return settings.value.enigma.rotors.map((currentValue, idx) => {
+                // Alle Werte außer dem aktuellen Index
+                const otherSelected = settings.value.enigma.rotors.filter((_, i) => i !== idx);
+                // Filtere rotorOptions, die nicht in otherSelected sind, plus den aktuellen Wert (damit aktueller Wert immer drin bleibt)
+                return rotorOptions.filter(r => !otherSelected.includes(r) || r === currentValue);
+            });
+        });
 
-const availableRotors_filter = computed(() => {
-  return cataloguerequest.value.parameters.rotorOrder.map((currentValue, idx) => {
-    // Alle Werte außer dem aktuellen Index
-    const otherSelected = cataloguerequest.value.parameters.rotorOrder.filter((_, i) => i !== idx);
-    // Filtere rotorOptions, die nicht in otherSelected sind, plus den aktuellen Wert (damit aktueller Wert immer drin bleibt)
-    return rotorOptions.filter(r => !otherSelected.includes(r) || r === currentValue);
-  });
-});
+        const availableRotors_filter = computed(() => {
+            return cataloguerequest.value.parameters.rotorOrder.map((currentValue, idx) => {
+                // Alle Werte außer dem aktuellen Index
+                const otherSelected = cataloguerequest.value.parameters.rotorOrder.filter((_, i) => i !== idx);
+                // Filtere rotorOptions, die nicht in otherSelected sind, plus den aktuellen Wert (damit aktueller Wert immer drin bleibt)
+                return rotorOptions.filter(r => !otherSelected.includes(r) || r === currentValue);
+            });
+        });
         return {
             addManualKey,
             alphabetOptions,
@@ -735,18 +733,21 @@ const availableRotors_filter = computed(() => {
     border: none;
     border-radius: 6px;
     cursor: pointer;
-    min-width: 160px; /* gleiche Mindestbreite */
+    min-width: 160px;
+    /* gleiche Mindestbreite */
     min-height: 40px;
     text-align: center;
     display: inline-block;
 }
 
 .submit-btn:hover {
-    background-color: #45a045; /* optional: etwas dunkler beim Hover */
+    background-color: #45a045;
+    /* optional: etwas dunkler beim Hover */
 }
 
 .submit-button {
-    margin: 2rem 0; /* oben und unten je 2rem Abstand */
+    margin: 2rem 0;
+    /* oben und unten je 2rem Abstand */
 }
 
 
@@ -757,12 +758,15 @@ const availableRotors_filter = computed(() => {
     font-family: monospace;
     font-size: 0.95rem;
 
-        padding-top: 0.3rem;
+    padding-top: 0.3rem;
     padding-bottom: 0.3rem;
 
-    width: 2ch;           /* Fixe Breite für 1-2-stellige Werte */
-    text-align: center;   /* Zahlen zentrieren */
-    display: inline-block; /* damit width wirkt */
+    width: 2ch;
+    /* Fixe Breite für 1-2-stellige Werte */
+    text-align: center;
+    /* Zahlen zentrieren */
+    display: inline-block;
+    /* damit width wirkt */
 }
 
 .filter-toggle-row {
@@ -787,38 +791,44 @@ const availableRotors_filter = computed(() => {
 }
 
 .centered-container {
-  display: flex;
-  justify-content: center; /* horizontal zentrieren */
-  align-items: center;     /* vertikal zentrieren falls Höhe definiert */
-  gap: 2rem;               /* Abstand zwischen Elementen */
-  flex-wrap: wrap;         /* Zeilenumbruch bei Bedarf */
-  padding: 1rem 0;         /* oben und unten Abstand */
+    display: flex;
+    justify-content: center;  /* Zentriert horizontal */
+    align-items: center;      /* Zentriert vertikal */
+    gap: 0.5rem;                /* Abstand zwischen den Info-Elementen */
+    flex-wrap: wrap;          /* Optional, damit es auf kleinen Screens umbricht */
+    width: 100%;
 }
+
+
+
 
 
 /* Info Item Styling for consistency */
 .info-item {
     display: flex;
-    justify-content:space-around;
-    width: 350px;
+    justify-content: space-around;
+    min-width: 350px;
+    max-width: fit-content;
     /* Same width as Zyklen fields */
 }
 
 .info-item label {
     font-weight: bold;
     font-size: 1rem;
-    line-height: 1.2;
+    line-height: 1.1;
 }
 
 .info-item span {
-    font-size: 1rem;          /* Größere Zahl */
+    font-size: 1rem;
+    /* Größere Zahl */
     font-weight: 600;
     background-color: #f0f0f0;
-    padding: 0.3rem 0.6rem;
+    padding: 0.1rem 0.3rem;
     border-radius: 4px;
-    min-width: 80px;
+    min-width: 60px;
     text-align: center;
 }
+
 table {
     width: 100%;
     max-width: 1000px;
@@ -853,9 +863,12 @@ table th:nth-child(2),
 table td:nth-child(2),
 table th:nth-child(3),
 table td:nth-child(3) {
-    width: auto; /* Breite passt sich Label an */
-    white-space: nowrap; /* Kein Zeilenumbruch im Label */
-    min-width: 120px; /* Minimal genug Platz, damit Label nicht umbrechen muss */
+    width: auto;
+    /* Breite passt sich Label an */
+    white-space: nowrap;
+    /* Kein Zeilenumbruch im Label */
+    min-width: 120px;
+    /* Minimal genug Platz, damit Label nicht umbrechen muss */
 }
 
 table th:nth-child(4),
@@ -908,9 +921,11 @@ table tbody tr:nth-child(even) {
     max-width: 48%;
     /* Optional: Begrenze Breite */
 }
+
 .dropdown-wrapper {
-  min-height: 30px; /* Höhe anpassen an deine selects, z.B. 40-50px */
-  /* Alternativ: feste Höhe */
-  height: 30px;
+    min-height: 30px;
+    /* Höhe anpassen an deine selects, z.B. 40-50px */
+    /* Alternativ: feste Höhe */
+    height: 30px;
 }
 </style>

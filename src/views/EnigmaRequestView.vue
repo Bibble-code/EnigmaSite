@@ -2,7 +2,8 @@
     <div v-if="settings.enigma">
         <form @submit.prevent="handleSubmit">
 
-            <!-- Model Selection (Disabled) -->
+            <div class="enigma-settings-wrapper">
+           <!-- Model Selection (Disabled) -->
             <div class="enigma-setting">
                 <label>Modell:</label>
                 <div class="dropdowns">
@@ -78,10 +79,12 @@
             <div class="enigma-setting">
                 <label>Steckerbrett:</label>
                 <div class="dropdowns">
-                    <input v-model="settings.enigma.plugboard" type="text" placeholder="z.B. AB, QW, CD"
+                    <input v-model="settings.enigma.plugboard" type="text" placeholder="z.B. ABQWCD"
                         :disabled="selectedUiType_model === 2">
                 </div>
             </div>
+            </div>
+ 
 
             <div class="submit">
                 <button>Verschlüsseln</button>
@@ -323,10 +326,11 @@ export default {
 
 <style>
 .enigma-setting {
+    width: 100%;
+    max-width: 600px; /* Begrenze die Breite sinnvoll */
     display: flex;
     align-items: flex-start;
     margin-bottom: 1rem;
-    /* text-align: right; */
 }
 
 .enigma-setting>label {
@@ -360,6 +364,15 @@ export default {
     font-size: 1rem;
     border-radius: 4px;
     border: 1px solid #ccc;
+}
+
+.enigma-settings-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* zentriert horizontal */
+    justify-content: center;
+    width: 100%;
+    padding: 1rem;
 }
 
 .dropdowns {
@@ -434,20 +447,6 @@ export default {
 }
 
 
-.submit-btn {
-    padding: 0.5rem 1rem;
-    font-weight: bold;
-    background-color: #4caf50;
-    /* Green theme */
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-.submit-btn:hover {
-    background-color: #45a049;
-}
 
 .submit-button {
     margin-top: 1.5rem;
@@ -455,14 +454,16 @@ export default {
 
 /* Verschlüsseln Button */
 .submit button {
-    padding: 1rem 2rem;
-    font-size: 1rem;
+    padding: 1.2rem 2.5rem;       /* größerer Innenabstand für Größe */
+    font-size: 1.2rem;            /* größere Schrift */
+    margin: 2rem 0;               /* Abstand oben und unten */
     background-color: #4caf50;
     color: white;
     border: none;
-    border-radius: 4px;
+    border-radius: 6px;           /* etwas stärker abgerundet */
     cursor: pointer;
 }
+
 
 .submit button:hover {
     background-color: #45a049;
