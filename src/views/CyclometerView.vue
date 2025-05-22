@@ -462,7 +462,6 @@ export default {
                 const response = await BackendEnigma.getCyclometer(data);
 
                 cyclometerResponse.value.cycles = { ...response.data.computedCycles };
-                console.log(cyclometerResponse.value);
                 buildCatalogueRequestFromCyclometer();
             } catch (error) {
                 console.error("Cyclometer error:", error);
