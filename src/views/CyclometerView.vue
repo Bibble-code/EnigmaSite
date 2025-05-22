@@ -29,16 +29,16 @@
 
                     <!-- Rotor Selection -->
                     <div class="enigma-setting">
-                        <label>Walzenlage:</label>
-                        <div class="dropdowns">
-                            <template v-for="index in [0, 1, 2]" :key="'rotor-' + index">
-                                <select v-model.number="settings.enigma.rotors[index]">
-                                    <option v-for="r in rotorOptions" :key="r" :value="r">{{ r }}</option>
-                                </select>
-                                <span v-if="index > 2">|</span>
-                            </template>
-                        </div>
-                    </div>
+  <label>Walzenlage:</label>
+  <div class="dropdowns">
+    <template v-for="(index, i) in [0, 1, 2]" :key="'rotor-' + index">
+      <select v-model.number="settings.enigma.rotors[i]">
+        <option v-for="r in availableRotors[i]" :key="r" :value="r">{{ r }}</option>
+      </select>
+      <span v-if="i < 2">|</span>
+    </template>
+  </div>
+</div>
 
                     <!-- Rotor Positions -->
                     <div class="enigma-setting">
@@ -50,7 +50,7 @@
                                         {{ opt.label }}
                                     </option>
                                 </select>
-                                <span v-if="index > 2">|</span>
+                                <span v-if="index < 2">|</span>
                             </template>
                         </div>
                     </div>
@@ -60,19 +60,21 @@
                         <label>Ringstellung:</label>
                         <div class="dropdowns">
                             <template v-for="index in [0, 1, 2]" :key="'ring-' + index">
-                                <select v-model.number="settings.enigma.rings[index]"
-                                    :disabled="!ringstellungEnabled">
+                                <select v-model.number="settings.enigma.rings[index]" :disabled="!ringstellungEnabled">
                                     <option v-for="opt in alphabetOptions" :key="opt.value" :value="opt.value">
                                         {{ opt.label }}
                                     </option>
                                 </select>
-                                <span v-if="index > 2">|</span>
+                                <span v-if="index < 2">|</span>
                             </template>
-                            <button type="button" @click="toggleRingstellung">
-                                {{ ringstellungEnabled ? 'Deaktivieren' : 'Aktivieren' }}
-                            </button>
+
+                            <!-- Nur Checkbox, kein Button mehr -->
+                            <label style="margin-left: 1rem; user-select: none; cursor: pointer;">
+                                <input type="checkbox" v-model="ringstellungEnabled" />
+                            </label>
                         </div>
                     </div>
+
 
                     <!-- Ring Settings with Toggle -->
                     <div class="enigma-setting">
@@ -103,7 +105,7 @@
                     <div class="manual-keys-grid">
                         <div v-for="(key, index) in settings.parameters.manual_keys" :key="index"
                             class="manual-key-row">
-                            <label>Key {{ index + 1 }}</label>
+                            <label>{{ index + 1 }}.</label>
                             <input ref="manualKeyRefs" type="text" v-model="settings.parameters.manual_keys[index]"
                                 :class="{ invalid: !isValidKey(key) }" maxlength="6" @input="formatKey(index)"
                                 placeholder="ABCABC" />
@@ -119,8 +121,8 @@
                 </form>
 
                 <div class="enigma-setting">
-                    <label>Zyklen der ersten Walze:</label>
-                    <div class="dropdowns rotor-line">
+                    <label>Zyklen 1 auf 4:</label>
+                    <div class="dropdowns">
                         <span v-for="(cycle, i) in cyclometerResponse.cycles.one_to_four_permut" :key="'r1-' + i"
                             class="cycle-item">
                             {{ cycle }}
@@ -129,8 +131,8 @@
                 </div>
 
                 <div class="enigma-setting">
-                    <label>Zyklen der zweiten Walze:</label>
-                    <div class="dropdowns rotor-line">
+                    <label>Zyklen 2 auf 5:</label>
+                    <div class="dropdowns">
                         <span v-for="(cycle, i) in cyclometerResponse.cycles.two_to_five_permut" :key="'r2-' + i"
                             class="cycle-item">
                             {{ cycle }}
@@ -139,8 +141,8 @@
                 </div>
 
                 <div class="enigma-setting">
-                    <label>Zyklen der dritten Walze:</label>
-                    <div class="dropdowns rotor-line">
+                    <label>Zyklen 3 auf 6:</label>
+                    <div class="dropdowns">
                         <span v-for="(cycle, i) in cyclometerResponse.cycles.three_to_six_permut" :key="'r3-' + i"
                             class="cycle-item">
                             {{ cycle }}
@@ -151,36 +153,7 @@
 
             <div class="right-form">
                 <form v-if="cataloguerequest" @submit.prevent="handleCatalogue" class="right-form">
-                    <div class="enigma-setting">
-                        <label>Zyklen der ersten Walze ohne Verdoppelungen:</label>
-                        <div class="dropdowns rotor-line">
-                            <span v-for="(cycle, i) in cataloguerequest.cycles.one_to_four_permut" :key="'r1-' + i"
-                                class="cycle-item">
-                                {{ cycle }}
-                            </span>
-                        </div>
-                    </div>
-
-                    <div class="enigma-setting">
-                        <label>Zyklen der zweiten Walze ohne Verdoppelungen:</label>
-                        <div class="dropdowns rotor-line">
-                            <span v-for="(cycle, i) in cataloguerequest.cycles.two_to_five_permut" :key="'r2-' + i"
-                                class="cycle-item">
-                                {{ cycle }}
-                            </span>
-                        </div>
-                    </div>
-
-                    <div class="enigma-setting">
-                        <label>Zyklen der dritten Walze ohne Verdoppelungen:</label>
-                        <div class="dropdowns rotor-line">
-                            <span v-for="(cycle, i) in cataloguerequest.cycles.three_to_six_permut" :key="'r3-' + i"
-                                class="cycle-item">
-                                {{ cycle }}
-                            </span>
-                        </div>
-                    </div>
-
+                    
                     <!-- Sortiere nach -->
                     <div class="enigma-setting">
                         <label>Sortiere nach:</label>
@@ -212,17 +185,21 @@
                         <label>Nach Walzenlage filtern:</label>
                         <div class="dropdowns">
                             <input type="checkbox" :checked="showRotorOrderFilter" @change="toggleRotorOrderFilter" />
+                            <div class="dropdown-wrapper">
                             <div class="dropdowns" v-if="showRotorOrderFilter">
-                                <template v-for="index in [0,1,2]" :key="'rotor-' + index">
+                                <template v-for="index in [0, 1, 2]" :key="'rotor-' + index">
                                     <select v-model.number="cataloguerequest.parameters.rotorOrder[index]">
-                                        <option v-for="r in rotorOptions" :key="r" :value="r">{{ r }}</option>
+                                        <option v-for="r in availableRotors_filter[index]" :key="r" :value="r">{{ r }}</option>
                                     </select>
-                                    <span v-if="index > 2">|</span>
+                                    <span v-if="index < 2">|</span>
                                 </template>
-
+                                </div>
                             </div>
                         </div>
                     </div>
+
+
+                    
 
                     <!-- Ringstellung button -->
                     <div class="enigma-setting">
@@ -230,23 +207,59 @@
                         <div class="dropdowns">
                             <input type="checkbox" :checked="showRotorPositionFilter"
                                 @change="toggleRotorPositionFilter" />
+                                <div class="dropdown-wrapper">
                             <div class="dropdowns" v-if="showRotorPositionFilter">
-                                <template v-for="index in [0,1,2]" :key="'rotor-' + index">
+                                <template v-for="index in [0, 1, 2]" :key="'rotor-' + index">
                                     <select v-model.number="cataloguerequest.parameters.rotorPosition[index]">
-                                        <option v-for="r in ringOptions" :key="r" :value="r">{{ r }}</option>
+                                        <option v-for="opt in alphabetOptions" :key="opt.value" :value="opt.value">
+                                            {{ opt.label }}
+                                        </option>
                                     </select>
-                                    <span v-if="index > 2">|</span>
+                                    <span v-if="index < 2">|</span>
                                 </template>
+                                </div>
                             </div>
                         </div>
                     </div>
+
+                    <div class="enigma-setting">
+                        <label>Zyklen 1 auf 4 vereinfacht:</label>
+                        <div class="dropdowns">
+                            <span v-for="(cycle, i) in cataloguerequest.cycles.one_to_four_permut" :key="'r1-' + i"
+                                class="cycle-item">
+                                {{ cycle }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="enigma-setting">
+                        <label>Zyklen 2 auf 5 vereinfacht:</label>
+                        <div class="dropdowns">
+                            <span v-for="(cycle, i) in cataloguerequest.cycles.two_to_five_permut" :key="'r2-' + i"
+                                class="cycle-item">
+                                {{ cycle }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="enigma-setting">
+                        <label>Zyklen 3 auf 6 vereinfacht:</label>
+                        <div class="dropdowns">
+                            <span v-for="(cycle, i) in cataloguerequest.cycles.three_to_six_permut" :key="'r3-' + i"
+                                class="cycle-item">
+                                {{ cycle }}
+                            </span>
+                        </div>
+                    </div>
+
+
 
 
                     <!-- Submit Button -->
                     <div class="enigma-setting submit-button">
                         <label></label>
                         <div class="dropdowns">
-                            <button type="submit" class="submit-btn">Katalog</button>
+                            <button type="submit" class="submit-btn">Katalog abfragen</button>
                         </div>
                     </div>
 
@@ -261,21 +274,23 @@
         <!-- Total found and loaded info in a row -->
         <div class="enigma-setting load-controls" style="display: flex; align-items: center; gap: 1rem;">
             <!-- Gefundene Konfigurationen -->
+             <div class="centered-container">
             <div class="info-item">
                 <label>Gefundene Konfigurationen:</label>
-                <span>{{ catalogueres.totalElements }}</span>
+                <span>{{ formatNumber(catalogueres.totalElements) }}</span>
+
             </div>
 
             <!-- Geladene Konfigurationen -->
             <div class="info-item">
                 <label>Geladene Konfigurationen:</label>
-                <span>{{ catalogueres.content.length }}</span>
+                <span>{{ formatNumber(catalogueres.content.length) }}</span>
             </div>
 
             <!-- Letzte geladene Seite -->
             <div class="info-item">
                 <label>Letzte geladene Seite:</label>
-                <span>{{ catalogueres.pageNumber }}</span>
+                <span>{{ formatNumber(catalogueres.pageNumber) }}</span>
             </div>
 
             <!-- Load buttons -->
@@ -290,7 +305,9 @@
                     Alle laden
                 </button> -->
             </div>
-        </div>
+        </div>                
+             </div>
+
         <!-- Table displaying configurations -->
         <table>
             <thead>
@@ -298,9 +315,9 @@
                     <th>#</th>
                     <th>Walzenlage</th>
                     <th>Walzenposition</th>
-                    <th>Zyklen d. 1.Walze</th>
-                    <th>Zyklen d. 2.Walze</th>
-                    <th>Zyklen d. 3.Walze</th>
+                    <th>Zyklen 1 auf 4</th>
+                    <th>Zyklen 2 auf 5</th>
+                    <th>Zyklen 3 auf 6</th>
                 </tr>
             </thead>
             <tbody>
@@ -322,7 +339,7 @@
 
 <script>
 import BackendEnigma from '@/services/Enigma/BackendEnigma';
-import { ref, nextTick, getCurrentInstance } from 'vue';
+import { ref, nextTick, computed } from 'vue';
 
 export default {
     setup() {
@@ -358,6 +375,7 @@ export default {
                 manual_keys: [],
             },
         });
+
 
         const cyclometerResponse = ref({
             cycles: {
@@ -428,6 +446,14 @@ export default {
         // Action handlers
         const handleCyclometer = async () => {
             filterValidKeys();
+            if (
+                settings.value.parameters.daily_key_count === null ||
+                settings.value.parameters.daily_key_count === undefined ||
+                settings.value.parameters.daily_key_count === ""
+            ) {
+                settings.value.parameters.daily_key_count = 0;
+            }
+
             await Cyclometer(JSON.stringify(settings.value));
         };
 
@@ -451,7 +477,6 @@ export default {
 
             if (!showRotorOrderFilter.value) req.parameters.rotorOrder = [];
             if (!showRotorPositionFilter.value) req.parameters.rotorPosition = [];
-            console.log(req);
 
             await Catalogue(JSON.stringify(req));
         };
@@ -493,10 +518,18 @@ export default {
         };
 
         // Toggle filters
-        const toggleRotorOrderFilter = () => {
-            showRotorOrderFilter.value = !showRotorOrderFilter.value;
-            cataloguerequest.value.parameters.rotorOrder = showRotorOrderFilter.value ? [1, 2, 3] : [];
-        };
+const toggleRotorOrderFilter = () => {
+  showRotorOrderFilter.value = !showRotorOrderFilter.value;
+
+  // Defensive Absicherung, falls parameters noch nicht existiert
+  if (!cataloguerequest.value.parameters) {
+    cataloguerequest.value.parameters = {};
+  }
+
+  // Setze rotorOrder je nachdem ob Filter aktiv ist
+  cataloguerequest.value.parameters.rotorOrder = showRotorOrderFilter.value ? [1, 2, 3] : [];
+};
+
 
         const toggleRotorPositionFilter = () => {
             showRotorPositionFilter.value = !showRotorPositionFilter.value;
@@ -539,6 +572,29 @@ export default {
             cataloguerequest.value.parameters.page = page - 1;
         };
 
+const formatNumber = (value) => {
+  return new Intl.NumberFormat('de-DE').format(value);
+};
+
+
+                // Computed property, die für jeden Index die passenden Optionen liefert
+const availableRotors = computed(() => {
+  return settings.value.enigma.rotors.map((currentValue, idx) => {
+    // Alle Werte außer dem aktuellen Index
+    const otherSelected = settings.value.enigma.rotors.filter((_, i) => i !== idx);
+    // Filtere rotorOptions, die nicht in otherSelected sind, plus den aktuellen Wert (damit aktueller Wert immer drin bleibt)
+    return rotorOptions.filter(r => !otherSelected.includes(r) || r === currentValue);
+  });
+});
+
+const availableRotors_filter = computed(() => {
+  return cataloguerequest.value.parameters.rotorOrder.map((currentValue, idx) => {
+    // Alle Werte außer dem aktuellen Index
+    const otherSelected = cataloguerequest.value.parameters.rotorOrder.filter((_, i) => i !== idx);
+    // Filtere rotorOptions, die nicht in otherSelected sind, plus den aktuellen Wert (damit aktueller Wert immer drin bleibt)
+    return rotorOptions.filter(r => !otherSelected.includes(r) || r === currentValue);
+  });
+});
         return {
             addManualKey,
             alphabetOptions,
@@ -566,7 +622,10 @@ export default {
             steckerbrettEnabled,
             toggleRotorOrderFilter,
             toggleRotorPositionFilter,
-            manualKeyRefs
+            manualKeyRefs,
+            availableRotors,
+            availableRotors_filter,
+            formatNumber
         };
     },
 };
@@ -575,17 +634,20 @@ export default {
 
 <style scoped>
 .enigma-setting {
-    display: flex;
-    align-items: flex-start;
-    margin-bottom: 1rem;
-    /* text-align: right; */
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    /* 220px für Label, Rest für Inhalt */
+    align-items: start;
+    gap: 0.5rem 1.5rem;
+    /* vertikal, horizontaler Abstand */
+    margin-bottom: 1.5rem;
 }
 
 .enigma-setting>label {
-    width: 220px;
-    /* or any size that fits your longest label */
     font-weight: bold;
-    padding-top: 0.2rem;
+    padding-top: 0.4rem;
+    text-align: right;
+    /* optional für klare Trennung */
 }
 
 .enigma-setting select,
@@ -614,31 +676,32 @@ export default {
 
 .manual-keys-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
     /* Adjust based on available space */
-    gap: 1rem;
-    padding: 1rem;
+    gap: 0.1rem;
+    padding: 0.1rem;
     /* Optional: Adds some padding around the grid */
 }
 
 .manual-key-row {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.2rem;
     margin-bottom: 0.3rem;
 }
 
 .manual-key-row label {
-    width: 80px;
+    width: 20px;
     /* Fixed width for the label */
     font-weight: 500;
     font-size: 0.9rem;
+    text-align: right;
 }
 
 .manual-key-row input {
     width: 9ch;
     /* Limit input width to 9 characters */
-    padding: 0.3rem;
+    padding: 0.1rem;
     font-size: 0.9rem;
 }
 
@@ -664,31 +727,43 @@ export default {
 }
 
 
-.submit-button {
-    margin-top: 1.5rem;
-}
-
 .submit-btn {
-    padding: 0.5rem 1rem;
-    font-weight: bold;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 600;
     background-color: #4caf50;
-    /* Green theme */
     color: white;
     border: none;
-    border-radius: 4px;
+    border-radius: 6px;
     cursor: pointer;
+    min-width: 160px; /* gleiche Mindestbreite */
+    min-height: 40px;
+    text-align: center;
+    display: inline-block;
 }
 
 .submit-btn:hover {
-    background-color: #45a049;
+    background-color: #45a045; /* optional: etwas dunkler beim Hover */
 }
+
+.submit-button {
+    margin: 2rem 0; /* oben und unten je 2rem Abstand */
+}
+
 
 .cycle-item {
     background-color: #f0f0f0;
-    padding: 0.2rem 0.5rem;
+    padding: 0.4rem 0.6rem;
     border-radius: 4px;
     font-family: monospace;
     font-size: 0.95rem;
+
+        padding-top: 0.3rem;
+    padding-bottom: 0.3rem;
+
+    width: 2ch;           /* Fixe Breite für 1-2-stellige Werte */
+    text-align: center;   /* Zahlen zentrieren */
+    display: inline-block; /* damit width wirkt */
 }
 
 .filter-toggle-row {
@@ -712,40 +787,52 @@ export default {
     flex-wrap: wrap;
 }
 
+.centered-container {
+  display: flex;
+  justify-content: center; /* horizontal zentrieren */
+  align-items: center;     /* vertikal zentrieren falls Höhe definiert */
+  gap: 2rem;               /* Abstand zwischen Elementen */
+  flex-wrap: wrap;         /* Zeilenumbruch bei Bedarf */
+  padding: 1rem 0;         /* oben und unten Abstand */
+}
+
+
 /* Info Item Styling for consistency */
 .info-item {
     display: flex;
-    justify-content: space-between;
-    width: 200px;
+    justify-content:space-around;
+    width: 350px;
     /* Same width as Zyklen fields */
 }
 
 .info-item label {
     font-weight: bold;
+    font-size: 1rem;
+    line-height: 1.2;
 }
 
 .info-item span {
-    display: inline-block;
+    font-size: 1rem;          /* Größere Zahl */
+    font-weight: 600;
+    background-color: #f0f0f0;
+    padding: 0.3rem 0.6rem;
+    border-radius: 4px;
     min-width: 80px;
-    /* Minimum width for the value to ensure alignment */
-    text-align: right;
+    text-align: center;
 }
-
-/* Table Styling */
 table {
     width: 100%;
+    max-width: 1000px;
+    margin: 1rem auto;
     border-collapse: collapse;
-    margin-top: 1rem;
 }
 
 table th,
 table td {
     padding: 0.5rem;
-    /* Reduced padding for more compact cells */
     text-align: left;
     border: 1px solid #ddd;
     font-size: 0.9rem;
-    /* Slightly smaller font size for compactness */
 }
 
 /* Header styling */
@@ -753,26 +840,23 @@ table th {
     background-color: #f6f6f6;
     font-weight: bold;
     white-space: nowrap;
-    /* Prevents header text from wrapping */
 }
 
-/* Column-specific widths */
+/* Spaltenbreiten optimiert: schmal für Walzenlage und Walzenposition, mehr Platz für Zyklen */
+
 table th:nth-child(1),
 table td:nth-child(1) {
     width: 5%;
-    /* Compact the first column (index) */
+    min-width: 30px;
 }
 
 table th:nth-child(2),
-table td:nth-child(2) {
-    width: 20%;
-    /* Limit width for rotor order */
-}
-
+table td:nth-child(2),
 table th:nth-child(3),
 table td:nth-child(3) {
-    width: 20%;
-    /* Limit width for rotor position */
+    width: auto; /* Breite passt sich Label an */
+    white-space: nowrap; /* Kein Zeilenumbruch im Label */
+    min-width: 120px; /* Minimal genug Platz, damit Label nicht umbrechen muss */
 }
 
 table th:nth-child(4),
@@ -781,27 +865,22 @@ table th:nth-child(5),
 table td:nth-child(5),
 table th:nth-child(6),
 table td:nth-child(6) {
-    width: 15%;
-    /* Adjust widths of cycle columns to make them more compact */
+    width: 20%;
+    min-width: 150px;
 }
 
-/* Text wrapping for long text in cells */
 table td {
     word-wrap: break-word;
-    /* Allows long text to wrap and not overflow */
     white-space: normal;
-    /* Allows wrapping inside cells */
 }
 
-/* Optional: Truncate text with ellipsis for overflow */
+/* Für Spalten 2 und 3 Text nicht umbrechen */
 table td:nth-child(2),
 table td:nth-child(3) {
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
-    /* Prevents text from wrapping in these columns */
 }
-
 
 table tbody tr:nth-child(even) {
     background-color: #f9f9f9;
@@ -829,5 +908,10 @@ table tbody tr:nth-child(even) {
     /* Beide nehmen gleich viel Platz ein */
     max-width: 48%;
     /* Optional: Begrenze Breite */
+}
+.dropdown-wrapper {
+  min-height: 30px; /* Höhe anpassen an deine selects, z.B. 40-50px */
+  /* Alternativ: feste Höhe */
+  height: 30px;
 }
 </style>

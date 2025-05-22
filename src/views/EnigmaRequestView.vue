@@ -80,8 +80,6 @@
                 <div class="dropdowns">
                     <input v-model="settings.enigma.plugboard" type="text" placeholder="z.B. AB, QW, CD"
                         :disabled="selectedUiType_model === 2">
-                        <p>UI Type: {{ selectedUiType_model }}</p>
-
                 </div>
             </div>
 
