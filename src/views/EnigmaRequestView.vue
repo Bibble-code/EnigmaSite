@@ -511,10 +511,10 @@ watch(selectedUiType_model, (newVal, oldVal) => {
 
 .plugboard-container {
     display: grid;
-    grid-template-columns: repeat(5, 35px);
+    grid-template-columns: repeat(5, 46px);
     /* 5 Spalten à 30px */
-    gap: 10px;
-    max-width: calc(5 * 35px + 4 * 10px);
+    gap: 12px;
+    max-width: calc(5 * 46px + 4 * 12px);
     /* = 150px + 32px = 182px */
     box-sizing: border-box;
 }
