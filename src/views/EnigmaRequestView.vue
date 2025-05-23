@@ -3,93 +3,94 @@
         <form @submit.prevent="handleSubmit">
 
             <div class="enigma-settings-wrapper">
-           <!-- Model Selection (Disabled) -->
-            <div class="enigma-setting">
-                <label>Modell:</label>
-                <div class="dropdowns">
-                    <select v-model.number="selectedUiType_model">
-                        <option v-for="model in enigmaModels" :key="model.value + model.label" :value="model.uiType">
-                            {{ model.label }}
-                        </option>
-                    </select>
+                <!-- Model Selection (Disabled) -->
+                <div class="enigma-setting">
+                    <label>Modell:</label>
+                    <div class="dropdowns">
+                        <select v-model.number="selectedUiType_model">
+                            <option v-for="model in enigmaModels" :key="model.value + model.label"
+                                :value="model.uiType">
+                                {{ model.label }}
+                            </option>
+                        </select>
 
 
+                    </div>
                 </div>
-            </div>
 
-            <!-- Reflector Selection (Disabled) -->
-            <div class="enigma-setting">
-                <label>Reflektor:</label>
-                <div class="dropdowns">
-                    <select v-model="settings.enigma.reflector">
-                        <option v-for="r in reflectors" :key="r.value" :value="r.value">
-                            {{ r.label }}
-                        </option>
-                    </select>
-                </div>
-            </div>
-
-            <!-- Rotor Selection -->
-            <div class="enigma-setting">
-                <label>Walzenlage:</label>
-                <div class="dropdowns">
-                    <template v-for="index in rotorSpan" :key="'rotor-' + index">
-                        <select v-model.number="settings.enigma.rotors[index - 1]">
-                            <option v-for="r in getRotorOptions(index)" :key="r.value" :value="r.value">
+                <!-- Reflector Selection (Disabled) -->
+                <div class="enigma-setting">
+                    <label>Reflektor:</label>
+                    <div class="dropdowns">
+                        <select v-model="settings.enigma.reflector">
+                            <option v-for="r in reflectors" :key="r.value" :value="r.value">
                                 {{ r.label }}
                             </option>
                         </select>
-                        <span v-if="index < rotorSpan">|</span>
-                    </template>
+                    </div>
+                </div>
 
+                <!-- Rotor Selection -->
+                <div class="enigma-setting">
+                    <label>Walzenlage:</label>
+                    <div class="dropdowns">
+                        <template v-for="index in rotorSpan" :key="'rotor-' + index">
+                            <select v-model.number="settings.enigma.rotors[index - 1]">
+                                <option v-for="r in getRotorOptions(index)" :key="r.value" :value="r.value">
+                                    {{ r.label }}
+                                </option>
+                            </select>
+                            <span v-if="index < rotorSpan">|</span>
+                        </template>
+
+                    </div>
+                </div>
+
+                <!-- Rotor Positions -->
+                <div class="enigma-setting">
+                    <label>Walzenstellung:</label>
+                    <div class="dropdowns">
+                        <template v-for="index in rotorSpan" :key="'position-' + index">
+                            <select v-model.number="settings.enigma.positions[index - 1]">
+                                <option v-for="opt in alphabetOptions" :key="opt.value" :value="opt.value">
+                                    {{ opt.label }}
+                                </option>
+                            </select>
+                            <span v-if="index < rotorSpan">|</span>
+                        </template>
+                    </div>
+                </div>
+
+                <!-- Ring Settings with Toggle -->
+                <div class="enigma-setting">
+                    <label>Ringstellung:</label>
+                    <div class="dropdowns">
+                        <template v-for="index in rotorSpan" :key="'ring-' + index">
+                            <select v-model.number="settings.enigma.rings[index - 1]">
+                                <option v-for="opt in alphabetOptions" :key="opt.value" :value="opt.value">
+                                    {{ opt.label }}
+                                </option>
+                            </select>
+                            <span v-if="index < rotorSpan">|</span>
+                        </template>
+                    </div>
+                </div>
+
+                <div class="enigma-setting">
+                    <label>Steckerbrett:</label>
+                    <div class="plugboard-container">
+                        <input v-for="(pair, index) in plugboardPairs" :key="index" v-model="plugboardPairs[index]"
+                            @input="onPlugboardInput(index)" maxlength="2" :disabled="selectedUiType_model === 2"
+                            type="text" style="text-transform: uppercase;" />
+                    </div>
                 </div>
             </div>
 
-            <!-- Rotor Positions -->
-            <div class="enigma-setting">
-                <label>Walzenstellung:</label>
-                <div class="dropdowns">
-                    <template v-for="index in rotorSpan" :key="'position-' + index">
-                        <select v-model.number="settings.enigma.positions[index - 1]">
-                            <option v-for="opt in alphabetOptions" :key="opt.value" :value="opt.value">
-                                {{ opt.label }}
-                            </option>
-                        </select>
-                        <span v-if="index < rotorSpan">|</span>
-                    </template>
-                </div>
-            </div>
-
-            <!-- Ring Settings with Toggle -->
-            <div class="enigma-setting">
-                <label>Ringstellung:</label>
-                <div class="dropdowns">
-                    <template v-for="index in rotorSpan" :key="'ring-' + index">
-                        <select v-model.number="settings.enigma.rings[index - 1]">
-                            <option v-for="opt in alphabetOptions" :key="opt.value" :value="opt.value">
-                                {{ opt.label }}
-                            </option>
-                        </select>
-                        <span v-if="index < rotorSpan">|</span>
-                    </template>
-                </div>
-            </div>
-
-            <!-- Steckerbrett (Plugboard) -->
-            <div class="enigma-setting">
-                <label>Steckerbrett:</label>
-                <div class="dropdowns">
-                    <input v-model="settings.enigma.plugboard" type="text" placeholder="z.B. ABQWCD"
-                        :disabled="selectedUiType_model === 2">
-                </div>
-            </div>
-            </div>
- 
 
             <div class="submit">
                 <button>Verschlüsseln</button>
             </div>
-            
+
             <div class="form-container">
                 <!-- Left Section (Eingabe) -->
                 <div class="form-section">
@@ -114,7 +115,7 @@
 
 <script>
 import BackendEnigma from '@/services/Enigma/BackendEnigma';
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 
 
 
@@ -126,7 +127,6 @@ export default {
             { value: 3, label: "III", uiType: 3 },
             { value: 4, label: "IV", uiType: 4 }
         ];
-
 
         const reflectors = [
             { value: "A", label: "UKW_A" },
@@ -160,20 +160,16 @@ export default {
             { value: 10, label: "Gamma" }
         ];
 
-
         // Funktion, um die Rotoroptionen basierend auf dem UI-Typ zu holen
         const getRotorOptions = (index) => {
-    const uiType = selectedUiType_model.value; // <- das ist der UI-Typ, nicht model
+            const uiType = selectedUiType_model.value; // <- das ist der UI-Typ, nicht model
 
-    if (uiType === 2) return rotorOptions_m2;
-    if (uiType === 3) return rotorOptions_m3;
-    if (uiType === 4) return index === 4 ? rotorOptions_m4 : rotorOptions_m3;
+            if (uiType === 2) return rotorOptions_m2;
+            if (uiType === 3) return rotorOptions_m3;
+            if (uiType === 4) return index === 4 ? rotorOptions_m4 : rotorOptions_m3;
 
-    return [];
-};
-
-
-
+            return [];
+        };
 
         const ringOptions = Array.from({ length: 26 }, (_, i) => i);  // Array from 0 to 25
 
@@ -277,25 +273,41 @@ export default {
         };
 
         const selectedUiType_model = computed({
-  get() {
-    return settings.value.enigma.uiType ?? 3; // Fallback falls uiType nicht gesetzt ist
-  },
-  set(uiType) {
-    const match = enigmaModels.find(m => m.uiType === uiType);
-    if (!match) return;
+            get() {
+                return settings.value.enigma.uiType ?? 3; // Fallback falls uiType nicht gesetzt ist
+            },
+            set(uiType) {
+                const match = enigmaModels.find(m => m.uiType === uiType);
+                if (!match) return;
 
-    const model = uiType === 4 ? 4 : 3;
+                const model = uiType === 4 ? 4 : 3;
 
-    settings.value.enigma = {
-      ...defaultSettingsByUiType[uiType],
-      input: settings.value.enigma.input,
-      output: settings.value.enigma.output,
-      model,
-      uiType // Wichtig: Speichern
-    };
-  }
+                settings.value.enigma = {
+                    ...defaultSettingsByUiType[uiType],
+                    input: settings.value.enigma.input,
+                    output: settings.value.enigma.output,
+                    model,
+                    uiType // Wichtig: Speichern
+                };
+            }
+        });
+
+
+        const plugboardPairs = ref(Array(10).fill(""));
+
+        watch(plugboardPairs, () => {
+            settings.value.enigma.plugboard = plugboardPairs.value.join('');
+        }, { deep: true });
+
+watch(selectedUiType_model, (newVal, oldVal) => {
+  plugboardPairs.value = Array(10).fill("");
 });
 
+        const onPlugboardInput = (index) => {
+            plugboardPairs.value[index] = plugboardPairs.value[index]
+                .toUpperCase()
+                .replace(/[^A-Z]/g, "");
+        };
 
 
 
@@ -318,7 +330,10 @@ export default {
             Encrypt,
             settings,
             enigma_output,
-            handleSubmit
+            handleSubmit,
+            plugboardPairs,
+            onPlugboardInput
+
         }
     }
 }
@@ -327,7 +342,8 @@ export default {
 <style>
 .enigma-setting {
     width: 100%;
-    max-width: 600px; /* Begrenze die Breite sinnvoll */
+    max-width: 600px;
+    /* Begrenze die Breite sinnvoll */
     display: flex;
     align-items: flex-start;
     margin-bottom: 1rem;
@@ -341,7 +357,6 @@ export default {
 }
 
 .enigma-setting select,
-.enigma-setting input[type="text"],
 .enigma-setting input[type="number"] {
     min-width: 150px;
     padding: 0.3rem;
@@ -369,7 +384,8 @@ export default {
 .enigma-settings-wrapper {
     display: flex;
     flex-direction: column;
-    align-items: center; /* zentriert horizontal */
+    align-items: center;
+    /* zentriert horizontal */
     justify-content: center;
     width: 100%;
     padding: 1rem;
@@ -454,13 +470,17 @@ export default {
 
 /* Verschlüsseln Button */
 .submit button {
-    padding: 1.2rem 2.5rem;       /* größerer Innenabstand für Größe */
-    font-size: 1.2rem;            /* größere Schrift */
-    margin: 2rem 0;               /* Abstand oben und unten */
+    padding: 1.2rem 2.5rem;
+    /* größerer Innenabstand für Größe */
+    font-size: 1.2rem;
+    /* größere Schrift */
+    margin: 2rem 0;
+    /* Abstand oben und unten */
     background-color: #4caf50;
     color: white;
     border: none;
-    border-radius: 6px;           /* etwas stärker abgerundet */
+    border-radius: 6px;
+    /* etwas stärker abgerundet */
     cursor: pointer;
 }
 
@@ -487,5 +507,15 @@ export default {
         flex: 0 1 auto;
         /* Der Button bleibt zentriert, aber flexibel */
     }
+}
+
+.plugboard-container {
+    display: grid;
+    grid-template-columns: repeat(5, 35px);
+    /* 5 Spalten à 30px */
+    gap: 10px;
+    max-width: calc(5 * 35px + 4 * 10px);
+    /* = 150px + 32px = 182px */
+    box-sizing: border-box;
 }
 </style>

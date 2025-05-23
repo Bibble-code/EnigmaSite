@@ -75,27 +75,28 @@
                         </div>
                     </div>
 
-
-                    <!-- Ring Settings with Toggle -->
                     <div class="enigma-setting">
                         <label>Steckerbrett:</label>
-                        <div class="dropdowns">
-                            <input v-model="settings.enigma.plugboard" type="text" placeholder="z.B. ABQWCD">
+                        <div class="plugboard-container">
+                            <input v-for="(pair, index) in plugboardPairs" :key="index" v-model="plugboardPairs[index]"
+                                @input="onPlugboardInput(index)" maxlength="2" :disabled="selectedUiType_model === 2"
+                                type="text" style="text-transform: uppercase;" />
                         </div>
                     </div>
 
                     <div class="enigma-setting">
-                        <label>Anzahl der zufälligen Tagesschlüssel:</label>
+                        <label>Anzahl der zufälligen Spruchschlüssel:</label>
                         <div class="dropdowns">
                             <input v-model="settings.parameters.daily_key_count" type="number" min="0" />
                         </div>
                     </div>
 
-                    <!-- Eigene Tagesschlüssel with aligned button -->
+                    <!-- Eigene Spruchschlüssel with aligned button -->
                     <div class="enigma-setting">
-                        <label>Eigene Tagesschlüssel:</label>
+                        <label>Eigene Sprushschlüssel:</label>
                         <div class="dropdowns">
-                            <button type="button" @click="addManualKey" class="square-button">+ Key hinzufügen</button>
+                            <button type="button" @click="addManualKey" class="square-button">+ Schlüssel
+                                hinzufügen</button>
                             <button type="button" @click="deleteLastManualKey" class="square-button">Lösche letzten
                                 Schlüssel</button>
                         </div>
@@ -190,7 +191,7 @@
                                     <template v-for="index in [0, 1, 2]" :key="'rotor-' + index">
                                         <select v-model.number="cataloguerequest.parameters.rotorOrder[index]">
                                             <option v-for="r in availableRotors_filter[index]" :key="r" :value="r">{{ r
-                                                }}</option>
+                                            }}</option>
                                         </select>
                                         <span v-if="index < 2">|</span>
                                     </template>
@@ -337,7 +338,7 @@
 
 <script>
 import BackendEnigma from '@/services/Enigma/BackendEnigma';
-import { ref, nextTick, computed } from 'vue';
+import { ref, nextTick, computed, watch } from 'vue';
 
 export default {
     setup() {
@@ -592,6 +593,20 @@ export default {
                 return rotorOptions.filter(r => !otherSelected.includes(r) || r === currentValue);
             });
         });
+
+        //Steckerbrett
+        const plugboardPairs = ref(Array(10).fill(""));
+
+        watch(plugboardPairs, () => {
+            settings.value.enigma.plugboard = plugboardPairs.value.join('');
+        }, { deep: true });
+
+        const onPlugboardInput = (index) => {
+            plugboardPairs.value[index] = plugboardPairs.value[index]
+                .toUpperCase()
+                .replace(/[^A-Z]/g, "");
+        };
+
         return {
             addManualKey,
             alphabetOptions,
@@ -622,7 +637,10 @@ export default {
             manualKeyRefs,
             availableRotors,
             availableRotors_filter,
-            formatNumber
+            formatNumber,
+
+            plugboardPairs,
+            onPlugboardInput
         };
     },
 };
@@ -648,7 +666,6 @@ export default {
 }
 
 .enigma-setting select,
-.enigma-setting input[type="text"],
 .enigma-setting input[type="number"] {
     min-width: 150px;
     padding: 0.3rem;
@@ -792,10 +809,14 @@ export default {
 
 .centered-container {
     display: flex;
-    justify-content: center;  /* Zentriert horizontal */
-    align-items: center;      /* Zentriert vertikal */
-    gap: 0.5rem;                /* Abstand zwischen den Info-Elementen */
-    flex-wrap: wrap;          /* Optional, damit es auf kleinen Screens umbricht */
+    justify-content: center;
+    /* Zentriert horizontal */
+    align-items: center;
+    /* Zentriert vertikal */
+    gap: 0.5rem;
+    /* Abstand zwischen den Info-Elementen */
+    flex-wrap: wrap;
+    /* Optional, damit es auf kleinen Screens umbricht */
     width: 100%;
 }
 
@@ -927,5 +948,15 @@ table tbody tr:nth-child(even) {
     /* Höhe anpassen an deine selects, z.B. 40-50px */
     /* Alternativ: feste Höhe */
     height: 30px;
+}
+
+.plugboard-container {
+    display: grid;
+    grid-template-columns: repeat(5, 46px);
+    /* 5 Spalten à 30px */
+    gap: 12px;
+    max-width: calc(5 * 46px + 4 * 12px);
+    /* = 150px + 32px = 182px */
+    box-sizing: border-box;
 }
 </style>
