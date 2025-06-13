@@ -11,7 +11,7 @@ export default {
         )
     },
     getCyclometer(data) {
-        return Enigma().post("/manualcyclometer", data, {
+        return Enigma().post("/cyclometer", data, {
             headers: {
                 'Content-Type': 'application/json',
             }
