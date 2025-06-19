@@ -61,12 +61,14 @@
                     </div>
                 </div>
 
+
                 <!-- Ring Settings with Toggle -->
                 <div class="enigma-setting">
                     <label>Ringstellung:</label>
                     <div class="dropdowns">
                         <template v-for="index in rotorSpan" :key="'ring-' + index">
-                            <select v-model.number="settings.enigma.rings[index - 1]">
+                            <select v-model.number="settings.enigma.rings[index - 1]"
+                                :disabled="settings.enigma.model === 4 && index === 4">
                                 <option v-for="opt in alphabetOptions" :key="opt.value" :value="opt.value">
                                     {{ opt.label }}
                                 </option>
@@ -75,6 +77,7 @@
                         </template>
                     </div>
                 </div>
+
 
                 <div class="enigma-setting">
                     <label>Steckerbrett:</label>
@@ -97,7 +100,9 @@
                     <div class="enigma-setting textarea-wrapper">
                         <label>Eingabe:</label>
                         <textarea ref="inputTextarea" v-model="settings.enigma.input" @input="sanitizeInput"
-                            spellcheck="false"></textarea>
+                            spellcheck="false">
+            </textarea>
+
                     </div>
 
                 </div>
@@ -117,188 +122,171 @@
     </div>
 </template>
 
-<script>
+<script setup>
 import BackendEnigma from '@/services/Enigma/BackendEnigma';
+import TooltipLabel from '@/components/TooltipLabel.vue';
 import { ref, computed, watch } from 'vue';
 
-export default {
-    setup() {
-        // 1. === KONSTANTEN & STATISCHE OPTIONEN ===
-        const enigmaModels = [
-            { value: 3, label: "I", uiType: 2 },
-            { value: 3, label: "M3", uiType: 3 },
-            { value: 4, label: "M4", uiType: 4 }
-        ];
+// 1. === KONSTANTEN & STATISCHE OPTIONEN ===
+const enigmaModels = [
+    { value: 3, label: "I", uiType: 2 },
+    { value: 3, label: "M3", uiType: 3 },
+    { value: 4, label: "M4", uiType: 4 }
+];
 
-        const reflectorOptionsByUiType = {
-            2: [{ value: "A", label: "UKW A" }, { value: "B", label: "UKW B" }, { value: "C", label: "UKW C" }],
-            3: [{ value: "B", label: "UKW B" }, { value: "C", label: "UKW C" }],
-            4: [{ value: "b", label: "UKW B thin" }, { value: "c", label: "UKW C thin" }]
-        };
+const reflectorOptionsByUiType = {
+    2: [{ value: "A", label: "UKW A" }, { value: "B", label: "UKW B" }, { value: "C", label: "UKW C" }],
+    3: [{ value: "B", label: "UKW B" }, { value: "C", label: "UKW C" }],
+    4: [{ value: "b", label: "UKW B thin" }, { value: "c", label: "UKW C thin" }]
+};
 
-        // Hilfsfunktion für römische Ziffern
-        function toRoman(num) {
-            const romans = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"];
-            return romans[num - 1] || num.toString();
-        }
+// Hilfsfunktion für römische Ziffern
+function toRoman(num) {
+    const romans = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"];
+    return romans[num - 1] || num.toString();
+}
 
-        // Statische Optionen
-        const rotorOptions_m2 = [1, 2, 3, 4, 5].map(i => ({ value: i, label: toRoman(i) }));
-        const rotorOptions_m3 = [1, 2, 3, 4, 5, 6, 7, 8].map(i => ({ value: i, label: toRoman(i) }));
-        const rotorOptions_m4 = [
-            { value: 9, label: "Beta" },
-            { value: 10, label: "Gamma" }
-        ];
+// Statische Optionen
+const rotorOptions_m2 = [1, 2, 3, 4, 5].map(i => ({ value: i, label: toRoman(i) }));
+const rotorOptions_m3 = [1, 2, 3, 4, 5, 6, 7, 8].map(i => ({ value: i, label: toRoman(i) }));
+const rotorOptions_m4 = [
+    { value: 9, label: "Beta" },
+    { value: 10, label: "Gamma" }
+];
 
-        const defaultSettingsByUiType = {
-            2: { model: 3, reflector: "B", rotors: [1, 2, 3], positions: [0, 0, 0], rings: [0, 0, 0], plugboard: "", input: "" },
-            3: { model: 3, reflector: "B", rotors: [1, 2, 3], positions: [0, 0, 0], rings: [0, 0, 0], plugboard: "", input: "" },
-            4: { model: 4, reflector: "b", rotors: [1, 2, 3, 9], positions: [0, 0, 0, 0], rings: [0, 0, 0, 0], plugboard: "", input: "" }
-        };
+const defaultSettingsByUiType = {
+    2: { model: 3, reflector: "B", rotors: [1, 2, 3], positions: [0, 0, 0], rings: [0, 0, 0], plugboard: "", input: "" },
+    3: { model: 3, reflector: "B", rotors: [1, 2, 3], positions: [0, 0, 0], rings: [0, 0, 0], plugboard: "", input: "" },
+    4: { model: 4, reflector: "b", rotors: [1, 2, 3, 9], positions: [0, 0, 0, 0], rings: [0, 0, 0, 0], plugboard: "", input: "" }
+};
 
-        const ringOptions = Array.from({ length: 26 }, (_, i) => i);
-        const alphabetOptions = Array.from({ length: 26 }, (_, i) => ({ value: i, label: `${String.fromCharCode(65 + i)} (${i})` }));
+const ringOptions = Array.from({ length: 26 }, (_, i) => i);
+const alphabetOptions = Array.from({ length: 26 }, (_, i) => ({ value: i, label: `${String.fromCharCode(65 + i)} (${i})` }));
 
-        // 2. === REAKTIVE STATES ===
-        const defaultUiType = 3;
-        const settings = ref({ enigma: { ...defaultSettingsByUiType[defaultUiType], uiType: defaultUiType } });
-        const selectedModel = ref(settings.value.enigma.model);
-        const enigma_output = ref("");
-        const plugboardPairs = ref(Array(10).fill(""));
+// 2. === REAKTIVE STATES ===
+const defaultUiType = 3;
+const settings = ref({ enigma: { ...defaultSettingsByUiType[defaultUiType], uiType: defaultUiType } });
+const selectedModel = ref(settings.value.enigma.model);
+const enigma_output = ref("");
+const plugboardPairs = ref(Array(10).fill(""));
 
-        // 3. === COMPUTED PROPERTIES ===
-        const reflectors = computed(() => reflectorOptionsByUiType[selectedUiType_model.value] || []);
+// 3. === COMPUTED PROPERTIES ===
+const reflectors = computed(() => reflectorOptionsByUiType[selectedUiType_model.value] || []);
 
-        const selectedUiType_model = computed({
-            get() {
-                return settings.value.enigma.uiType ?? 3;
-            },
-            set(uiType) {
-                const match = enigmaModels.find(m => m.uiType === uiType);
-                if (!match) return;
+const selectedUiType_model = computed({
+    get() {
+        return settings.value.enigma.uiType ?? 3;
+    },
+    set(uiType) {
+        const match = enigmaModels.find(m => m.uiType === uiType);
+        if (!match) return;
 
-                const model = uiType === 4 ? 4 : 3;
+        const model = uiType === 4 ? 4 : 3;
 
-                settings.value.enigma = {
-                    ...defaultSettingsByUiType[uiType],
-                    input: settings.value.enigma?.input || "",
-                    output: settings.value.enigma?.output || "",
-                    model,
-                    uiType
-                };
-            }
-        });
-
-        const rotorSpan = computed(() => {
-            const model = settings.value.enigma.model;
-            settings.value.enigma.rotors = model === 4
-                ? settings.value.enigma.rotors || [1, 2, 3, 9]
-                : settings.value.enigma.rotors || [1, 2, 3];
-            return model === 4 ? 4 : 3;
-        });
-
-        // 4. === WATCHER ===
-        watch(plugboardPairs, () => {
-            settings.value.enigma.plugboard = plugboardPairs.value.join('');
-        }, { deep: true });
-
-        watch(selectedUiType_model, () => {
-            plugboardPairs.value = Array(10).fill("");
-        });
-
-        watch(selectedUiType_model, (newVal) => {
-            const enigma = settings.value.enigma;
-            if (newVal === 2 || newVal === 3) {
-                enigma.reflector = "B";
-            } else if (newVal === 4) {
-                enigma.reflector = "b";
-            } else {
-                enigma.reflector = null;
-            }
-        });
-
-        // 5. === METHODEN ===
-        const getRotorOptions = (index) => {
-            const uiType = selectedUiType_model.value;
-            if (uiType === 2) return rotorOptions_m2;
-            if (uiType === 3) return rotorOptions_m3;
-            if (uiType === 4) return index === 4 ? rotorOptions_m4 : rotorOptions_m3;
-            return [];
-        };
-
-        const handleModelChange = (event) => {
-            const selectedLabel = event.target.options[event.target.selectedIndex].text;
-            const match = enigmaModels.find(m => m.label === selectedLabel);
-            if (match) {
-                const uiType = match.uiType;
-                settings.value.enigma = {
-                    ...defaultSettingsByUiType[uiType],
-                    input: settings.value.enigma.input,
-                    output: settings.value.enigma.output,
-                    model: match.value,
-                    uiType
-                };
-                selectedModel.value = match.value;
-            }
-        };
-
-        const Encrypt = async (data) => {
-            try {
-                const response = await BackendEnigma.getEncryption(data);
-                enigma_output.value = response.data.output;
-            } catch (error) {
-                console.error(error);
-            }
-        };
-
-        const handleSubmit = async () => {
-            let plugboard = settings.value.enigma.plugboard || "";
-
-            if (plugboard.length % 2 !== 0) {
-                plugboard = plugboard.slice(0, -1);
-                settings.value.enigma.plugboard = plugboard;
-
-                const chars = plugboard.match(/.{1,2}/g) || [];
-                plugboardPairs.value = Array(10).fill("").map((_, i) => chars[i] || "");
-            }
-
-            await Encrypt(JSON.stringify(settings.value));
-        };
-
-        const onPlugboardInput = (index) => {
-            let value = plugboardPairs.value[index].toUpperCase().replace(/[^A-Z]/g, "").slice(0, 2);
-            let uniqueChars = [...new Set(value)].join("");
-
-            const allOtherChars = plugboardPairs.value
-                .filter((_, i) => i !== index)
-                .join("")
-                .split("");
-
-            const filteredValue = [...uniqueChars].filter(char => !allOtherChars.includes(char)).join("");
-            plugboardPairs.value[index] = filteredValue;
-        };
-
-        const sanitizeInput = (event) => {
-            settings.value.enigma.input = event.target.value.toUpperCase().replace(/[^A-Z]/g, "");
-        };
-
-        // 6. === RETURN ===
-        return {
-            // Optionen
-            enigmaModels, reflectorOptionsByUiType,
-            rotorOptions_m2, rotorOptions_m3, rotorOptions_m4,
-            ringOptions, alphabetOptions,
-
-            // States & Computed
-            settings, selectedModel, selectedUiType_model,
-            enigma_output, plugboardPairs, reflectors, rotorSpan,
-
-            // Methoden
-            handleModelChange, Encrypt, handleSubmit,
-            getRotorOptions, onPlugboardInput, sanitizeInput
+        settings.value.enigma = {
+            ...defaultSettingsByUiType[uiType],
+            input: settings.value.enigma?.input || "",
+            output: settings.value.enigma?.output || "",
+            model,
+            uiType
         };
     }
+});
+
+const rotorSpan = computed(() => {
+    const model = settings.value.enigma.model;
+    settings.value.enigma.rotors = model === 4
+        ? settings.value.enigma.rotors || [1, 2, 3, 9]
+        : settings.value.enigma.rotors || [1, 2, 3];
+    return model === 4 ? 4 : 3;
+});
+
+// 4. === WATCHER ===
+watch(plugboardPairs, () => {
+    settings.value.enigma.plugboard = plugboardPairs.value.join('');
+}, { deep: true });
+
+watch(selectedUiType_model, () => {
+    plugboardPairs.value = Array(10).fill("");
+});
+
+watch(selectedUiType_model, (newVal) => {
+    const enigma = settings.value.enigma;
+    if (newVal === 2 || newVal === 3) {
+        enigma.reflector = "B";
+    } else if (newVal === 4) {
+        enigma.reflector = "b";
+    } else {
+        enigma.reflector = null;
+    }
+});
+
+// 5. === METHODEN ===
+const getRotorOptions = (index) => {
+    const uiType = selectedUiType_model.value;
+    if (uiType === 2) return rotorOptions_m2;
+    if (uiType === 3) return rotorOptions_m3;
+    if (uiType === 4) return index === 4 ? rotorOptions_m4 : rotorOptions_m3;
+    return [];
 };
+
+const handleModelChange = (event) => {
+    const selectedLabel = event.target.options[event.target.selectedIndex].text;
+    const match = enigmaModels.find(m => m.label === selectedLabel);
+    if (match) {
+        const uiType = match.uiType;
+        settings.value.enigma = {
+            ...defaultSettingsByUiType[uiType],
+            input: settings.value.enigma.input,
+            output: settings.value.enigma.output,
+            model: match.value,
+            uiType
+        };
+        selectedModel.value = match.value;
+    }
+};
+
+const Encrypt = async (data) => {
+    try {
+        const response = await BackendEnigma.getEncryption(data);
+        enigma_output.value = response.data.output;
+    } catch (error) {
+        console.error(error);
+    }
+};
+
+const handleSubmit = async () => {
+    let plugboard = settings.value.enigma.plugboard || "";
+
+    if (plugboard.length % 2 !== 0) {
+        plugboard = plugboard.slice(0, -1);
+        settings.value.enigma.plugboard = plugboard;
+
+        const chars = plugboard.match(/.{1,2}/g) || [];
+        plugboardPairs.value = Array(10).fill("").map((_, i) => chars[i] || "");
+    }
+
+    await Encrypt(JSON.stringify(settings.value));
+};
+
+const onPlugboardInput = (index) => {
+    let value = plugboardPairs.value[index].toUpperCase().replace(/[^A-Z]/g, "").slice(0, 2);
+    let uniqueChars = [...new Set(value)].join("");
+
+    const allOtherChars = plugboardPairs.value
+        .filter((_, i) => i !== index)
+        .join("")
+        .split("");
+
+    const filteredValue = [...uniqueChars].filter(char => !allOtherChars.includes(char)).join("");
+    plugboardPairs.value[index] = filteredValue;
+};
+
+const sanitizeInput = (event) => {
+    settings.value.enigma.input = event.target.value.toUpperCase().replace(/[^A-Z]/g, "");
+};
+
+
 </script>
 
 

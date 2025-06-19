@@ -1,9 +1,6 @@
 <template>
   <nav>
-    <!-- <router-link to="/">Home</router-link> | -->
-    <!-- <router-link to="/cycles">Cycles</router-link> | -->
     <router-link to="/">Enigma</router-link> |
-    <!-- <router-link to="/">Enigma</router-link> | -->
     <router-link to="/cyclometer">Zyklometer</router-link>  
 
 
