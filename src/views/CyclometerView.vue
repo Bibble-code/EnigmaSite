@@ -4,10 +4,8 @@
             <div class="left-form">
                 <h2>Erstellen der charakteristischen Zyklen
                     <label class="label-with-tooltip">
-                        <TooltipLabel label="" info="Zunächst wird simuliert, wie die deutsche Seite mit einer bestimmten Enigma-Konfiguration (Tagesschlüssel) mehrere Spruchschlüssel verschlüsselt. 
-    Dabei nutzt man aus, dass Spruchschlüssel dreimal wiederholt wurden – zum Beispiel ABCABC. 
-    Die Polen erkannten so, dass im verschlüsselten Spruchschlüssel der 1. und 4. Buchstabe etc. identisch sind. 
-    Das Zyklometer analysiert dann die daraus resultierenden Verschlüsselungen und bildet charakteristische Zyklen." />
+                        <TooltipLabel label=""
+                            info="Die Zyklometer-Simulation erstellt Zyklen aus Klartext-Spruchschlüsseln, die noch nicht mit der Enigma verschlüsselt wurden." />
                     </label>
                 </h2>
 
@@ -16,128 +14,62 @@
 
                     <div class="left-form-content">
 
+
+
+
                         <!-- Model Selection (Disabled) -->
-                        <div class="enigma-setting">
-                            <label class="label-with-tooltip">
-                                <TooltipLabel label="Modell:"
-                                    info="Das Zyklometer ist nur mit der Enigma I der Wehrmacht kompatibel." />
-                            </label>
-                            <div class="dropdowns">
-                                <select v-model.number="settings.enigma.model" disabled>
-                                    <option v-for="model in enigmaModels" :key="model.value" :value="model.value">
-                                        {{ model.label }}
-                                    </option>
-                                </select>
-                            </div>
-                        </div>
+                        <MultiSelectWithCheckbox label="Modell:"
+                            info="Das Zyklometer ist nur mit der Enigma I der Wehrmacht kompatibel."
+                            :options="enigmaModels" v-model="settings.enigma.model" :selectCount="1" :disabled="true" />
 
-                        <!-- Reflector Selection (Disabled) -->
-                        <div class="enigma-setting">
-                            <label class="label-with-tooltip">
-                                <TooltipLabel label="Umkehrwalze:"
-                                    info="Der Katalog der Charakteristiken wurde historisch zunächst mit Umkehrwalze A erstellt, später mit B. Diese Implementierung nutzt ausschließlich UKW B." />
-                            </label>
-                            <div class="dropdowns">
-                                <select v-model="settings.enigma.reflector" disabled>
-                                    <option v-for="r in reflectors" :key="r" :value="r">{{ r }}</option>
-                                </select>
-                            </div>
-                        </div>
+                        <MultiSelectWithCheckbox label="Umkehrwalze:"
+                            info="Der Katalog der Charakteristiken wurde historisch zunächst mit Umkehrwalze A erstellt, später mit B. Diese Implementierung nutzt ausschließlich UKW B."
+                            :options="reflectors.map(r => ({ label: r, value: r }))" v-model="settings.enigma.reflector"
+                            :selectCount="1" :disabled="true" />
 
-                        <!-- Rotor Selection -->
-                        <div class="enigma-setting">
-                            <label class="label-with-tooltip">
-                                <TooltipLabel label="Walzenlage:"
-                                    info="Die Walzenauswahl erfolgt hier. In der Originalmaschine durften keine Walzen doppelt vorkommen." />
-                            </label>
-                            <div class="dropdowns">
-                                <template v-for="(index, i) in [0, 1, 2]" :key="'rotor-' + index">
-                                    <select v-model.number="settings.enigma.rotors[i]">
-                                        <option v-for="r in rotorOptions" :key="r.value" :value="r.value">{{ r.label }}
-                                        </option>
-                                    </select>
-                                    <span v-if="i < 2"></span>
-                                </template>
-                            </div>
-                        </div>
 
-                        <!-- Rotor Positions -->
-                        <div class="enigma-setting">
-                            <label class="label-with-tooltip">
-                                <TooltipLabel label="Walzenstellung:"
-                                    info="Anfangsstellung der Walzen – sie dreht sich bei jedem Tastendruck weiter." />
-                            </label>
 
-                            <div class="dropdowns">
-                                <template v-for="index in [0, 1, 2]" :key="'position-' + index">
-                                    <select v-model.number="settings.enigma.positions[index]">
-                                        <option v-for="opt in alphabetOptions" :key="opt.value" :value="opt.value">
-                                            {{ opt.label }}
-                                        </option>
-                                    </select>
-                                    <span v-if="index < 2"></span>
-                                </template>
-                            </div>
-                        </div>
 
-                        <!-- Ring Settings with Toggle -->
-                        <div class="enigma-setting">
-                            <label class="label-with-tooltip">
-                                <TooltipLabel label="Ringstellung:"
-                                    info="Der Katalog basiert auf neutraler Ringstellung. Bei anderer Ringstellung ergibt Rückrechnung die richtige Walzenstellung." />
-                            </label>
+                        <MultiSelectWithCheckbox label="Walzenlage:"
+                            info="Die Walzenauswahl erfolgt hier. In der Originalmaschine kamen keine Walzen doppelt vorkommen."
+                            :options="rotorOptions" v-model="settings.enigma.rotors" :selectCount="3" />
 
-                            <div class="dropdowns">
-                                <template v-for="index in [0, 1, 2]" :key="'ring-' + index">
-                                    <select v-model.number="settings.enigma.rings[index]"
-                                        :disabled="!ringstellungEnabled">
-                                        <option v-for="opt in alphabetOptions" :key="opt.value" :value="opt.value">
-                                            {{ opt.label }}
-                                        </option>
-                                    </select>
-                                    <span v-if="index < 2"></span>
-                                </template>
+                        <MultiSelectWithCheckbox label="Walzenstellung:"
+                            info="Anfangsstellung der Walzen – sie dreht sich bei jedem Tastendruck weiter."
+                            :options="alphabetOptions" v-model="settings.enigma.positions" :selectCount="3" />
 
-                                <!-- Nur Checkbox, kein Button mehr -->
-                                <label style="margin-left: 1rem; user-select: none; cursor: pointer;">
-                                    <input type="checkbox" v-model="ringstellungEnabled" />
-                                </label>
-                            </div>
-                        </div>
+                        <MultiSelectWithCheckbox label="Ringstellung:"
+                            info="Der Katalog basiert auf neutraler Ringstellung. Bei anderer Ringstellung muss durch Rückrechnung die richtige Walzenstellung ermittelt werden."
+                            :options="alphabetOptions" v-model="settings.enigma.rings"
+                            v-model:checkboxModelValue="ringstellungEnabled" :selectCount="3" :disabled="false"
+                            :showCheckbox="true" />
 
-                        <div class="enigma-setting">
-                            <label class="label-with-tooltip">
-                                <TooltipLabel label="Steckerbrett:"
-                                    info="Das Steckerbrett vertauscht Buchstaben. Auf die charakteristischen Zyklen hat das keinen Einfluss." />
-                            </label>
-
-                            <div class="plugboard-container">
-                                <input v-for="(pair, index) in plugboardPairs" :key="index"
-                                    v-model="plugboardPairs[index]" @input="onPlugboardInput(index)" maxlength="2"
-                                    type="text" style="text-transform: uppercase;" />
-                            </div>
-                        </div>
+                        <LabeledPlugboard v-model="settings.enigma.plugboard" label="Steckerbrett:"
+                            info="Das Steckerbrett vertauscht Buchstaben. Auf die charakteristischen Zyklen hat das keinen Einfluss." />
 
                         <h3>
                             <label class="label-with-tooltip">
                                 <TooltipLabel label="Spruchschlüssel"
-                                    info="Hier kannst du Buchstabenpaare verbinden." />
+                                    info="Hier wird festgelegt, mit wie vielen unverschlüsselten Spruchschlüsseln die Zyklometer-Simulation ausgeführt wird." />
                             </label>
                         </h3>
                         <div class="enigma-setting">
                             <label class="label-with-tooltip">
                                 <TooltipLabel label="Zufällig generierte:"
-                                    info="Hier kannst du Buchstabenpaare verbinden." />
+                                    info="Gibt an, wie viele Spruchschlüssel generiert werden sollen." />
                             </label>
                             <div class="keys">
-                                <input v-model="settings.parameters.daily_key_count" type="number" min="0" />
+                                <input type="number" min="0" max="1024" v-model="settings.parameters.daily_key_count"
+                                    class="styled-number-input" />
+
                             </div>
                         </div>
 
                         <!-- Eigene Spruchschlüssel with aligned button -->
                         <div class="enigma-setting">
                             <label class="label-with-tooltip">
-                                <TooltipLabel label="Eigene:" info="Hier kannst du Buchstabenpaare verbinden." />
+                                <TooltipLabel label="Eigene:"
+                                    info="Hier können eigene unverschlüsselte Spruchschlüssel eingegeben werden. Diese bestehen aus drei Buchstaben, die in gleicher Reihenfolge wiederholt werden – z.B. ‚ABCABC‘. " />
                             </label>
                             <div class="keys">
                                 <button type="button" @click="addManualKey" class="manual-button">Hinzufügen</button>
@@ -179,15 +111,19 @@
 
             <div class="right-form">
                 <div class="right-form-top">
-                    <h2>Zyklen mit Verdoppelungen
+                    <h2>
                         <label class="label-with-tooltip">
-                            <TooltipLabel label="" info="Hier kannst du Buchstabenpaare verbinden." />
+                            <TooltipLabel label="Zyklen mit Verdoppelungen"
+                                info="Das Zyklometer berechnet Zyklen, deren Vollständigkeit von der Anzahl der Spruchschlüssel abhängt. Vollständige Zyklen haben eine Summe von 26, und alle Werte treten paarweise auf." />
                         </label>
                     </h2>
                     <div class="cycle">
                         <!-- Cylometer Output-->
                         <div class="single-cycle">
-                            <label>Zyklen 1/4:</label>
+                            <label class="label-with-tooltip">
+                                <TooltipLabel label="Zyklen 1/4:"
+                                    info="Die Zyklen, die aus dem ersten und vierten Buchstaben des Spruchschlüssel generiert werden." />
+                            </label>
                             <div class="dropdowns">
                                 <span v-for="(cycle, i) in cyclometerResponse.cycles.one_to_four_permut"
                                     :key="'r1-' + i" class="cycle-dropdowns">
@@ -197,7 +133,10 @@
                         </div>
 
                         <div class="single-cycle">
-                            <label>Zyklen 2/5:</label>
+                            <label class="label-with-tooltip">
+                                <TooltipLabel label="Zyklen 2/5:"
+                                    info="Die Zyklen, die aus dem zweiten und fünften Buchstaben des Spruchschlüssel generiert werden." />
+                            </label>
                             <div class="dropdowns">
                                 <span v-for="(cycle, i) in cyclometerResponse.cycles.two_to_five_permut"
                                     :key="'r2-' + i" class="cycle-dropdowns">
@@ -207,7 +146,10 @@
                         </div>
 
                         <div class="single-cycle">
-                            <label>Zyklen 3/6:</label>
+                            <label class="label-with-tooltip">
+                                <TooltipLabel label="Zyklen 3/6:"
+                                    info="Die Zyklen, die aus dem dritten und sechsten Buchstaben des Spruchschlüssel generiert werden." />
+                            </label>
                             <div class="dropdowns">
                                 <span v-for="(cycle, i) in cyclometerResponse.cycles.three_to_six_permut"
                                     :key="'r3-' + i" class="cycle-dropdowns">
@@ -226,9 +168,10 @@
                 </div>
 
                 <div class="right-form-bottom">
-                    <h2>Abfrage des Katalogs der Charakteristiken
+                    <h2>
                         <label class="label-with-tooltip">
-                            <TooltipLabel label="" info="Hier kannst du Buchstabenpaare verbinden." />
+                            <TooltipLabel label="Abfrage des Katalogs der Charakteristiken"
+                                info="Hier wird der Katalog der Charakteristiken mit den zugehörigen charakteristischen Zyklen abgefragt. Zusätzlich kann die Datenbankabfrage gefiltert und sortiert werden." />
                         </label>
                     </h2>
 
@@ -237,7 +180,7 @@
                     <form v-if="cataloguerequest" @submit.prevent="handleCatalogue" class="handleCatalogue">
 
 
-                        
+
                         <h3>
                             <label class="label-with-tooltip">
                                 <TooltipLabel label="Zyklen ohne Verdoppelungen"
@@ -276,7 +219,7 @@
                                 </div>
                             </div>
                         </div>
-                                                                            <h3>
+                        <h3>
                             <label class="label-with-tooltip">
                                 Filtere nach:
                             </label>
@@ -285,67 +228,56 @@
                         <!-- Walzenlage button -->
                         <div class="filter">
                             <label>Walzenlage:</label>
-                            <div class="dropdowns">
-                                <input type="checkbox" :checked="showRotorOrderFilter"
-                                    @change="toggleRotorOrderFilter" />
-                                <div class="dropdowns-wrapper">
-                                    <div class="dropdowns" v-if="showRotorOrderFilter">
-                                        <template v-for="index in [0, 1, 2]" :key="'rotor-' + index">
-                                            <select v-model.number="cataloguerequest.parameters.rotorOrder[index]">
-                                                <option v-for="r in rotorOptions" :key="r.value" :value="r.value">{{
-                                                    r.label
-                                                    }}</option>
-                                            </select>
-                                            <span v-if="index < 2"></span>
-                                        </template>
-                                    </div>
+                            <div class="filter-options">
+                                <label class="switch">
+                                    <input type="checkbox" :checked="showRotorOrderFilter"
+                                        @change="toggleRotorOrderFilter" />
+                                    <span class="slider"></span>
+                                    <span>{{ showRotorOrderFilter ? '' : 'Nach Walzenlage filtern' }}</span>
+                                </label>
+                                <div class="filter-wrapper" v-if="showRotorOrderFilter">
+                                    <!-- Hier MultiSelect verwenden: -->
+                                    <MultiSelect v-model="cataloguerequest.parameters.rotorOrder"
+                                        :options="rotorOptions" :selectCount="3" :disabled="false" />
                                 </div>
                             </div>
                         </div>
-                        <!-- Ringstellung button -->
-                        <div class="enigma-setting, filter">
+
+
+
+                        <div class="filter">
                             <label>Walzenstellung:</label>
-                            <div class="dropdowns">
-                                <input type="checkbox" :checked="showRotorPositionFilter"
-                                    @change="toggleRotorPositionFilter" />
-                                <div class="dropdowns-wrapper">
-                                    <div class="dropdowns" v-if="showRotorPositionFilter">
-                                        <template v-for="index in [0, 1, 2]" :key="'rotor-' + index">
-                                            <select v-model.number="cataloguerequest.parameters.rotorPosition[index]">
-                                                <option v-for="opt in alphabetOptions" :key="opt.value"
-                                                    :value="opt.value">
-                                                    {{ opt.label }}
-                                                </option>
-                                            </select>
-                                            <span v-if="index < 2"></span>
-                                        </template>
-                                    </div>
+                            <div class="filter-options">
+                                <label class="switch">
+                                    <input type="checkbox" :checked="showRotorPositionFilter"
+                                        @change="toggleRotorPositionFilter" />
+                                    <span class="slider"></span>
+                                    <span>{{ showRotorPositionFilter ? '' : 'Nach Walzenstellung filtern' }}</span>
+                                </label>
+                                <div class="filter-wrapper" v-if="showRotorPositionFilter">
+                                    <MultiSelect v-model="cataloguerequest.parameters.rotorPosition"
+                                        :options="alphabetOptions" :selectCount="3" />
                                 </div>
                             </div>
                         </div>
-                        
-<!-- Sortiere nach -->
-                                                <h3>
+
+
+                        <!-- Sortiere nach -->
+                        <h3>
                             <label class="label-with-tooltip">
                                 Sortiere nach:
                             </label>
                         </h3>
                         <div class="sort-dropdowns">
-                                <select v-model="cataloguerequest.parameters.sortBy">
-                                    <option value="rotor_order">Walzenlage</option>
-                                    <option value="rotor_position">Walzenstellung</option>
-                                </select>
-                                <select v-model="cataloguerequest.parameters.sortDir">
-                                    <option value="asc">Aufsteigend</option>
-                                    <option value="desc">Absteigend</option>
-                                </select>
-                            </div>
-
-
-
-
-
-                        
+                            <select v-model="cataloguerequest.parameters.sortBy">
+                                <option value="rotor_order">Walzenlage</option>
+                                <option value="rotor_position">Walzenstellung</option>
+                            </select>
+                            <select v-model="cataloguerequest.parameters.sortDir">
+                                <option value="asc">Aufsteigend</option>
+                                <option value="desc">Absteigend</option>
+                            </select>
+                        </div>
 
                         <div>
                             <label></label>
@@ -358,8 +290,6 @@
 
             </div>
 
-
-
         </div>
     </div>
     <div class="arrow-container bottom-arrow" :style="arrowStyleBottom">
@@ -370,7 +300,10 @@
 
 
     <!-- Catalog Output -->
-    <div v-if="catalogueres && catalogueres.content && catalogueres.content.length" class="catalogue">
+    <div class="catalogue" v-if="catalogueres && catalogueres.content && catalogueres.content.length">
+
+
+
         <!-- Total found and loaded info in a row -->
         <div class="load-controls" style="display: flex; align-items: center; gap: 1rem;">
             <!-- Gefundene Konfigurationen -->
@@ -444,6 +377,10 @@
 <script setup>
 import BackendEnigma from '@/services/Enigma/BackendEnigma';
 import TooltipLabel from '@/components/TooltipLabel.vue';
+import MultiSelectWithCheckbox from '../components/MultiSelectWithCheckbox.vue';
+import MultiSelect from '../components/MultiSelect.vue';
+import LabeledPlugboard from '../components/LabeledPlugboard.vue';
+
 import { ref, nextTick, computed, watch, onMounted } from 'vue';
 
 const arrowStyle = ref({})
@@ -519,7 +456,6 @@ const rotorOptions = [
     { value: 5, label: "V" }
 ];
 
-const ringOptions = Array.from({ length: 26 }, (_, i) => i);
 
 const alphabetOptions = Array.from({ length: 26 }, (_, i) => ({
     value: i,
@@ -574,12 +510,7 @@ const cataloguerequest = ref({
 const showRotorOrderFilter = ref(false);
 const showRotorPositionFilter = ref(false);
 const ringstellungEnabled = ref(false);
-const steckerbrettEnabled = ref(false);
-
 const manualKeyRefs = ref([]);
-
-// Plugboard
-const plugboardPairs = ref(Array(10).fill(""));
 
 // 3. Computed Properties
 const availableRotors = computed(() => {
@@ -597,10 +528,6 @@ const availableRotors_filter = computed(() => {
 });
 
 // 4. Watchers
-watch(plugboardPairs, () => {
-    settings.value.enigma.plugboard = plugboardPairs.value.join('');
-}, { deep: true });
-
 
 // 5. Hilfsfunktionen / Utils (keine reactive Daten, z.B. Formatierung)
 const formatRotorPositionCompact = (positions) => {
@@ -623,16 +550,7 @@ const formatCycleNumbers = (numbers) => {
 };
 
 
-function toRoman(num) {
-    const romans = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"];
-    return romans[num - 1] || num.toString();
-}
 
-function formatRotorOrderWithNumbers(arr) {
-    const roman = arr.map(toRoman).join(",");
-    const numbers = arr.join(",");
-    return `${roman} (${numbers})`;
-}
 
 function formatRotorOrder(rotorOrderValues) {
     const romanMap = { 1: "I", 2: "II", 3: "III", 4: "IV", 5: "V" };
@@ -666,9 +584,6 @@ const handleCyclometer = async () => {
     if (plugboard.length % 2 !== 0) {
         plugboard = plugboard.slice(0, -1);
         settings.value.enigma.plugboard = plugboard;
-
-        let chars = plugboard.match(/.{1,2}/g) || [];
-        plugboardPairs.value = Array(10).fill("").map((_, i) => chars[i] || "");
     }
 
     await Cyclometer(settings.value);
@@ -699,10 +614,25 @@ const Catalogue = async (data) => {
     try {
         const response = await BackendEnigma.getCatalogue(data);
         catalogueres.value = response.data;
+
+        await nextTick(); // Warten, bis die Tabelle gerendert ist
+
+        // Nur scrollen, wenn die Seite ganz oben ist
+        if (window.scrollY === 0) {
+            window.scrollBy({
+                top: 200,
+                behavior: 'smooth' // optional smooth scroll
+            });
+        }
+
     } catch (error) {
         console.error("Catalogue error:", error);
     }
 };
+
+
+
+
 
 const addManualKey = async () => {
     settings.value.parameters.manual_keys.push("");
@@ -756,13 +686,6 @@ const toggleRotorPositionFilter = () => {
     cataloguerequest.value.parameters.rotorPosition = showRotorPositionFilter.value ? [0, 0, 0] : [];
 };
 
-const toggleRingstellung = () => {
-    ringstellungEnabled.value = !ringstellungEnabled.value;
-};
-
-const toggleSteckerbrett = () => {
-    steckerbrettEnabled.value = !steckerbrettEnabled.value;
-};
 
 
 // 9. Sonstige Hilfsfunktionen
@@ -828,28 +751,6 @@ const loadNextPage = async () => {
         isLoadingNextPage.value = false;
     }
 };
-
-
-
-// 10. Plugboard Input Handling
-const onPlugboardInput = (index) => {
-    let raw = plugboardPairs.value[index]
-        .toUpperCase()
-        .replace(/[^A-Z]/g, "")
-        .slice(0, 2);
-
-    const usedElsewhere = plugboardPairs.value
-        .map((v, i) => (i === index ? "" : v))
-        .join("")
-        .split("");
-
-    const unique = [...new Set(raw)].filter(char => !usedElsewhere.includes(char));
-    plugboardPairs.value[index] = unique.join("");
-};
-
-
-
-
 </script>
 
 
@@ -859,15 +760,6 @@ const onPlugboardInput = (index) => {
     height: 200px;
 }
 
-.form-container {
-    display: flex;
-    align-items: stretch;
-    width: 100%;
-    box-sizing: border-box;
-    min-height: 100%;
-    gap: 0;
-    /* Kein Abstand zwischen Flex-Children */
-}
 
 
 .arrow-container {
@@ -969,47 +861,33 @@ const onPlugboardInput = (index) => {
 }
 
 /* =========[ 2. Formulare & Steuerelemente ]========= */
-.enigma-setting {
+
+
+.filter {
     display: grid;
-    grid-template-columns: 160px 1fr;
-    align-items: start;
+    grid-template-columns: 120px 1fr;
+    align-items: center;
+    /* Vertikal zentrieren von Label + rechter Spalte */
     gap: 0.5rem 1.5rem;
     margin-bottom: 1.5rem;
-}
-
-.enigma-setting>label {
     font-weight: bold;
     padding-top: 0.4rem;
     text-align: left;
 }
 
-.enigma-setting select,
-.enigma-setting input[type="number"] {
-    min-width: 80px;
-    padding: 0.3rem;
+
+.filter-options {
+    min-height: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    /* Checkbox & MultiSelect vertikal zentrieren */
+    gap: 1rem;
+    /* Abstand zwischen Checkbox und Selects */
 }
 
 
-.enigma-setting button {
-    margin-left: 0.5rem;
-    padding: 0.3rem 0.6rem;
-}
 
-.filter {
-        display: grid;
-    grid-template-columns: 120px 1fr;
-    align-items: start;
-    gap: 0.5rem 1.5rem;
-    margin-bottom: 1.5rem;
-        font-weight: bold;
-    padding-top: 0.4rem;
-    text-align: left;
-}
-
-.dropdowns-wrapper {
-    min-height: 30px;
-    height: 30px;
-}
 
 .manual-keys-grid {
     display: grid;
@@ -1039,17 +917,25 @@ const onPlugboardInput = (index) => {
 }
 
 .manual-button {
-    background-color: #eee;
-    border: 1px solid #ccc;
-    padding: 0.3rem 0.6rem;
-    font-size: 0.85rem;
-    height: 2.3rem;
+    background-color: #7121ad;
+    color: white;
+    font-weight: 600;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 6px;
     cursor: pointer;
-    white-space: nowrap;
+    box-shadow: 0 3px 5px rgba(108, 0, 250, 0.4);
+    transition: background-color 0.3s ease;
 }
 
 .manual-button:hover {
     background-color: #ddd;
+}
+
+.manual-button:disabled {
+    background-color: #a0c8ff;
+    cursor: not-allowed;
+    box-shadow: none;
 }
 
 .invalid {
@@ -1198,7 +1084,7 @@ table tbody tr:nth-child(even) {
     padding-top: 0.4rem;
     text-align: right;
     display: grid;
-    grid-template-columns: 100px 1fr;
+    grid-template-columns: 120px 1fr;
     align-items: start;
     gap: 0.5rem 1.5rem;
     margin-bottom: 1.5rem;
@@ -1206,59 +1092,56 @@ table tbody tr:nth-child(even) {
 
 
 /* =========[ 5. Infoanzeige / Info-Elemente ]========= */
-.info {
-    display: flex;
-    justify-content: space-around;
-    min-width: 350px;
-    max-width: fit-content;
-}
-
-.info label {
-    font-weight: bold;
-    font-size: 1rem;
-    line-height: 1.1;
-}
-
-.info span {
-    font-size: 1rem;
-    font-weight: 600;
-    background-color: #f0f0f0;
-    padding: 0.1rem 0.3rem;
-    border-radius: 4px;
-    min-width: 60px;
-    text-align: center;
-}
-
 .load-controls {
     display: flex;
-    align-items: center;
+    justify-content: center;
+    /* zentriert den Inhalt horizontal */
     gap: 2rem;
     flex-wrap: wrap;
+    padding: 0.5rem 1rem;
+    background-color: #fafafa;
+    /* etwas helles, neutrales */
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgb(0 0 0 / 0.1);
 }
 
 .centered-container {
     display: flex;
-    justify-content: center;
     align-items: center;
-    gap: 0.5rem;
+    /* vertikal zentriert */
+    gap: 1.5rem;
     flex-wrap: wrap;
-    width: 100%;
+}
+
+.info {
+    display: flex;
+    align-items: baseline;
+    /* Label und Zahl auf gleicher Grundlinie */
+    gap: 0.3rem;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #333;
+}
+
+.info label {
+    font-weight: 600;
+    font-size: 1rem;
+    line-height: 1.1;
+    user-select: none;
+}
+
+.info span {
+    font-size: 1.25rem;
+    font-weight: 700;
+    background-color: #e0f2ff;
+    /* hellblauer Hintergrund */
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+    min-width: 50px;
+    text-align: center;
 }
 
 
 /* =========[ 6. Filter / Zusatz-Funktionen ]========= */
-.filter-toggle-row {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin-top: 1rem;
-    flex-wrap: wrap;
-}
-
-.filter-inputs {
-    display: flex;
-    gap: 0.5rem;
-}
 
 
 .left-form h2,
@@ -1269,14 +1152,7 @@ table tbody tr:nth-child(even) {
     padding-bottom: 0.5rem;
 }
 
-.dropdowns select {
-    width: 70px;
-    min-width: 0;
-    /* wichtig */
-    font-size: 1rem;
-    text-align: center;
-    box-sizing: border-box;
-}
+
 
 .sort-dropdowns select {
     font-size: 1rem;
@@ -1310,25 +1186,94 @@ select:focus {
 
 
 
-.plugboard-container {
-    width: 4ch;
-    /* etwas mehr als 2 Zeichen */
-    font-family: monospace;
-    text-align: center;
-    display: grid;
-    grid-template-columns: repeat(5, 28px);
-    gap: 6px;
-    width: max-content;
-    /* passt sich dem Inhalt an */
-}
-
-
 .keys,
 additional-keys {
     text-align: left;
 }
 
 
+input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+}
+
+
+.switch {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    user-select: none;
+}
+
+.switch input {
+    display: none;
+}
+
+.slider {
+    width: 40px;
+    height: 20px;
+    background-color: #ccc;
+    border-radius: 20px;
+    position: relative;
+    transition: background-color 0.3s;
+}
+
+.slider::before {
+    content: "";
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    left: 2px;
+    top: 2px;
+    background-color: white;
+    border-radius: 50%;
+    transition: transform 0.3s;
+}
+
+.switch input:checked+.slider {
+    background-color: #007bff;
+}
+
+.switch input:checked+.slider::before {
+    transform: translateX(20px);
+}
+
+.toggle-label {
+    display: inline-block;
+    min-width: 90px;
+    /* oder z. B. 11ch */
+}
+
+.styled-number-input {
+    font-size: 1.2rem;
+    /* größere Schrift */
+    width: 6ch;
+    /* Platz für 4 Ziffern (+ etwas Luft) */
+    padding: 0.4rem 0.6rem;
+    /* Innenabstand */
+    border: 1px solid #ccc;
+    /* dezenter Rahmen */
+    border-radius: 6px;
+    /* abgerundete Ecken */
+    background-color: #fefefe;
+    /* leicht helles Eingabefeld */
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.styled-number-input:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.2);
+}
+
+/* Optional: Pfeile im Input-Feld ausblenden (je nach Stilwunsch) */
+.styled-number-input::-webkit-outer-spin-button,
+.styled-number-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
 
 
 

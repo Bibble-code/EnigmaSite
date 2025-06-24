@@ -1,7 +1,8 @@
 <template>
   <nav>
     <router-link to="/">Enigma</router-link> |
-    <router-link to="/cyclometer">Zyklometer</router-link>  
+    <router-link to="/cyclometer">Zyklometer</router-link>  |
+    <router-link to="/manual">Bedienungsanleitung</router-link>
 
 
   </nav>
@@ -23,6 +24,7 @@ nav {
 
 nav a {
   font-weight: bold;
+  font-size: 2rem;
   color: #2c3e50;
 }
 

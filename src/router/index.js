@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
 import EnigmaRequestView from "@/views/EnigmaRequestView.vue";
 import CyclometerView from "@/views/CyclometerView.vue";
+import InstructionView from "../views/InstructionView.vue";
 
 const routes = [
   {
@@ -16,6 +17,11 @@ const routes = [
     path: "/cyclometer",
     name: "cyclometer",
     component: CyclometerView,
+  },
+  {
+    path: "/manual",
+    name: "manual",
+    component: InstructionView,
   },
 ];
 

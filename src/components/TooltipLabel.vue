@@ -1,15 +1,11 @@
 <template>
   <span class="label-with-tooltip">
     {{ label }}
-    <span
-      ref="infoIcon"
-      class="info-icon"
-      @mouseenter="checkPosition"
-      @mouseleave="resetPosition"
-    >
+    <span v-if="info" ref="infoIcon" class="info-icon" @mouseenter="checkPosition" @mouseleave="resetPosition">
       🛈
       <span :class="['tooltip', { 'tooltip-bottom': showBelow }]">{{ info }}</span>
     </span>
+
   </span>
 </template>
 
@@ -31,17 +27,39 @@ function checkPosition() {
   const tooltip = icon.querySelector('.tooltip')
   if (!tooltip) return
 
-  // Tooltip Höhe & Position berechnen
-  const tooltipHeight = tooltip.offsetHeight
   const iconRect = icon.getBoundingClientRect()
+  const tooltipRect = tooltip.getBoundingClientRect()
 
-  // Wenn Tooltip nach oben rausfällt (Fenster obere Kante)
-  if (iconRect.top - tooltipHeight < 0) {
+  const viewportHeight = window.innerHeight
+  const viewportWidth = window.innerWidth
+
+  // Zeige Tooltip unten, wenn oben nicht genug Platz
+  if (iconRect.top - tooltipRect.height < 0) {
     showBelow.value = true
-  } else {
+  } else if (iconRect.bottom + tooltipRect.height > viewportHeight) {
+    // Wenn unten auch nicht passt → oben anzeigen
     showBelow.value = false
   }
+
+  // Optional: Tooltip horizontal verschieben wenn nötig
+  const overflowRight = iconRect.left + tooltipRect.width / 2 > viewportWidth
+  const overflowLeft = iconRect.left - tooltipRect.width / 2 < 0
+
+  if (overflowRight) {
+    tooltip.style.left = 'auto'
+    tooltip.style.right = '0'
+    tooltip.style.transform = 'none'
+  } else if (overflowLeft) {
+    tooltip.style.left = '0'
+    tooltip.style.right = 'auto'
+    tooltip.style.transform = 'none'
+  } else {
+    tooltip.style.left = '50%'
+    tooltip.style.right = 'auto'
+    tooltip.style.transform = 'translateX(-50%)'
+  }
 }
+
 
 function resetPosition() {
   showBelow.value = false
@@ -79,12 +97,15 @@ function resetPosition() {
   white-space: normal;
   z-index: 10;
   transition: opacity 0.2s;
-  font-size: 0.75rem;
+  font-size: 1rem;
   pointer-events: none;
-    max-width: 600px;  /* Maximalbreite */
-  min-width: 300px;  /* Mindestbreite */
-  white-space: normal; /* Zeilenumbruch */
-   text-align: left;
+  max-width: 600px;
+  /* Maximalbreite */
+  min-width: 300px;
+  /* Mindestbreite */
+  white-space: normal;
+  /* Zeilenumbruch */
+  text-align: left;
 }
 
 .tooltip-bottom {
