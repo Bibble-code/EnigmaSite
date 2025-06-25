@@ -104,24 +104,30 @@ function onSelectChange(event, idx) {
   flex: 1;
 }
 
-.dropdowns select {
-  width: 70px;
+.dropdowns select,
+.dropdowns select:disabled {
+  width: 85px;
   font-size: 1rem;
   text-align: center;
   padding: 0.3rem;
   box-sizing: border-box;
+  border-radius: 6px;
+  border: 1px solid #bbb;
+  font-family: inherit;
+  line-height: 1.2;
 }
+
+.dropdowns select:disabled {
+  background-color: #fff;
+  color: #000000;
+  cursor: not-allowed;
+}
+
+
+
 </style>
 
 <style scoped>
-.enigma-setting {
-  display: grid;
-  grid-template-columns: 160px 1fr;
-  align-items: center;
-  gap: 0.5rem 1.5rem;
-  margin-bottom: 1.5rem;
-}
-
 .label {
   font-weight: bold;
   padding-top: 0.4rem;

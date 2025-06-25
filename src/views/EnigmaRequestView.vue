@@ -1,8 +1,8 @@
 <template>
     <div v-if="settings.enigma">
         <form @submit.prevent="handleSubmit">
-            <div class="left-form-content">
-                <div class="enigma-settings-wrapper">
+            <div class="enigma">
+                <div class="left-form form-box">
 
                     <MultiSelectWithCheckbox label="Modell:"
                         info="Model I und M3 unterscheiden sich nur im Walzensatz und den verfügbaren Umkehrwalzen (UKWs). Model M4 hat 4 Walzen und eigene UKWs."
@@ -27,40 +27,48 @@
                     <LabeledPlugboard v-model="settings.enigma.plugboard" label="Steckerbrett:"
                         info="Das Steckerbrett vertauscht Buchstaben. Auf die charakteristischen Zyklen hat das keinen Einfluss." />
 
+<SubmitButton :disabled="!settings.enigma.input" :loading="isLoading">Verschlüsseln</SubmitButton>
+
+
+
+
                 </div>
 
-
-                <div class="submit">
-                    <button>Verschlüsseln</button>
-                </div>
-
-            </div>
-
-
-
-            <div class="form-container">
+                            <div class="right-form">
                 <!-- Left Section (Eingabe) -->
-                <div class="form-section">
-                    <div class="enigma-setting textarea-wrapper">
+                <div class="text-box">
+                    <div class="textarea-wrapper">
                         <label>Eingabe:</label>
                         <textarea ref="inputTextarea" v-model="settings.enigma.input" @input="sanitizeInput"
                             spellcheck="false">
-            </textarea>
+                        </textarea>
 
                     </div>
 
+                </div>
+
+                                <div class="arrow-container">
+                    <svg width="160" height="20" viewBox="0 0 160 20" xmlns="http://www.w3.org/2000/svg">
+                        <polygon points="0,0 160,0 80,20" fill="#444" />
+                    </svg>
                 </div>
 
 
 
                 <!-- Right Section (Ausgabe) -->
-                <div class="form-section">
-                    <div class="enigma-setting textarea-wrapper">
+                <div class="text-box">
+                    <div class="textarea-wrapper">
                         <label>Ausgabe:</label>
                         <textarea ref="outputTextarea" v-model="enigma_output" @input="syncTextareas"></textarea>
                     </div>
                 </div>
             </div>
+
+
+            </div>
+
+
+
 
         </form>
     </div>
@@ -68,10 +76,10 @@
 
 <script setup>
 import BackendEnigma from '@/services/Enigma/BackendEnigma';
-import TooltipLabel from '@/components/TooltipLabel.vue';
 import MultiSelectWithCheckbox from '../components/MultiSelectWithCheckbox.vue';
 import LabeledPlugboard from '../components/LabeledPlugboard.vue';
 import { ref, computed, watch, reactive } from 'vue';
+import SubmitButton from '../components/SubmitButton.vue';
 
 // 1. === KONSTANTEN & STATISCHE OPTIONEN ===
 const enigmaModels = [
@@ -84,7 +92,7 @@ const enigmaModels = [
 const reflectorOptionsByUiType = {
     2: [{ value: "A", label: "UKW A" }, { value: "B", label: "UKW B" }, { value: "C", label: "UKW C" }],
     3: [{ value: "B", label: "UKW B" }, { value: "C", label: "UKW C" }],
-    4: [{ value: "b", label: "UKW B thin" }, { value: "c", label: "UKW C thin" }]
+    4: [{ value: "b", label: "UKW b" }, { value: "c", label: "UKW c" }]
 };
 
 // Hilfsfunktion für römische Ziffern
@@ -183,7 +191,11 @@ const Encrypt = async (data) => {
     }
 };
 
+const isLoading = ref(false);
+
 const handleSubmit = async () => {
+    isLoading.value = true;
+
     let plugboard = settings.enigma.plugboard || "";
 
     if (plugboard.length % 2 !== 0) {
@@ -191,8 +203,15 @@ const handleSubmit = async () => {
         settings.enigma.plugboard = plugboard;
     }
 
-    await Encrypt(JSON.stringify(settings));
+    try {
+        await Encrypt(JSON.stringify(settings));
+    } catch (error) {
+        console.error(error);
+    } finally {
+        isLoading.value = false;
+    }
 };
+
 
 
 const sanitizeInput = (event) => {
@@ -212,6 +231,7 @@ const sanitizeInput = (event) => {
     margin-bottom: 1.5rem;
 }
 
+
 .enigma-setting>label {
     font-weight: bold;
     padding-top: 0.4rem;
@@ -225,137 +245,111 @@ const sanitizeInput = (event) => {
 }
 
 
-.enigma-setting button {
-    margin-left: 0.5rem;
-    padding: 0.3rem 0.6rem;
-}
-
-.enigma-setting textarea {
-    width: 100%;
-    height: 150px;
-    padding: 0.5rem;
-    font-size: 1rem;
-    border-radius: 4px;
-    border: 1px solid #ccc;
-}
-
-.enigma-settings-wrapper {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    /* zentriert horizontal */
-    justify-content: center;
-    width: 100%;
-    padding: 1rem;
-}
-
-
-
-
-.form-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: stretch;
-    width: 100%;
-    max-width: 1200px;
-    margin: 0 auto;
+.arrow-container {
+    flex: 0 0 50px;
+    /* feste Breite */
+    padding: 0rem;
     box-sizing: border-box;
-    min-height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.arrow-container.bottom-arrow {
+    margin: 1rem auto 0 auto;
+    /* oben Abstand, horizontal zentriert */
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 </style>
 
 <style scoped>
 /* Stil für Eingabe und Ausgabe Textareas */
+.enigma {
+  display: flex;
+  gap: 2rem;
+  align-items: stretch;  /* wichtig */
+  width: 100%;
+  max-width: 1200px;
+  margin: 4rem auto 0 auto;
+  height: auto;
+}
+
+
+.form-box {
+    display: flex;
+    flex-direction: column;
+    background-color: #f5f7fa;
+    border: 1px solid #bbb;
+    border-radius: 6px;
+    padding: 1rem;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    min-height: 100%;
+    max-width: 100%;
+    width: fit-content;
+
+}
+
+.text-box {
+        display: flex;
+    flex-direction: column;
+    background-color: #f5f7fa;
+    border: 1px solid #bbb;
+    border-radius: 6px;
+    padding: 1rem;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  flex: 1;
+  height: 100%;
+    min-height: 0;  /* wichtig, um Überlauf zu verhindern */
+}
+
+.left-form {
+    min-width: 560px;
+}
+
+.right-form {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  height: auto;         /* oder nichts setzen */
+}
+
+
+
+
 
 /* Wrapper für das gesamte Formular */
-
-/* Jede Sektion (Eingabe/Ausgabe) */
-.form-section {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    /* Vertikale Ausrichtung */
-    gap: 1rem;
+.textarea-wrapper textarea {
+  flex: 1;
+  padding: 1rem;
+  font-size: 1.1rem;
+  line-height: 1.5;
+  font-family: monospace;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background-color: #fff;
+  box-sizing: border-box;
 }
 
-/* Zentrierter Bereich für den Button */
-.form-center {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    flex: 0.2;
-    /* Für zentrierten Bereich */
-}
 
 
 /* Neue Klasse für Textarea und Label */
 .textarea-wrapper {
-    display: flex;
-    flex-direction: column;
-    /* Label und Textarea vertikal anordnen */
-    gap: 0.5rem;
-    /* Abstand zwischen Label und Textarea */
-    width: 100%;
-    /* Textarea füllt den gesamten Container */
-    box-sizing: border-box;
-    /* sorgt dafür, dass Padding und Border in der Breite mitgerechnet werden */
+  display: flex;
+  flex-direction: column;
+  flex: 1;
 }
 
 .textarea-wrapper label {
-    font-weight: bold;
-    padding-bottom: 0.5rem;
-    /* Abstand unter dem Label */
-}
-
-.textarea-wrapper textarea {
-    width: 100%;
-    /* Textarea nimmt die gesamte Breite des Containers ein */
-    min-height: 150px;
-    /* Starthöhe für die Textareas */
-    padding: 0.5rem;
-    font-size: 1rem;
-    border-radius: 4px;
-    border: 1px solid #ccc;
-    resize: vertical;
-    /* Nur vertikal veränderbar */
-    box-sizing: border-box;
-    /* Padding und Border innerhalb der Breite und Höhe des Elements */
+  font-weight: bold;
+  margin-bottom: 0.5rem;
 }
 
 
-
-.submit-button {
-    margin-top: 1.5rem;
-}
-
-/* Verschlüsseln Button */
-.submit button {
-    padding: 1.2rem 2.5rem;
-    /* größerer Innenabstand für Größe */
-    font-size: 1.2rem;
-    /* größere Schrift */
-    margin: 2rem 0;
-    /* Abstand oben und unten */
-    background-color: #4caf50;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    /* etwas stärker abgerundet */
-    cursor: pointer;
-}
-
-
-.submit button:hover {
-    background-color: #45a049;
-}
 
 /* Media Queries für kleinere Bildschirme */
 @media (max-width: 768px) {
-    .form-container {
-        flex-direction: column;
-        /* Auf kleinen Bildschirmen unterbrechen wir das Layout in eine Spalte */
-    }
 
     .form-section {
         flex: 1 1 100%;

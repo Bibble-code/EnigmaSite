@@ -66,13 +66,17 @@ function resetPosition() {
 }
 </script>
 
-<style scoped>
+<style>
 .label-with-tooltip {
   position: relative;
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
 }
+
+</style>
+
+<style scoped>
 
 .info-icon {
   position: relative;

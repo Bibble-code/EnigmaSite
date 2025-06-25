@@ -1,7 +1,7 @@
 <template>
     <div v-if="settings">
         <div class="form-container">
-            <div class="left-form">
+            <div class="left-form form-box">
                 <h2>Erstellen der charakteristischen Zyklen
                     <label class="label-with-tooltip">
                         <TooltipLabel label=""
@@ -9,15 +9,10 @@
                     </label>
                 </h2>
 
-                <!-- CylometerForm -->
                 <form @submit.prevent="handleCyclometer">
 
                     <div class="left-form-content">
 
-
-
-
-                        <!-- Model Selection (Disabled) -->
                         <MultiSelectWithCheckbox label="Modell:"
                             info="Das Zyklometer ist nur mit der Enigma I der Wehrmacht kompatibel."
                             :options="enigmaModels" v-model="settings.enigma.model" :selectCount="1" :disabled="true" />
@@ -26,8 +21,6 @@
                             info="Der Katalog der Charakteristiken wurde historisch zunächst mit Umkehrwalze A erstellt, später mit B. Diese Implementierung nutzt ausschließlich UKW B."
                             :options="reflectors.map(r => ({ label: r, value: r }))" v-model="settings.enigma.reflector"
                             :selectCount="1" :disabled="true" />
-
-
 
 
                         <MultiSelectWithCheckbox label="Walzenlage:"
@@ -65,14 +58,17 @@
                             </div>
                         </div>
 
-                        <!-- Eigene Spruchschlüssel with aligned button -->
                         <div class="enigma-setting">
                             <label class="label-with-tooltip">
                                 <TooltipLabel label="Eigene:"
                                     info="Hier können eigene unverschlüsselte Spruchschlüssel eingegeben werden. Diese bestehen aus drei Buchstaben, die in gleicher Reihenfolge wiederholt werden – z.B. ‚ABCABC‘. " />
                             </label>
                             <div class="keys">
-                                <button type="button" @click="addManualKey" class="manual-button">Hinzufügen</button>
+                                <button type="button" @click="addManualKey" class="manual-button"
+                                    :disabled="settings.parameters.manual_keys.length >= MAX_MANUAL_KEYS">
+                                    Hinzufügen
+                                </button>
+
                                 <button type="button" @click="deleteLastManualKey"
                                     class="manual-button">Löschen</button>
                             </div>
@@ -90,13 +86,13 @@
                         </div>
                     </div>
 
-                    <div>
-                        <label></label>
-                        <div class="submit">
-                            <button type="submit" class="submit-button">Zyklen erzeugen</button>
+                    <div class="form-footer">
+                        <div>
+                            <SubmitButton :loading="isLoadingCyclometer">Zyklen erzeugen</SubmitButton>
                         </div>
                     </div>
                 </form>
+
             </div>
 
             <div class="arrow-container" :style="arrowStyle">
@@ -110,7 +106,7 @@
 
 
             <div class="right-form">
-                <div class="right-form-top">
+                <div class="form-box topbox">
                     <h2>
                         <label class="label-with-tooltip">
                             <TooltipLabel label="Zyklen mit Verdoppelungen"
@@ -121,8 +117,11 @@
                         <!-- Cylometer Output-->
                         <div class="single-cycle">
                             <label class="label-with-tooltip">
-                                <TooltipLabel label="Zyklen 1/4:"
-                                    info="Die Zyklen, die aus dem ersten und vierten Buchstaben des Spruchschlüssel generiert werden." />
+<TooltipLabel
+  label="Zyklen 1 → 4"
+  info="Die Zyklen, die aus dem ersten und vierten Buchstaben des Spruchschlüssel generiert werden."
+/>
+
                             </label>
                             <div class="dropdowns">
                                 <span v-for="(cycle, i) in cyclometerResponse.cycles.one_to_four_permut"
@@ -134,7 +133,7 @@
 
                         <div class="single-cycle">
                             <label class="label-with-tooltip">
-                                <TooltipLabel label="Zyklen 2/5:"
+                                <TooltipLabel label="Zyklen 2 → 5:"
                                     info="Die Zyklen, die aus dem zweiten und fünften Buchstaben des Spruchschlüssel generiert werden." />
                             </label>
                             <div class="dropdowns">
@@ -147,7 +146,7 @@
 
                         <div class="single-cycle">
                             <label class="label-with-tooltip">
-                                <TooltipLabel label="Zyklen 3/6:"
+                                <TooltipLabel label="Zyklen 3 → 6:"
                                     info="Die Zyklen, die aus dem dritten und sechsten Buchstaben des Spruchschlüssel generiert werden." />
                             </label>
                             <div class="dropdowns">
@@ -167,7 +166,7 @@
                     </svg>
                 </div>
 
-                <div class="right-form-bottom">
+                <div class="form-box">
                     <h2>
                         <label class="label-with-tooltip">
                             <TooltipLabel label="Abfrage des Katalogs der Charakteristiken"
@@ -190,7 +189,7 @@
 
                         <div class="cycle">
                             <div class="single-cycle">
-                                <label>Zyklen 1/4:</label>
+                                <label>Zyklen 1 → 4:</label>
                                 <div class="dropdowns">
                                     <span v-for="(cycle, i) in cataloguerequest.cycles.one_to_four_permut"
                                         :key="'r1-' + i" class="cycle-dropdowns">
@@ -200,7 +199,7 @@
                             </div>
 
                             <div class="single-cycle">
-                                <label>Zyklen 2/5:</label>
+                                <label>Zyklen 2 → 5:</label>
                                 <div class="dropdowns">
                                     <span v-for="(cycle, i) in cataloguerequest.cycles.two_to_five_permut"
                                         :key="'r2-' + i" class="cycle-dropdowns">
@@ -210,7 +209,7 @@
                             </div>
 
                             <div class="single-cycle">
-                                <label>Zyklen 3/6:</label>
+                                <label>Zyklen 3 → 6:</label>
                                 <div class="dropdowns">
                                     <span v-for="(cycle, i) in cataloguerequest.cycles.three_to_six_permut"
                                         :key="'r3-' + i" class="cycle-dropdowns">
@@ -225,41 +224,49 @@
                             </label>
                         </h3>
 
-                        <!-- Walzenlage button -->
+
+
                         <div class="filter">
                             <label>Walzenlage:</label>
                             <div class="filter-options">
-                                <label class="switch">
+                                <label class="filter-switch">
                                     <input type="checkbox" :checked="showRotorOrderFilter"
                                         @change="toggleRotorOrderFilter" />
                                     <span class="slider"></span>
-                                    <span>{{ showRotorOrderFilter ? '' : 'Nach Walzenlage filtern' }}</span>
                                 </label>
+
+                                <span class="switch-label" v-if="!showRotorOrderFilter">
+                                    Nach Walzenlage filtern
+                                </span>
+
                                 <div class="filter-wrapper" v-if="showRotorOrderFilter">
-                                    <!-- Hier MultiSelect verwenden: -->
                                     <MultiSelect v-model="cataloguerequest.parameters.rotorOrder"
                                         :options="rotorOptions" :selectCount="3" :disabled="false" />
                                 </div>
                             </div>
                         </div>
 
-
-
                         <div class="filter">
                             <label>Walzenstellung:</label>
                             <div class="filter-options">
-                                <label class="switch">
+                                <label class="filter-switch">
                                     <input type="checkbox" :checked="showRotorPositionFilter"
                                         @change="toggleRotorPositionFilter" />
                                     <span class="slider"></span>
-                                    <span>{{ showRotorPositionFilter ? '' : 'Nach Walzenstellung filtern' }}</span>
                                 </label>
+
+                                <span class="switch-label" v-if="!showRotorPositionFilter">
+                                    Nach Walzenstellung filtern
+                                </span>
+
                                 <div class="filter-wrapper" v-if="showRotorPositionFilter">
                                     <MultiSelect v-model="cataloguerequest.parameters.rotorPosition"
                                         :options="alphabetOptions" :selectCount="3" />
                                 </div>
                             </div>
                         </div>
+
+
 
 
                         <!-- Sortiere nach -->
@@ -279,11 +286,10 @@
                             </select>
                         </div>
 
-                        <div>
-                            <label></label>
-                            <div class="submit">
-                                <button type="submit" class="submit-button">Katalog abfragen</button>
-                            </div>
+
+                        <label></label>
+                        <div class="form-footer">
+                            <SubmitButton :loading="isLoadingCatalogue">Katalog abfragen</SubmitButton>
                         </div>
                     </form>
                 </div>
@@ -301,70 +307,73 @@
 
     <!-- Catalog Output -->
     <div class="catalogue" v-if="catalogueres && catalogueres.content && catalogueres.content.length">
+        <div class="table-box">
+            <!-- Total found and loaded info in a row -->
+            <div class="load-controls">
+                <!-- Gefundene Konfigurationen -->
+                <div class="centered-container">
+                    <div class="info">
+                        <label>Gefundene Konfigurationen: </label>
+                        <span>{{ formatNumber(catalogueres.totalElements) }}</span>
+                    </div>
+
+                    <!-- Geladene Konfigurationen -->
+                    <div class="info">
+                        <label>Geladene Konfigurationen: </label>
+                        <span>{{ formatNumber(catalogueres.content.length) }}</span>
+                    </div>
 
 
+                    <!-- Load buttons -->
+                    <div>
+                        <button type="button" @click="loadNextPage" class="manual-button"
+                            :disabled="(((catalogueres.pageNumber + 1) >= catalogueres.totalPages) || (catalogueres.pageNumber > 99))">
+                            +100 laden
+                        </button>
 
-        <!-- Total found and loaded info in a row -->
-        <div class="load-controls" style="display: flex; align-items: center; gap: 1rem;">
-            <!-- Gefundene Konfigurationen -->
-            <div class="centered-container">
-                <div class="info">
-                    <label>Gefundene Konfigurationen: </label>
-                    <span>{{ formatNumber(catalogueres.totalElements) }}</span>
-                </div>
-
-                <!-- Geladene Konfigurationen -->
-                <div class="info">
-                    <label>Geladene Konfigurationen: </label>
-                    <span>{{ formatNumber(catalogueres.content.length) }}</span>
-                </div>
-
-
-                <!-- Load buttons -->
-                <div>
-                    <button type="button" @click="loadNextPage" class="manual-button"
-                        :disabled="(((catalogueres.pageNumber + 1) >= catalogueres.totalPages) || (catalogueres.pageNumber > 99))">
-                        +100 laden
-                    </button>
-
+                    </div>
                 </div>
             </div>
+
+            <!-- Table displaying configurations -->
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Walzenlage</th>
+                        <th>Walzenposition</th>
+                        <th>Zyklen 1 → 4</th>
+                        <th>Zyklen 2 → 5</th>
+                        <th>Zyklen 3 → 6</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="(object, index) in catalogueres.content" :key="index">
+                        <td>{{ index + 1 }}</td>
+                        <td class="tabelle_format">
+                            <pre>{{ formatRotorOrder(object.enigmaConfiguration.rotor_order) }}</pre>
+                        </td>
+                        <td class="tabelle_format">
+                            <pre>{{ formatRotorPositionCompact(object.enigmaConfiguration.rotor_position) }}</pre>
+                        </td>
+                        <td class="tabelle_format">
+                            <pre>{{ formatCycleNumbers(object.cycles.one_to_four_permut) }}</pre>
+                        </td>
+                        <td class="tabelle_format">
+                            <pre>{{ formatCycleNumbers(object.cycles.two_to_five_permut) }}</pre>
+                        </td>
+                        <td class="tabelle_format">
+                            <pre>{{ formatCycleNumbers(object.cycles.three_to_six_permut) }}</pre>
+                        </td>
+
+                    </tr>
+                </tbody>
+            </table>
         </div>
 
-        <!-- Table displaying configurations -->
-        <table>
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Walzenlage</th>
-                    <th>Walzenposition</th>
-                    <th>Zyklen 1/4</th>
-                    <th>Zyklen 2/5</th>
-                    <th>Zyklen 3/6</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr v-for="(object, index) in catalogueres.content" :key="index">
-                    <td>{{ index + 1 }}</td>
-                    <td class="tabelle_format">
-                        <pre>{{ formatRotorOrder(object.enigmaConfiguration.rotor_order) }}</pre>
-                    </td>
-                    <td class="tabelle_format">
-                        <pre>{{ formatRotorPositionCompact(object.enigmaConfiguration.rotor_position) }}</pre>
-                    </td>
-                    <td class="tabelle_format">
-                        <pre>{{ formatCycleNumbers(object.cycles.one_to_four_permut) }}</pre>
-                    </td>
-                    <td class="tabelle_format">
-                        <pre>{{ formatCycleNumbers(object.cycles.two_to_five_permut) }}</pre>
-                    </td>
-                    <td class="tabelle_format">
-                        <pre>{{ formatCycleNumbers(object.cycles.three_to_six_permut) }}</pre>
-                    </td>
 
-                </tr>
-            </tbody>
-        </table>
+
+
     </div>
 
     <!-- Buffer-->
@@ -380,14 +389,15 @@ import TooltipLabel from '@/components/TooltipLabel.vue';
 import MultiSelectWithCheckbox from '../components/MultiSelectWithCheckbox.vue';
 import MultiSelect from '../components/MultiSelect.vue';
 import LabeledPlugboard from '../components/LabeledPlugboard.vue';
+import SubmitButton from '../components/SubmitButton.vue';
 
-import { ref, nextTick, computed, watch, onMounted } from 'vue';
+import { ref, nextTick, computed, onMounted, onBeforeUnmount } from 'vue';
 
 const arrowStyle = ref({})
 
 onMounted(() => {
     nextTick(() => {
-        const topEl = document.querySelector('.right-form-top')
+        const topEl = document.querySelector('.topbox')
         if (topEl) {
             const height = topEl.offsetHeight
             arrowStyle.value = {
@@ -404,34 +414,40 @@ onMounted(() => {
 
 const arrowStyleBottom = ref({})
 
+function updateArrowPosition() {
+    const rightFormEl = document.querySelector('.right-form')
+    const arrowEl = document.querySelector('.arrow-container.bottom-arrow')
+
+    if (rightFormEl && arrowEl) {
+        const rightFormRect = rightFormEl.getBoundingClientRect()
+        const arrowRect = arrowEl.getBoundingClientRect()
+
+        const rightFormCenterX = rightFormRect.left + rightFormRect.width / 2
+        const arrowLeft = rightFormCenterX - arrowRect.width / 2
+
+        arrowStyleBottom.value = {
+            position: 'absolute',
+            left: arrowLeft + 'px',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            width: arrowRect.width + 'px',
+            zIndex: 10
+        }
+    }
+}
+
 onMounted(() => {
     nextTick(() => {
-        const rightFormEl = document.querySelector('.right-form')
-        const arrowEl = document.querySelector('.arrow-container.bottom-arrow')
-
-        if (rightFormEl && arrowEl) {
-            const rightFormRect = rightFormEl.getBoundingClientRect()
-            const arrowRect = arrowEl.getBoundingClientRect()
-
-            // Mitte von right-form relativ zum Viewport
-            const rightFormCenterX = rightFormRect.left + rightFormRect.width / 2
-
-            // Wie viel Pfeil verschoben werden muss, damit seine Mitte auf rightFormCenterX liegt
-            const arrowLeft = rightFormCenterX - arrowRect.width / 2
-
-            arrowStyleBottom.value = {
-                position: 'absolute', // wichtig, damit left wirkt
-                left: arrowLeft + 'px',
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                width: arrowRect.width + 'px',
-                // Optional: zIndex falls nötig
-                zIndex: 10
-            }
-        }
+        updateArrowPosition()
+        window.addEventListener('resize', updateArrowPosition)
     })
 })
+
+onBeforeUnmount(() => {
+    window.removeEventListener('resize', updateArrowPosition)
+})
+
 
 
 
@@ -511,6 +527,9 @@ const showRotorOrderFilter = ref(false);
 const showRotorPositionFilter = ref(false);
 const ringstellungEnabled = ref(false);
 const manualKeyRefs = ref([]);
+const isLoadingCyclometer = ref(false);
+const isLoadingCatalogue = ref(false);
+
 
 // 3. Computed Properties
 const availableRotors = computed(() => {
@@ -570,24 +589,30 @@ const formatNumber = (value) => {
 
 // 6. Action Handlers / Event Handlers
 const handleCyclometer = async () => {
-    filterValidKeys();
-    if (
-        settings.value.parameters.daily_key_count === null ||
-        settings.value.parameters.daily_key_count === undefined ||
-        settings.value.parameters.daily_key_count === ""
-    ) {
-        settings.value.parameters.daily_key_count = 0;
+    isLoadingCyclometer.value = true;
+    try {
+        filterValidKeys();
+        if (
+            settings.value.parameters.daily_key_count === null ||
+            settings.value.parameters.daily_key_count === undefined ||
+            settings.value.parameters.daily_key_count === ""
+        ) {
+            settings.value.parameters.daily_key_count = 0;
+        }
+
+        let plugboard = settings.value.enigma.plugboard || "";
+
+        if (plugboard.length % 2 !== 0) {
+            plugboard = plugboard.slice(0, -1);
+            settings.value.enigma.plugboard = plugboard;
+        }
+
+        await Cyclometer(settings.value);
+    } finally {
+        isLoadingCyclometer.value = false;
     }
-
-    let plugboard = settings.value.enigma.plugboard || "";
-
-    if (plugboard.length % 2 !== 0) {
-        plugboard = plugboard.slice(0, -1);
-        settings.value.enigma.plugboard = plugboard;
-    }
-
-    await Cyclometer(settings.value);
 };
+
 
 const Cyclometer = async (data) => {
     try {
@@ -600,15 +625,21 @@ const Cyclometer = async (data) => {
 };
 
 const handleCatalogue = async () => {
-    cataloguerequest.value.parameters.page = 0;
+    isLoadingCatalogue.value = true;
+    try {
+        cataloguerequest.value.parameters.page = 0;
 
-    const req = structuredClone(cataloguerequest.value);
+        const req = structuredClone(cataloguerequest.value);
 
-    if (!showRotorOrderFilter.value) req.parameters.rotorOrder = [];
-    if (!showRotorPositionFilter.value) req.parameters.rotorPosition = [];
+        if (!showRotorOrderFilter.value) req.parameters.rotorOrder = [];
+        if (!showRotorPositionFilter.value) req.parameters.rotorPosition = [];
 
-    await Catalogue(JSON.stringify(req));
+        await Catalogue(JSON.stringify(req));
+    } finally {
+        isLoadingCatalogue.value = false;
+    }
 };
+
 
 const Catalogue = async (data) => {
     try {
@@ -634,11 +665,14 @@ const Catalogue = async (data) => {
 
 
 
+const MAX_MANUAL_KEYS = 30;
 const addManualKey = async () => {
-    settings.value.parameters.manual_keys.push("");
-    await nextTick();
-    const lastInput = manualKeyRefs.value.at(-1);
-    if (lastInput) lastInput.focus();
+    if (settings.value.parameters.manual_keys.length < MAX_MANUAL_KEYS) {
+        settings.value.parameters.manual_keys.push("");
+        await nextTick();
+        const lastInput = manualKeyRefs.value.at(-1);
+        if (lastInput) lastInput.focus();
+    }
 };
 
 const deleteLastManualKey = () => {
@@ -646,6 +680,7 @@ const deleteLastManualKey = () => {
         settings.value.parameters.manual_keys.pop();
     }
 };
+
 
 // 7. Validierungen / Filter
 //const isValidKey = (key) => /^([A-Z])([A-Z])([A-Z])\1\2\3$/.test(key);
@@ -753,67 +788,88 @@ const loadNextPage = async () => {
 };
 </script>
 
+<style>
+body {
+    background-color: #eaeaea;
+    /* einfache Hintergrundfarbe */
+    /* oder mit Bild */
+    /* background-image: url('dein-bild.jpg'); */
+    /* background-size: cover; */
+    /* background-repeat: no-repeat; */
+    /* background-position: center center; */
+    margin: 0;
+    /* Optional, um Standardabstände zu entfernen */
+    min-height: 100vh;
+    /* Damit der Hintergrund immer die ganze Höhe hat */
+}
+</style>
 
 <style scoped>
 /* =========[ 1. Layout & Struktur ]========= */
+
 .scroll-buffer {
     height: 200px;
 }
 
 
 
-.arrow-container {
-    flex: 0 0 50px;
-    /* feste Breite */
-    padding: 0rem;
-    box-sizing: border-box;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.arrow-container.bottom-arrow {
-    margin: 1rem auto 0 auto;
-    /* oben Abstand, horizontal zentriert */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-
-
-
-
-.left-form {
+form {
     display: flex;
     flex-direction: column;
-    flex: 1;
-    background-color: #fff;
+    height: 100%;
+}
+
+.form-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: stretch;
+    width: 100%;
+    max-width: 1200px;
+    margin: 2rem auto 0 auto;
+    box-sizing: border-box;
+    min-height: 100%;
+}
+
+.form-box {
+    display: flex;
+    flex-direction: column;
+    background-color: #f5f7fa;
     border: 1px solid #bbb;
-    border-radius: 8px;
+    border-radius: 6px;
     padding: 1rem;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-    margin: 0;
-    /* falls Margin da ist */
+    min-height: 100%;
+    max-width: 100%
 }
 
-.left-form form {
+.table-box {
     display: flex;
     flex-direction: column;
-    flex-grow: 1;
-    /* Formular soll wachsen */
+    background-color: #f5f7fa;
+    border: 1px solid #bbb;
+    border-radius: 6px;
+    padding: 1rem;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    min-height: 100%;
+    max-width: 100%;
+    width: fit-content;
+
 }
 
-.left-form-content {
-    flex-grow: 1;
-    /* Der große Bereich, wächst */
+
+.form-footer {
+    margin-top: auto;
+    /* schiebt die Fußzeile nach unten */
+    padding-top: 1rem;
+}
+
+.left-form {
+    flex: 1;
     display: flex;
     flex-direction: column;
 }
 
-
-
-
+/* Falls nötig, spezifische Anpassung */
 .right-form {
     display: flex;
     flex-direction: column;
@@ -821,25 +877,15 @@ const loadNextPage = async () => {
     height: 100%;
     min-height: 100%;
     margin: 0;
-    /* falls Margin da ist */
+    flex-grow: 1;
 }
 
 
-.right-form-top,
-.right-form-bottom {
-    flex: 1;
-    /* ← gleichmäßig verteilen */
+.left-form-content {
+    flex-grow: 1;
     display: flex;
     flex-direction: column;
-    background-color: #fff;
-    border: 1px solid #bbb;
-    border-radius: 6px;
-    padding: 1rem;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-    height: 100%;
-    min-height: 100%;
 }
-
 
 
 
@@ -855,17 +901,23 @@ const loadNextPage = async () => {
 }
 
 .catalogue {
-    position: relative;
-    /* wenn nicht schon gesetzt */
+    display: flex;
+    justify-content: center;
+    /* zentriert den Inhalt horizontal */
+    padding: 1rem;
+    /* optional für Abstand zum Bildschirmrand */
     margin-top: 60px;
+    position: relative;
 }
+
+
 
 /* =========[ 2. Formulare & Steuerelemente ]========= */
 
 
 .filter {
     display: grid;
-    grid-template-columns: 120px 1fr;
+    grid-template-columns: 110px 1fr;
     align-items: center;
     /* Vertikal zentrieren von Label + rechter Spalte */
     gap: 0.5rem 1.5rem;
@@ -874,6 +926,15 @@ const loadNextPage = async () => {
     padding-top: 0.4rem;
     text-align: left;
 }
+
+.filter-switch input[type="checkbox"] {
+  width: 18px;         /* optional: explizit setzen */
+  height: 18px;        /* optional: explizit setzen */
+  transform: scale(1.4); /* skaliert die Checkbox */
+  margin-right: 0.5rem;  /* etwas Abstand zum Slider/Text */
+  cursor: pointer;
+}
+
 
 
 .filter-options {
@@ -886,6 +947,18 @@ const loadNextPage = async () => {
     /* Abstand zwischen Checkbox und Selects */
 }
 
+.filter-switch {
+    display: inline-flex;
+    align-items: center;
+}
+
+.filter-switch label {}
+
+.switch-label {
+    margin-left: 0.5rem;
+    white-space: nowrap;
+    font-weight: normal;
+}
 
 
 
@@ -916,52 +989,39 @@ const loadNextPage = async () => {
     font-size: 0.9rem;
 }
 
+
+
 .manual-button {
     background-color: #7121ad;
     color: white;
-    font-weight: 600;
+    font-weight: 500;
+    font-size: 1rem;
+    font-weight: bold;
     padding: 0.5rem 1rem;
     border: none;
     border-radius: 6px;
     cursor: pointer;
-    box-shadow: 0 3px 5px rgba(108, 0, 250, 0.4);
+    box-shadow: 0 2px 4px rgba(108, 0, 250, 0.3);
     transition: background-color 0.3s ease;
+    line-height: 1.2;
 }
+
 
 .manual-button:hover {
-    background-color: #ddd;
+    background-color: #5a188c;
 }
 
+
 .manual-button:disabled {
-    background-color: #a0c8ff;
+    background-color: #b78fe4;
     cursor: not-allowed;
     box-shadow: none;
 }
 
 .invalid {
-    background-color: rgb(255, 180, 180);
+    background-color: #e0e8ff;
 }
 
-.submit-button {
-    padding: 0.75rem 1.5rem;
-    font-size: 1rem;
-    font-weight: 600;
-    background-color: #4caf50;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    min-width: 160px;
-    min-height: 40px;
-    text-align: center;
-    display: inline-block;
-    margin-top: 1rem;
-
-}
-
-.submit-button:hover {
-    background-color: #45a045;
-}
 
 
 
@@ -973,6 +1033,7 @@ table {
     margin: 1rem auto;
     /* Zentriert die Tabelle */
     border-collapse: collapse;
+    background-color: #ffffff;
 }
 
 
@@ -989,7 +1050,7 @@ table td {
 }
 
 table th {
-    background-color: #f6f6f6;
+    background-color: #f0f0f0;
     font-weight: bold;
     white-space: nowrap;
 }
@@ -1015,7 +1076,7 @@ table td:nth-child(2) {
 /* Spalte 3: Walzenposition */
 table th:nth-child(3),
 table td:nth-child(3) {
-    width: 180px;
+    width: 170px;
     min-width: 100px;
     max-width: 230px;
     white-space: nowrap;
@@ -1027,7 +1088,7 @@ table th:nth-child(5),
 table td:nth-child(5),
 table th:nth-child(6),
 table td:nth-child(6) {
-    width: 150px;
+    width: 120px;
     min-width: 30px;
     max-width: 300px;
     white-space: nowrap;
@@ -1046,12 +1107,13 @@ table td:nth-child(3) {
 }
 
 table tbody tr:nth-child(even) {
-    background-color: #f9f9f9;
+    background-color: #f3f3f3;
 }
 
 
 .tabelle_format {
     font-family: monospace;
+    padding-left: 1rem;
 }
 
 .tabelle_format pre {
@@ -1062,7 +1124,6 @@ table tbody tr:nth-child(even) {
     font-family: monospace;
     white-space: pre;
 }
-
 
 /* =========[ 4. Zyklenanzeige / Einzelwerte ]========= */
 .cycle-dropdowns {
@@ -1084,7 +1145,7 @@ table tbody tr:nth-child(even) {
     padding-top: 0.4rem;
     text-align: right;
     display: grid;
-    grid-template-columns: 120px 1fr;
+    grid-template-columns: 130px 1fr;
     align-items: start;
     gap: 0.5rem 1.5rem;
     margin-bottom: 1.5rem;
@@ -1095,14 +1156,11 @@ table tbody tr:nth-child(even) {
 .load-controls {
     display: flex;
     justify-content: center;
-    /* zentriert den Inhalt horizontal */
     gap: 2rem;
     flex-wrap: wrap;
     padding: 0.5rem 1rem;
-    background-color: #fafafa;
     /* etwas helles, neutrales */
-    border-radius: 8px;
-    box-shadow: 0 2px 6px rgb(0 0 0 / 0.1);
+    align-items: center;
 }
 
 .centered-container {
@@ -1154,34 +1212,29 @@ table tbody tr:nth-child(even) {
 
 
 
+
 .sort-dropdowns select {
     font-size: 1rem;
     box-sizing: border-box;
-}
-
-select {
-    padding: none;
-    border-radius: 8px;
-    border: 1px solid #bbb;
-    font-size: 1rem;
+      display: flex;
+  flex: 1;
+  text-align: center;
+  padding: 0.3rem;
+  box-sizing: border-box;
+  border-radius: 6px;
+  border: 1px solid #bbb;
+  font-family: inherit;
+  line-height: 1.2;
     cursor: pointer;
-    text-align: center;
 }
 
-select:disabled {
-    cursor: default;
-    /* z. B. 'default', 'pointer', 'text' oder was du möchtest */
-    background-color: #fff;
+
+.sort-dropdowns {
+  display: flex;
+  gap: 0.5rem; /* Abstand zwischen den Selects */
+  align-items: center;
 }
 
-select:hover {
-    border-color: #4caf50;
-}
-
-select:focus {
-    border-color: #388e3c;
-    box-shadow: 0 0 5px #388e3c;
-}
 
 
 
@@ -1189,55 +1242,15 @@ select:focus {
 .keys,
 additional-keys {
     text-align: left;
-}
-
-
-input[type="checkbox"] {
-    width: 20px;
-    height: 20px;
-}
-
-
-.switch {
-    display: inline-flex;
-    align-items: center;
+    display: flex;
     gap: 0.5rem;
-    cursor: pointer;
-    user-select: none;
+    /* Abstand zwischen Buttons */
+    margin-top: 0.5rem;
 }
 
-.switch input {
-    display: none;
-}
 
-.slider {
-    width: 40px;
-    height: 20px;
-    background-color: #ccc;
-    border-radius: 20px;
-    position: relative;
-    transition: background-color 0.3s;
-}
 
-.slider::before {
-    content: "";
-    position: absolute;
-    width: 16px;
-    height: 16px;
-    left: 2px;
-    top: 2px;
-    background-color: white;
-    border-radius: 50%;
-    transition: transform 0.3s;
-}
 
-.switch input:checked+.slider {
-    background-color: #007bff;
-}
-
-.switch input:checked+.slider::before {
-    transform: translateX(20px);
-}
 
 .toggle-label {
     display: inline-block;
