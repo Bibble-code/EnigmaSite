@@ -46,33 +46,41 @@
                                     info="Hier wird festgelegt, mit wie vielen unverschlüsselten Spruchschlüsseln die Zyklometer-Simulation ausgeführt wird." />
                             </label>
                         </h3>
+
+
+                        <!-- Zufällig generierte -->
                         <div class="enigma-setting">
                             <label class="label-with-tooltip">
                                 <TooltipLabel label="Zufällig generierte:"
                                     info="Gibt an, wie viele Spruchschlüssel generiert werden sollen." />
                             </label>
-                            <div class="keys">
-                                <input type="number" min="0" max="1024" v-model="settings.parameters.daily_key_count"
-                                    class="styled-number-input" />
-
+                            <div class="keys full-width">
+                                <input type="range" min="0" :max="sliderMax" v-model="sliderValue"
+                                    @input="onSliderInput" class="styled-slider flex-grow" />
+                                <input type="number" min="0" :max="actualMax"
+                                    v-model.number="settings.parameters.daily_key_count" @input="onNumberInput"
+                                    class="styled-number-input" style="width: 4ch;" />
                             </div>
                         </div>
 
+                        <!-- Eigene -->
                         <div class="enigma-setting">
                             <label class="label-with-tooltip">
-                                <TooltipLabel label="Eigene:"
-                                    info="Hier können eigene unverschlüsselte Spruchschlüssel eingegeben werden. Diese bestehen aus drei Buchstaben, die in gleicher Reihenfolge wiederholt werden – z.B. ‚ABCABC‘. " />
+                                <TooltipLabel label="+ Eigene:"
+                                    info="Hier können eigene unverschlüsselte Spruchschlüssel eingegeben werden..." />
                             </label>
-                            <div class="keys">
-                                <button type="button" @click="addManualKey" class="manual-button"
+                            <div class="keys full-width">
+                                <button type="button" @click="addManualKey" class="manual-button flex-grow"
                                     :disabled="settings.parameters.manual_keys.length >= MAX_MANUAL_KEYS">
                                     Hinzufügen
                                 </button>
-
-                                <button type="button" @click="deleteLastManualKey"
-                                    class="manual-button">Löschen</button>
+                                <button type="button" @click="deleteLastManualKey" class="manual-button flex-grow">
+                                    Löschen
+                                </button>
                             </div>
                         </div>
+
+
 
 
                         <div class="manual-keys-grid">
@@ -117,10 +125,8 @@
                         <!-- Cylometer Output-->
                         <div class="single-cycle">
                             <label class="label-with-tooltip">
-<TooltipLabel
-  label="Zyklen 1 → 4"
-  info="Die Zyklen, die aus dem ersten und vierten Buchstaben des Spruchschlüssel generiert werden."
-/>
+                                <TooltipLabel label="Zyklen 1 → 4"
+                                    info="Die Zyklen, die aus dem ersten und vierten Buchstaben des Spruchschlüssel generiert werden." />
 
                             </label>
                             <div class="dropdowns">
@@ -391,7 +397,7 @@ import MultiSelect from '../components/MultiSelect.vue';
 import LabeledPlugboard from '../components/LabeledPlugboard.vue';
 import SubmitButton from '../components/SubmitButton.vue';
 
-import { ref, nextTick, computed, onMounted, onBeforeUnmount } from 'vue';
+import { ref, nextTick, computed, onMounted, onBeforeUnmount, watch } from 'vue';
 
 const arrowStyle = ref({})
 
@@ -786,6 +792,54 @@ const loadNextPage = async () => {
         isLoadingNextPage.value = false;
     }
 };
+
+
+
+
+
+
+
+const sliderMax = 10000
+const actualMax = 1024
+const targetMidValue = 100
+const base = Math.pow((actualMax / targetMidValue) + 1, 2)
+const A = actualMax / (base - 1)
+
+// Slider-Wert im großen Bereich
+const sliderValue = ref(valueToSlider(settings.value.parameters.daily_key_count))
+
+function sliderToValue(sliderVal) {
+    const t = sliderVal / sliderMax
+    const value = A * (Math.pow(base, t) - 1)
+    return Math.round(value)
+}
+
+function valueToSlider(actualVal) {
+    const t = Math.log((actualVal / A) + 1) / Math.log(base)
+    return Math.round(t * sliderMax)
+}
+
+
+// Wenn Slider bewegt wird, echten Wert aktualisieren
+function onSliderInput() {
+    settings.value.parameters.daily_key_count = sliderToValue(sliderValue.value)
+}
+
+// Wenn Nummerneingabe geändert wird, Slider anpassen
+function onNumberInput() {
+    if (settings.value.parameters.daily_key_count < 0) settings.value.parameters.daily_key_count = 0
+    if (settings.value.parameters.daily_key_count > actualMax) settings.value.parameters.daily_key_count = actualMax
+    sliderValue.value = valueToSlider(settings.value.parameters.daily_key_count)
+}
+
+// Synchronisieren, falls sich der Wert außerhalb von Slider ändert (optional)
+watch(() => settings.value.parameters.daily_key_count, (newVal) => {
+    sliderValue.value = valueToSlider(newVal)
+})
+
+
+
+
 </script>
 
 <style>
@@ -928,11 +982,15 @@ form {
 }
 
 .filter-switch input[type="checkbox"] {
-  width: 18px;         /* optional: explizit setzen */
-  height: 18px;        /* optional: explizit setzen */
-  transform: scale(1.4); /* skaliert die Checkbox */
-  margin-right: 0.5rem;  /* etwas Abstand zum Slider/Text */
-  cursor: pointer;
+    width: 18px;
+    /* optional: explizit setzen */
+    height: 18px;
+    /* optional: explizit setzen */
+    transform: scale(1.4);
+    /* skaliert die Checkbox */
+    margin-right: 0.5rem;
+    /* etwas Abstand zum Slider/Text */
+    cursor: pointer;
 }
 
 
@@ -1019,7 +1077,7 @@ form {
 }
 
 .invalid {
-    background-color: #e0e8ff;
+    background-color: #ede0ff;
 }
 
 
@@ -1216,23 +1274,24 @@ table tbody tr:nth-child(even) {
 .sort-dropdowns select {
     font-size: 1rem;
     box-sizing: border-box;
-      display: flex;
-  flex: 1;
-  text-align: center;
-  padding: 0.3rem;
-  box-sizing: border-box;
-  border-radius: 6px;
-  border: 1px solid #bbb;
-  font-family: inherit;
-  line-height: 1.2;
+    display: flex;
+    flex: 1;
+    text-align: center;
+    padding: 0.3rem;
+    box-sizing: border-box;
+    border-radius: 6px;
+    border: 1px solid #bbb;
+    font-family: inherit;
+    line-height: 1.2;
     cursor: pointer;
 }
 
 
 .sort-dropdowns {
-  display: flex;
-  gap: 0.5rem; /* Abstand zwischen den Selects */
-  align-items: center;
+    display: flex;
+    gap: 0.5rem;
+    /* Abstand zwischen den Selects */
+    align-items: center;
 }
 
 
@@ -1286,6 +1345,44 @@ additional-keys {
 .styled-number-input::-webkit-inner-spin-button {
     -webkit-appearance: none;
     margin: 0;
+}
+
+
+.keys.full-width {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+    width: 100%;
+    align-items: center;
+}
+
+.styled-number-input {
+    /* ca. 4 Zeichen breit */
+    width: 4ch;
+    min-width: 4ch;
+    /* verhindert Verkleinerung */
+    max-width: 4ch;
+    /* optional: Text zentrieren */
+    text-align: center;
+    /* damit der Input nicht zu groß wird */
+    flex-shrink: 0;
+}
+
+.flex-grow {
+    flex: 1;
+    min-width: 0;
+    /* verhindert Überlauf bei zu langen Werten */
+}
+
+.styled-slider {
+    flex: 1;
+    width: auto;
+    /* überschreibt width 100% */
+    accent-color: #0052cc;
+}
+
+.styled-number-input {
+    width: 100%;
 }
 
 

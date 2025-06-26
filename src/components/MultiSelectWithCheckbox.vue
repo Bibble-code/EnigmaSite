@@ -14,18 +14,15 @@
         </select>
       </template>
 
-      <label v-if="hasCheckbox" class="switch">
-        <input type="checkbox" v-model="checkboxModelValue" />
-        <span class="slider"></span>
-        <span class="toggle-label">
-          {{ checkboxModelValue ? 'Deaktivieren' : 'Aktivieren' }}
-        </span>
-      </label>
+    <ToggleSwitch v-if="hasCheckbox" v-model="checkboxModelValue">
+      {{ checkboxModelValue ? 'Deaktivieren' : 'Aktivieren' }}
+    </ToggleSwitch>
     </div>
   </div>
 </template>
 
 <script setup>
+import ToggleSwitch from './ToggleSwitch.vue'
 import TooltipLabel from './TooltipLabel.vue'
 import { computed } from 'vue'
 

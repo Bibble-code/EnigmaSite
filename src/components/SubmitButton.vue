@@ -36,7 +36,7 @@ defineProps({
 
 
 .submit-button:disabled {
-  background-color: #ccc;
+  background-color: #8fa7ca;
   cursor: not-allowed;
 }
 

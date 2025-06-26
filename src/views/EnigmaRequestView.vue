@@ -5,7 +5,7 @@
                 <div class="left-form form-box">
 
                     <MultiSelectWithCheckbox label="Modell:"
-                        info="Model I und M3 unterscheiden sich nur im Walzensatz und den verfügbaren Umkehrwalzen (UKWs). Model M4 hat 4 Walzen und eigene UKWs."
+                        info="Model I (Wehrmacht) und M3 (Marine) unterscheiden sich nur im Walzensatz und den verfügbaren Umkehrwalzen (UKWs). Model M4 (Uboot-Flotte) hat 4 Walzen und eigene UKWs."
                         :options="enigmaModels" v-model="uiType" :selectCount="1" />
 
                     <MultiSelectWithCheckbox label="Umkehrwalze:"
@@ -27,42 +27,87 @@
                     <LabeledPlugboard v-model="settings.enigma.plugboard" label="Steckerbrett:"
                         info="Das Steckerbrett vertauscht Buchstaben. Auf die charakteristischen Zyklen hat das keinen Einfluss." />
 
-<SubmitButton :disabled="!settings.enigma.input" :loading="isLoading">Verschlüsseln</SubmitButton>
+                    <SubmitButton :disabled="!settings.enigma.input" :loading="isLoading">
+                        {{ settings.enigma.input ? 'Verschlüsseln' : 'Bitte Text eingeben' }}
+                    </SubmitButton>
+
 
 
 
 
                 </div>
 
-                            <div class="right-form">
-                <!-- Left Section (Eingabe) -->
-                <div class="text-box">
-                    <div class="textarea-wrapper">
-                        <label>Eingabe:</label>
-                        <textarea ref="inputTextarea" v-model="settings.enigma.input" @input="sanitizeInput"
-                            spellcheck="false">
-                        </textarea>
+                <div class="right-form">
+                    <!-- Left Section (Eingabe) -->
+                    <div class="text-box">
+<div class="textarea-wrapper">
+  <div class="controls-row">
+    <label>Eingabe:</label>
+
+<label class="font-label">
+  Schrift:
+<input
+  type="range"
+  min="10"
+  max="40"
+  v-model="fontSize"
+  style="width: 100px;"
+/>
+
+  <input
+    type="number"
+    min="10"
+    max="40"
+    v-model="fontSize"
+    class="font-input"
+    
+  />
+  px
+</label>
+
+<ToggleSwitch v-model="isUpperCase">
+  {{ isUpperCase ? 'Groß' : 'Klein' }}
+</ToggleSwitch>
+
+  </div>
+
+<textarea
+  ref="inputTextarea"
+  v-model="settings.enigma.input"
+  @input="sanitizeInput"
+  spellcheck="false"
+  :style="{
+    fontSize: fontSize + 'px',
+    minWidth: '550px',
+    resize: 'horizontal'
+  }"
+/>
+
+</div>
+
+
 
                     </div>
 
-                </div>
-
-                                <div class="arrow-container">
-                    <svg width="160" height="20" viewBox="0 0 160 20" xmlns="http://www.w3.org/2000/svg">
-                        <polygon points="0,0 160,0 80,20" fill="#444" />
-                    </svg>
-                </div>
+                    <div class="arrow-container">
+                        <svg width="160" height="20" viewBox="0 0 160 20" xmlns="http://www.w3.org/2000/svg">
+                            <polygon points="0,0 160,0 80,20" fill="#444" />
+                        </svg>
+                    </div>
 
 
 
-                <!-- Right Section (Ausgabe) -->
-                <div class="text-box">
-                    <div class="textarea-wrapper">
-                        <label>Ausgabe:</label>
-                        <textarea ref="outputTextarea" v-model="enigma_output" @input="syncTextareas"></textarea>
+                    <!-- Right Section (Ausgabe) -->
+                    <div class="text-box">
+                        <div class="textarea-wrapper">
+                            <label >Ausgabe:</label>
+                            <textarea ref="outputTextarea" v-model="enigma_output" readonly class="output-textarea"
+                                tabindex="-1" :style="{ fontSize: fontSize + 'px' }"></textarea>
+
+
+                        </div>
                     </div>
                 </div>
-            </div>
 
 
             </div>
@@ -72,14 +117,18 @@
 
         </form>
     </div>
+    <div class="scroll-buffer"></div>
 </template>
 
 <script setup>
 import BackendEnigma from '@/services/Enigma/BackendEnigma';
 import MultiSelectWithCheckbox from '../components/MultiSelectWithCheckbox.vue';
 import LabeledPlugboard from '../components/LabeledPlugboard.vue';
-import { ref, computed, watch, reactive } from 'vue';
 import SubmitButton from '../components/SubmitButton.vue';
+import ToggleSwitch from '../components/ToggleSwitch.vue';
+
+import { ref, computed, watch, reactive, nextTick } from 'vue';
+
 
 // 1. === KONSTANTEN & STATISCHE OPTIONEN ===
 const enigmaModels = [
@@ -132,6 +181,11 @@ const settings = reactive({
 const enigma_output = ref("");
 
 
+const isUpperCase = ref(false);
+const inputTextarea = ref(null);
+const fontSize = ref(16);
+
+
 // 3. === COMPUTED PROPERTIES ===
 
 const rotorSpan = computed(() => {
@@ -154,16 +208,22 @@ const rotorOptions = computed(() => {
 
 const ringsFirstThree = computed({
     get() {
-        return settings.enigma.rings.slice(0, 3)
+        return settings.enigma.rings.slice(0, 3);
     },
     set(newVals) {
-        // Hier die ersten 3 Werte aktualisieren, 4. Wert bleibt unverändert
-        settings.enigma.rings = [
-            ...newVals,
-            settings.enigma.rings[3] // 4. Wert bleibt gleich
-        ]
+        const model = settings.enigma.model;
+
+        if (model === 4) {
+            // Bewahre vierten Wert bei Modell 4
+            const fourth = settings.enigma.rings[3] ?? 0;
+            settings.enigma.rings = [...newVals.slice(0, 3), fourth];
+        } else {
+            // Modell 2 oder 3 – genau 3 Elemente setzen
+            settings.enigma.rings = [...newVals.slice(0, 3)];
+        }
     }
-})
+});
+
 
 
 
@@ -179,13 +239,41 @@ watch(uiType, (newUiType) => {
     settings.enigma.rings.splice(0, settings.enigma.rings.length, ...defaults.rings);
 });
 
+watch(isUpperCase, (newVal) => {
+    // Eingabetext anpassen
+    settings.enigma.input = newVal
+        ? settings.enigma.input.toUpperCase()
+        : settings.enigma.input.toLowerCase();
+
+    // Ausgabe ebenfalls anpassen, falls vorhanden
+    enigma_output.value = newVal
+        ? enigma_output.value.toUpperCase()
+        : enigma_output.value.toLowerCase();
+
+    // Nach Umwandlung den Fokus wieder ins Eingabefeld setzen
+    nextTick(() => {
+        inputTextarea.value?.focus();
+    });
+});
+
+
+
+
 
 // 5. === METHODEN ===
 
 const Encrypt = async (data) => {
     try {
         const response = await BackendEnigma.getEncryption(data);
-        enigma_output.value = response.data.output;
+
+        // Rohdaten vom Backend
+        let outputFromBackend = response.data.output || "";
+
+        // Direkt an den Slider-Status anpassen
+        enigma_output.value = isUpperCase.value
+            ? outputFromBackend.toUpperCase()
+            : outputFromBackend.toLowerCase();
+
     } catch (error) {
         console.error(error);
     }
@@ -215,8 +303,15 @@ const handleSubmit = async () => {
 
 
 const sanitizeInput = (event) => {
-    settings.enigma.input = event.target.value.toUpperCase().replace(/[^A-Z]/g, "");
+    const raw = event.target.value;
+    const onlyLetters = raw.replace(/[^a-zA-Z]/g, "");
+    settings.enigma.input = isUpperCase.value
+        ? onlyLetters.toUpperCase()
+        : onlyLetters.toLowerCase();
 };
+
+
+
 
 
 </script>
@@ -267,13 +362,14 @@ const sanitizeInput = (event) => {
 <style scoped>
 /* Stil für Eingabe und Ausgabe Textareas */
 .enigma {
-  display: flex;
-  gap: 2rem;
-  align-items: stretch;  /* wichtig */
-  width: 100%;
-  max-width: 1200px;
-  margin: 4rem auto 0 auto;
-  height: auto;
+    display: flex;
+    gap: 2rem;
+    align-items: stretch;
+    /* wichtig */
+    width: 100%;
+    max-width: 1200px;
+    margin: 4rem auto 0 auto;
+    height: auto;
 }
 
 
@@ -292,16 +388,17 @@ const sanitizeInput = (event) => {
 }
 
 .text-box {
-        display: flex;
+    display: flex;
     flex-direction: column;
     background-color: #f5f7fa;
     border: 1px solid #bbb;
     border-radius: 6px;
     padding: 1rem;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-  flex: 1;
-  height: 100%;
-    min-height: 0;  /* wichtig, um Überlauf zu verhindern */
+    flex: 1;
+    height: 100%;
+    min-height: 0;
+    /* wichtig, um Überlauf zu verhindern */
 }
 
 .left-form {
@@ -309,10 +406,11 @@ const sanitizeInput = (event) => {
 }
 
 .right-form {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  height: auto;         /* oder nichts setzen */
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    height: auto;
+    /* oder nichts setzen */
 }
 
 
@@ -321,31 +419,88 @@ const sanitizeInput = (event) => {
 
 /* Wrapper für das gesamte Formular */
 .textarea-wrapper textarea {
-  flex: 1;
-  padding: 1rem;
-  font-size: 1.1rem;
-  line-height: 1.5;
-  font-family: monospace;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  background-color: #fff;
-  box-sizing: border-box;
+    flex: 1;
+    padding: 1rem;
+    font-size: 1.1rem;
+    line-height: 1.5;
+    font-family: monospace;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    background-color: #fff;
+    box-sizing: border-box;
 }
 
 
 
 /* Neue Klasse für Textarea und Label */
+
+.output-textarea {
+    resize: none;
+    /* Verhindert Größenänderung */
+}
+
+.output-textarea:focus {
+    outline: none;
+    /* Kein blauer Rahmen beim Fokus */
+}
+
+
 .textarea-wrapper {
   display: flex;
   flex-direction: column;
-  flex: 1;
-}
-
-.textarea-wrapper label {
+  height: 100%;
   font-weight: bold;
-  margin-bottom: 0.5rem;
 }
 
+.controls-row {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  margin-bottom: 0.5rem;
+  flex-wrap: wrap; /* Falls es zu eng wird, umbrechen */
+  accent-color: #0052cc;
+}
+
+.controls-row label,
+.controls-row {
+  white-space: nowrap;
+}
+
+.controls-row label {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+
+
+
+/* Textarea soll den restlichen Platz einnehmen */
+.textarea-wrapper textarea {
+  flex-grow: 1;
+  min-height: 150px; /* oder was du willst */
+  resize: none;
+  font-family: monospace;
+  font-size: inherit; /* Vererbt vom Parent */
+}
+
+
+.scroll-buffer {
+    height: 200px;
+}
+
+.font-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  white-space: nowrap;
+}
+
+.font-input {
+  width: 60px;
+  padding: 0.2rem;
+  font-size: 1rem;
+}
 
 
 /* Media Queries für kleinere Bildschirme */
