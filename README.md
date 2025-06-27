@@ -92,6 +92,12 @@ Make sure CORS settings in the backend (`application.properties`) allow access f
 
 ---
 
+## Live Demo
+
+Check out the live website here:  
+🌐 **[enigma-zyklometer.rwu.de](https://enigma-zyklometer.rwu.de)**
+
+---
 ## Licensing
 
 Distributed under the [MIT License](../LICENSE).  
