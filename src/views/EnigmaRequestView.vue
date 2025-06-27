@@ -14,7 +14,7 @@
 
 
                     <MultiSelectWithCheckbox label="Walzenlage:"
-                        info="Hier wird die Reihenfolge der Walzen eingestellt. In der Simulation sind auch doppelte Walzen möglich."
+                        info="Hier wird die Reihenfolge der Walzen eingestellt. In der Simulation sind auch doppelte Walzen möglich. Anordnung [schnelle Walze, mittlere Walze, langsame Walze]"
                         :options="rotorOptions" v-model="settings.enigma.rotors" :selectCount="rotorSpan" />
 
                     <MultiSelectWithCheckbox label="Walzenstellung:"
