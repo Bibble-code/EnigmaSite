@@ -13,7 +13,27 @@
 
                     <div class="left-form-content">
 
-                        <MultiSelectWithCheckbox label="Modell:"
+
+                        <ReverseMultiSelect v-model:single="settings.enigma.model" :singleOptions="enigmaModels"
+                            label="Modell:" info="Das Zyklometer ist nur mit der Enigma I der Wehrmacht kompatibel."
+                            :isSingleEnabled="false" />
+                        <ReverseMultiSelect v-model:single="settings.enigma.reflector" :singleOptions="reflectors"
+                            v-model:array="settings.enigma.rotors" :arrayOptions="rotorOptions" label="Walzenlage:"
+                            info="Hier wird die Reihenfolge der Walzen eingestellt. In der Simulation sind auch doppelte Walzen möglich. Der Katalog der Charakteristiken wurde mit Umkehrwalze B erstellt."
+                            :isSingleEnabled="false" />
+
+                        <ReverseMultiSelect v-model:array="settings.enigma.positions" :arrayOptions="alphabetOptions"
+                            label="Walzenstellung:" info="Hier wird die Startposition der Walzen eingestellt." />
+
+                        <ReverseMultiSelect v-model:array="settings.enigma.rings" :arrayOptions="alphabetOptions"
+                            v-model:toggle="ringstellungEnabled"
+                            :toggleLabel="ringstellungEnabled ? 'Deaktivieren' : 'Aktivieren'" label="Ringstellung:"
+                            info="Der Katalog basiert auf neutraler Ringstellung. Bei anderer Ringstellung muss durch Rückrechnung die richtige Walzenstellung ermittelt werden." />
+
+
+
+
+                        <!--                         <MultiSelectWithCheckbox label="Modell:"
                             info="Das Zyklometer ist nur mit der Enigma I der Wehrmacht kompatibel."
                             :options="enigmaModels" v-model="settings.enigma.model" :selectCount="1" :disabled="true" />
 
@@ -35,7 +55,7 @@
                             info="Der Katalog basiert auf neutraler Ringstellung. Bei anderer Ringstellung muss durch Rückrechnung die richtige Walzenstellung ermittelt werden."
                             :options="alphabetOptions" v-model="settings.enigma.rings"
                             v-model:checkboxModelValue="ringstellungEnabled" :selectCount="3" :disabled="false"
-                            :showCheckbox="true" />
+                            :showCheckbox="true" /> -->
 
                         <LabeledPlugboard v-model="settings.enigma.plugboard" label="Steckerbrett:"
                             info="Das Steckerbrett vertauscht Buchstaben. Auf die charakteristischen Zyklen hat das keinen Einfluss." />
@@ -392,13 +412,16 @@
 <script setup>
 import BackendEnigma from '@/services/Enigma/BackendEnigma';
 import TooltipLabel from '@/components/TooltipLabel.vue';
-import MultiSelectWithCheckbox from '../components/MultiSelectWithCheckbox.vue';
 import MultiSelect from '../components/MultiSelect.vue';
 import LabeledPlugboard from '../components/LabeledPlugboard.vue';
 import SubmitButton from '../components/SubmitButton.vue';
+import ReverseMultiSelect from '../components/ReverseMultiSelect.vue';
+import { useToast } from 'vue-toastification'
 
 import { ref, nextTick, computed, onMounted, onBeforeUnmount, watch } from 'vue';
 
+
+const toast = useToast()
 const arrowStyle = ref({})
 
 onMounted(() => {
@@ -462,27 +485,39 @@ onBeforeUnmount(() => {
 
 // 1. Konstanten / statische Daten
 const enigmaModels = [
-    { value: 1, label: "I" },
-    { value: 2, label: "I" },
-    { value: 3, label: "I" },
+    { value: 1, label: "Enigma Ⅰ der Wehrmacht" },
+    { value: 2, label: "Enigma Ⅰ der Wehrmacht" },
+    { value: 3, label: "Enigma Ⅰ der Wehrmacht" },
     { value: 4, label: "IV" },
 ];
 
-const reflectors = ["B", "C"];
+const reflectors = [{ value: 'B', label: 'Umkehrwalze B' }]
 
-const rotorOptions = [
-    { value: 1, label: "I" },
-    { value: 2, label: "II" },
-    { value: 3, label: "III" },
-    { value: 4, label: "IV" },
-    { value: 5, label: "V" }
-];
+
+// Hilfsfunktion für römische Ziffern
+function toRoman(num) {
+    const romanUnicode = [
+        "Ⅰ", // U+2160
+        "Ⅱ", // U+2161
+        "Ⅲ", // U+2162
+        "Ⅳ", // U+2163
+        "Ⅴ", // U+2164
+        "Ⅵ", // U+2165
+        "Ⅶ", // U+2166
+        "Ⅷ", // U+2167
+        "Ⅸ", // U+2168
+        "Ⅹ"  // U+2169
+    ];
+    return romanUnicode[num - 1] || num.toString();
+}
+const rotorOptions = [1, 2, 3, 4, 5].map(i => ({ value: i, label: toRoman(i) }));
 
 
 const alphabetOptions = Array.from({ length: 26 }, (_, i) => ({
     value: i,
-    label: `${String.fromCharCode(65 + i)} (${i})`,
+    label: `${String.fromCharCode(65 + i)} (${i + 1})`,
 }));
+
 
 
 // 2. Reactive State / Refs
@@ -490,7 +525,7 @@ const settings = ref({
     enigma: {
         model: 3,
         reflector: "B",
-        rotors: [1, 2, 3],
+        rotors: [3, 2, 1],
         positions: [0, 0, 0],
         rings: [0, 0, 0],
         plugboard: "",
@@ -562,11 +597,12 @@ const formatRotorPositionCompact = (positions) => {
     }).join('');
 
     const numbers = positions
-        .map(n => (n < 10 ? ' ' + n : n.toString()))
+        .map(n => (n + 1 < 10 ? ' ' + (n + 1) : (n + 1).toString()))
         .join(',');
 
     return `${letters}  (${numbers})`;
 };
+
 
 const formatCycleNumbers = (numbers) => {
     return numbers
@@ -626,7 +662,16 @@ const Cyclometer = async (data) => {
         cyclometerResponse.value.cycles = { ...response.data.computedCycles };
         buildCatalogueRequestFromCyclometer();
     } catch (error) {
-        console.error("Cyclometer error:", error);
+        if (error.response && error.response.data && error.response.data.errors) {
+            const errors = error.response.data.errors;
+            // Alle Fehlermeldungen ausgeben (falls mehrere)
+            Object.values(errors).forEach(msg => {
+                toast.error(msg);
+            });
+        } else {
+            // Fallback
+            toast.error(error.message || "Unbekannter Fehler");
+        }
     }
 };
 
@@ -663,7 +708,17 @@ const Catalogue = async (data) => {
         }
 
     } catch (error) {
-        console.error("Catalogue error:", error);
+        if (error.response && error.response.data && error.response.data.errors) {
+            const errors = error.response.data.errors;
+            // Alle Fehlermeldungen ausgeben (falls mehrere)
+            Object.values(errors).forEach(msg => {
+                toast.error(msg);
+            });
+        } else {
+            // Fallback
+            toast.error(error.message || "Unbekannter Fehler");
+        }
+
     }
 };
 
@@ -671,7 +726,7 @@ const Catalogue = async (data) => {
 
 
 
-const MAX_MANUAL_KEYS = 30;
+const MAX_MANUAL_KEYS = 35;
 const addManualKey = async () => {
     if (settings.value.parameters.manual_keys.length < MAX_MANUAL_KEYS) {
         settings.value.parameters.manual_keys.push("");
@@ -1010,8 +1065,6 @@ form {
     align-items: center;
 }
 
-.filter-switch label {}
-
 .switch-label {
     margin-left: 0.5rem;
     white-space: nowrap;
@@ -1022,16 +1075,17 @@ form {
 
 .manual-keys-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    grid-template-columns: repeat(5, 1fr); /* 5 Spalten mit gleicher Breite */
     gap: 0.1rem;
     padding: 0.1rem;
 }
+
 
 .manual-key-row {
     display: flex;
     align-items: center;
     gap: 0.2rem;
-    margin-bottom: 0.3rem;
+    margin-bottom: 0.5rem;
 }
 
 .manual-key-row label {

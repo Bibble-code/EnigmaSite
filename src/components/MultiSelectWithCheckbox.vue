@@ -93,96 +93,12 @@ function onSelectChange(event, idx) {
 
 
 <style>
-.dropdowns {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  text-align: center;
-  flex: 1;
-}
-
-.dropdowns select,
-.dropdowns select:disabled {
-  width: 85px;
-  font-size: 1rem;
-  text-align: center;
-  padding: 0.3rem;
-  box-sizing: border-box;
-  border-radius: 6px;
-  border: 1px solid #bbb;
-  font-family: inherit;
-  line-height: 1.2;
-}
-
-.dropdowns select:disabled {
-  background-color: #fff;
-  color: #000000;
-  cursor: not-allowed;
-}
 
 
 
 </style>
 
 <style scoped>
-.label {
-  font-weight: bold;
-  padding-top: 0.4rem;
-  text-align: left;
-}
 
-.checkbox-label {
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
-  cursor: pointer;
-  user-select: none;
-  font-size: 0.9rem;
-}
 
-.switch {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  cursor: pointer;
-  user-select: none;
-}
-
-.switch input {
-  display: none;
-}
-
-.slider {
-  width: 40px;
-  height: 20px;
-  background-color: #ccc;
-  border-radius: 20px;
-  position: relative;
-  transition: background-color 0.3s;
-}
-
-.slider::before {
-  content: "";
-  position: absolute;
-  width: 16px;
-  height: 16px;
-  left: 2px;
-  top: 2px;
-  background-color: white;
-  border-radius: 50%;
-  transition: transform 0.3s;
-}
-
-.switch input:checked+.slider {
-  background-color: #007bff;
-}
-
-.switch input:checked+.slider::before {
-  transform: translateX(20px);
-}
-
-.toggle-label {
-  display: inline-block;
-  min-width: 90px;
-}
 </style>

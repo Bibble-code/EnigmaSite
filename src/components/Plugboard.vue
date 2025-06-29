@@ -60,14 +60,17 @@ const onInput = (index) => {
     display: grid;
     grid-template-columns: repeat(5, 4ch);
     grid-template-rows: repeat(2, auto);
-    gap: 20px;
+    gap: 19px;
+    justify-content: flex-end;
+    margin-right: 14px;
+    margin-top: 1rem;
 }
 
 .plugboard-container input {
     min-width: 4ch !important;
     max-width: 4ch !important;
     width: 4ch !important;
-    padding: 2px 4px;
+    padding: 2px 2px;
     border: 2px solid #808080;
     box-sizing: border-box;
     font-family: monospace;

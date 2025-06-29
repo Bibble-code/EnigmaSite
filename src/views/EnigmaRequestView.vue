@@ -4,7 +4,20 @@
             <div class="enigma">
                 <div class="left-form form-box">
 
-                    <MultiSelectWithCheckbox label="Modell:"
+                    <ReverseMultiSelect v-model:single="uiType" :singleOptions="enigmaModels" label="Modell:"
+                        info="Model I (Wehrmacht) und M3 (Marine) unterscheiden sich nur im Walzensatz und den verfügbaren Umkehrwalzen (UKWs). Model M4 (Uboot-Flotte) hat 4 Walzen und eigene UKWs.   Die verfügbaren Umkehrwalzen (UKW) unterscheiden sich je nach Enigma-Modell."
+                        s />
+                    <ReverseMultiSelect v-model:single="settings.enigma.reflector" :singleOptions="reflectors"
+                        v-model:array="settings.enigma.rotors" :arrayOptions="rotorOptions" label="Walzenlage:"
+                        info="Hier wird die Reihenfolge der Walzen eingestellt. In der Simulation sind auch doppelte Walzen möglich. Anordnung [schnelle Walze, mittlere Walze, langsame Walze]" />
+                    <ReverseMultiSelect v-model:array="settings.enigma.positions" :arrayOptions="alphabetOptions"
+                        label="Walzenstellung:" info="Hier wird die Startposition der Walzen eingestellt." />
+
+                    <ReverseMultiSelect v-model:array="ringsFirstThree" :arrayOptions="alphabetOptions"
+                        label="Ringstellung:"
+                        info="Hier wird die Ringstellung der Walzen eingestellt, also die Verdrehung zwischen der inneren und äußeren Verdrahtung. Die vierte Walze besitzt keine einstellbare Ringstellung." />
+
+                    <!-- <MultiSelectWithCheckbox label="Modell:"
                         info="Model I (Wehrmacht) und M3 (Marine) unterscheiden sich nur im Walzensatz und den verfügbaren Umkehrwalzen (UKWs). Model M4 (Uboot-Flotte) hat 4 Walzen und eigene UKWs."
                         :options="enigmaModels" v-model="uiType" :selectCount="1" />
 
@@ -22,7 +35,7 @@
                         v-model="settings.enigma.positions" :selectCount="rotorSpan" />
                     <MultiSelectWithCheckbox label="Ringstellung:"
                         info="Hier wird die Ringstellung der Walzen eingestellt, also die Verdrehung zwischen der inneren und äußeren Verdrahtung. Die vierte Walze besitzt keine einstellbare Ringstellung."
-                        :options="alphabetOptions" v-model="ringsFirstThree" :selectCount="3" />
+                        :options="alphabetOptions" v-model="ringsFirstThree" :selectCount="3" /> -->
 
                     <LabeledPlugboard v-model="settings.enigma.plugboard" label="Steckerbrett:"
                         info="Das Steckerbrett vertauscht Buchstaben. Auf die charakteristischen Zyklen hat das keinen Einfluss." />
@@ -92,17 +105,10 @@
                             <textarea ref="outputTextarea" v-model="enigma_output" readonly class="output-textarea"
                                 tabindex="-1" :style="{ fontSize: outputFontSize + 'px' }" />
 
-
                         </div>
                     </div>
                 </div>
-
-
             </div>
-
-
-
-
         </form>
     </div>
     <div class="scroll-buffer"></div>
@@ -110,33 +116,47 @@
 
 <script setup>
 import BackendEnigma from '@/services/Enigma/BackendEnigma';
-import MultiSelectWithCheckbox from '../components/MultiSelectWithCheckbox.vue';
 import LabeledPlugboard from '../components/LabeledPlugboard.vue';
 import SubmitButton from '../components/SubmitButton.vue';
 import ToggleSwitch from '../components/ToggleSwitch.vue';
+import ReverseMultiSelect from '../components/ReverseMultiSelect.vue';
+import { useToast } from 'vue-toastification'
 
 import { ref, computed, watch, reactive, nextTick } from 'vue';
 
 
 // 1. === KONSTANTEN & STATISCHE OPTIONEN ===
+
+const toast = useToast()
 const enigmaModels = [
-    { value: 2, label: "I" },
-    { value: 3, label: "M3" },
-    { value: 4, label: "M4" }
+    { value: 2, label: "Enigma Ⅰ der Wehrmacht" },
+    { value: 3, label: "Enigma M3 der Kriegsmarine" },
+    { value: 4, label: "Enigma M4 der U-Boot-Flotte" }
 ];
 
-
 const reflectorOptionsByUiType = {
-    2: [{ value: "A", label: "UKW A" }, { value: "B", label: "UKW B" }, { value: "C", label: "UKW C" }],
-    3: [{ value: "B", label: "UKW B" }, { value: "C", label: "UKW C" }],
+    2: [{ value: "A", label: "Umkehrwalze A" }, { value: "B", label: "Umkehrwalze B" }, { value: "C", label: "Umkehrwalze C" }],
+    3: [{ value: "B", label: "Umkehrwalze B" }, { value: "C", label: "Umkehrwalze C" }],
     4: [{ value: "b", label: "UKW b" }, { value: "c", label: "UKW c" }]
 };
 
 // Hilfsfunktion für römische Ziffern
 function toRoman(num) {
-    const romans = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"];
-    return romans[num - 1] || num.toString();
+    const romanUnicode = [
+        "Ⅰ", // U+2160
+        "Ⅱ", // U+2161
+        "Ⅲ", // U+2162
+        "Ⅳ", // U+2163
+        "Ⅴ", // U+2164
+        "Ⅵ", // U+2165
+        "Ⅶ", // U+2166
+        "Ⅷ", // U+2167
+        "Ⅸ", // U+2168
+        "Ⅹ"  // U+2169
+    ];
+    return romanUnicode[num - 1] || num.toString();
 }
+
 
 // Statische Optionen
 const rotorOptions_m2 = [1, 2, 3, 4, 5].map(i => ({ value: i, label: toRoman(i) }));
@@ -152,8 +172,11 @@ const defaultSettingsByUiType = {
     4: { model: 4, reflector: "b", rotors: [1, 2, 3, 9], positions: [0, 0, 0, 0], rings: [0, 0, 0, 0], plugboard: "", input: "" }
 };
 
-const ringOptions = Array.from({ length: 26 }, (_, i) => i);
-const alphabetOptions = Array.from({ length: 26 }, (_, i) => ({ value: i, label: `${String.fromCharCode(65 + i)} (${i})` }));
+const alphabetOptions = Array.from({ length: 26 }, (_, i) => ({
+    value: i,
+    label: `${String.fromCharCode(65 + i)} (${i + 1})`,
+}));
+
 
 // 2. === REAKTIVE STATES ===
 const defaultUiType = 3;
@@ -227,10 +250,13 @@ watch(uiType, (newUiType) => {
 
     settings.enigma.model = defaults.model;
     settings.enigma.reflector = defaults.reflector;
-    settings.enigma.rotors.splice(0, settings.enigma.rotors.length, ...defaults.rotors);
-    settings.enigma.positions.splice(0, settings.enigma.positions.length, ...defaults.positions);
-    settings.enigma.rings.splice(0, settings.enigma.rings.length, ...defaults.rings);
+
+    // komplettes Ersetzen statt splice
+    settings.enigma.rotors = [...defaults.rotors];
+    settings.enigma.positions = [...defaults.positions];
+    settings.enigma.rings = [...defaults.rings];
 });
+
 
 watch(inputIsUpperCase, (newVal) => {
     settings.enigma.input = newVal
@@ -268,8 +294,19 @@ const Encrypt = async (data) => {
             : outputFromBackend.toLowerCase();
 
     } catch (error) {
-        console.error(error);
+        if (error.response && error.response.data && error.response.data.errors) {
+            const errors = error.response.data.errors;
+            // Alle Fehlermeldungen ausgeben (falls mehrere)
+            Object.values(errors).forEach(msg => {
+                toast.error(msg);
+            });
+        } else {
+            // Fallback
+            toast.error(error.message || "Unbekannter Fehler");
+        }
     }
+
+
 };
 
 const isLoading = ref(false);
@@ -287,7 +324,7 @@ const handleSubmit = async () => {
     try {
         await Encrypt(JSON.stringify(settings));
     } catch (error) {
-        console.error(error);
+        error.response?.data?.message || error.message || "Fehler bei der Verarbeitung"
     } finally {
         isLoading.value = false;
     }
@@ -314,10 +351,10 @@ const sanitizeInput = (event) => {
 <style>
 .enigma-setting {
     display: grid;
-    grid-template-columns: 170px 1fr;
+    grid-template-columns: 120px 1fr;
     align-items: start;
-    gap: 0.5rem 1.5rem;
-    margin-bottom: 1.5rem;
+    gap: 0.5rem 0.5rem;
+    margin-bottom: 1rem;
 }
 
 
@@ -351,6 +388,34 @@ const sanitizeInput = (event) => {
     justify-content: center;
     align-items: center;
 }
+
+.dropdowns {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-align: center;
+  flex: 1;
+}
+
+.dropdowns select,
+.dropdowns select:disabled {
+  width: 85px;
+  font-size: 1rem;
+  text-align: center;
+  padding: 0.3rem;
+  box-sizing: border-box;
+  border-radius: 6px;
+  border: 1px solid #bbb;
+  font-family: inherit;
+  line-height: 1.2;
+}
+
+.dropdowns select:disabled {
+  background-color: #fff;
+  color: #000000;
+  cursor: not-allowed;
+}
+
 </style>
 
 <style scoped>
@@ -381,6 +446,10 @@ const sanitizeInput = (event) => {
 
 }
 
+.form-box > button { 
+  margin-top: auto;
+}
+
 .text-box {
     display: flex;
     flex-direction: column;
@@ -396,7 +465,7 @@ const sanitizeInput = (event) => {
 }
 
 .left-form {
-    min-width: 560px;
+    min-width: 620px;
 }
 
 .right-form {

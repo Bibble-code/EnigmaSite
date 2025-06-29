@@ -1,4 +1,7 @@
-<template>asdf</template>
+<template>
+ Anleitung
+
+</template>
 
 <script setup>
 </script>
