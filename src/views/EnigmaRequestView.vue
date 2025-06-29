@@ -31,62 +31,36 @@
                         {{ settings.enigma.input ? 'Verschlüsseln' : 'Bitte Text eingeben' }}
                     </SubmitButton>
 
-
-
-
-
                 </div>
 
                 <div class="right-form">
                     <!-- Left Section (Eingabe) -->
                     <div class="text-box">
-<div class="textarea-wrapper">
-  <div class="controls-row">
-    <label>Eingabe:</label>
+                        <div class="textarea-wrapper">
+                            <!-- Eingabe Controls -->
+                            <div class="controls-row">
+                                <label>Eingabe:</label>
 
-<label class="font-label">
-  Schrift:
-<input
-  type="range"
-  min="10"
-  max="40"
-  v-model="fontSize"
-  style="width: 100px;"
-/>
+                                <label class="font-label">
+                                    Schrift:
+                                    <input type="range" min="10" max="35" v-model="inputFontSize"
+                                        style="width: 100px;" />
+                                    <input type="number" min="10" max="35" v-model="inputFontSize" class="font-input" />
+                                    px
+                                </label>
 
-  <input
-    type="number"
-    min="10"
-    max="40"
-    v-model="fontSize"
-    class="font-input"
-    
-  />
-  px
-</label>
+                                <ToggleSwitch v-model="inputIsUpperCase">
+                                    {{ inputIsUpperCase ? 'Groß' : 'Klein' }}
+                                </ToggleSwitch>
+                            </div>
 
-<ToggleSwitch v-model="isUpperCase">
-  {{ isUpperCase ? 'Groß' : 'Klein' }}
-</ToggleSwitch>
-
-  </div>
-
-<textarea
-  ref="inputTextarea"
-  v-model="settings.enigma.input"
-  @input="sanitizeInput"
-  spellcheck="false"
-  :style="{
-    fontSize: fontSize + 'px',
-    minWidth: '550px',
-    resize: 'horizontal'
-  }"
-/>
-
-</div>
-
-
-
+                            <textarea ref="inputTextarea" v-model="settings.enigma.input" @input="sanitizeInput"
+                                spellcheck="false" :style="{
+                                    fontSize: inputFontSize + 'px',
+                                    minWidth: '550px',
+                                    resize: 'horizontal'
+                                }" />
+                        </div>
                     </div>
 
                     <div class="arrow-container">
@@ -95,14 +69,28 @@
                         </svg>
                     </div>
 
-
-
                     <!-- Right Section (Ausgabe) -->
                     <div class="text-box">
                         <div class="textarea-wrapper">
-                            <label >Ausgabe:</label>
+                            <div class="controls-row">
+                                <label>Ausgabe:</label>
+
+                                <label class="font-label">
+                                    Schrift:
+                                    <input type="range" min="10" max="35" v-model="outputFontSize"
+                                        style="width: 100px;" />
+                                    <input type="number" min="10" max="35" v-model="outputFontSize"
+                                        class="font-input" />
+                                    px
+                                </label>
+
+                                <ToggleSwitch v-model="outputIsUpperCase">
+                                    {{ outputIsUpperCase ? 'Groß' : 'Klein' }}
+                                </ToggleSwitch>
+                            </div>
+
                             <textarea ref="outputTextarea" v-model="enigma_output" readonly class="output-textarea"
-                                tabindex="-1" :style="{ fontSize: fontSize + 'px' }"></textarea>
+                                tabindex="-1" :style="{ fontSize: outputFontSize + 'px' }" />
 
 
                         </div>
@@ -181,9 +169,14 @@ const settings = reactive({
 const enigma_output = ref("");
 
 
-const isUpperCase = ref(false);
 const inputTextarea = ref(null);
-const fontSize = ref(16);
+
+const inputFontSize = ref(16);
+const outputFontSize = ref(16);
+
+const inputIsUpperCase = ref(false);
+const outputIsUpperCase = ref(true);
+
 
 
 // 3. === COMPUTED PROPERTIES ===
@@ -239,22 +232,22 @@ watch(uiType, (newUiType) => {
     settings.enigma.rings.splice(0, settings.enigma.rings.length, ...defaults.rings);
 });
 
-watch(isUpperCase, (newVal) => {
-    // Eingabetext anpassen
+watch(inputIsUpperCase, (newVal) => {
     settings.enigma.input = newVal
         ? settings.enigma.input.toUpperCase()
         : settings.enigma.input.toLowerCase();
 
-    // Ausgabe ebenfalls anpassen, falls vorhanden
-    enigma_output.value = newVal
-        ? enigma_output.value.toUpperCase()
-        : enigma_output.value.toLowerCase();
-
-    // Nach Umwandlung den Fokus wieder ins Eingabefeld setzen
     nextTick(() => {
         inputTextarea.value?.focus();
     });
 });
+
+watch(outputIsUpperCase, (newVal) => {
+    enigma_output.value = newVal
+        ? enigma_output.value.toUpperCase()
+        : enigma_output.value.toLowerCase();
+});
+
 
 
 
@@ -270,7 +263,7 @@ const Encrypt = async (data) => {
         let outputFromBackend = response.data.output || "";
 
         // Direkt an den Slider-Status anpassen
-        enigma_output.value = isUpperCase.value
+        enigma_output.value = outputIsUpperCase.value
             ? outputFromBackend.toUpperCase()
             : outputFromBackend.toLowerCase();
 
@@ -305,10 +298,11 @@ const handleSubmit = async () => {
 const sanitizeInput = (event) => {
     const raw = event.target.value;
     const onlyLetters = raw.replace(/[^a-zA-Z]/g, "");
-    settings.enigma.input = isUpperCase.value
+    settings.enigma.input = inputIsUpperCase.value
         ? onlyLetters.toUpperCase()
         : onlyLetters.toLowerCase();
 };
+
 
 
 
@@ -446,30 +440,31 @@ const sanitizeInput = (event) => {
 
 
 .textarea-wrapper {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  font-weight: bold;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    font-weight: bold;
 }
 
 .controls-row {
-  display: flex;
-  align-items: center;
-  gap: 2rem;
-  margin-bottom: 0.5rem;
-  flex-wrap: wrap; /* Falls es zu eng wird, umbrechen */
-  accent-color: #0052cc;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    margin-bottom: 0.5rem;
+    flex-wrap: wrap;
+    /* Falls es zu eng wird, umbrechen */
+    accent-color: #0052cc;
 }
 
 .controls-row label,
 .controls-row {
-  white-space: nowrap;
+    white-space: nowrap;
 }
 
 .controls-row label {
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
 }
 
 
@@ -477,11 +472,13 @@ const sanitizeInput = (event) => {
 
 /* Textarea soll den restlichen Platz einnehmen */
 .textarea-wrapper textarea {
-  flex-grow: 1;
-  min-height: 150px; /* oder was du willst */
-  resize: none;
-  font-family: monospace;
-  font-size: inherit; /* Vererbt vom Parent */
+    flex-grow: 1;
+    min-height: 150px;
+    /* oder was du willst */
+    resize: none;
+    font-family: monospace;
+    font-size: inherit;
+    /* Vererbt vom Parent */
 }
 
 
@@ -490,16 +487,16 @@ const sanitizeInput = (event) => {
 }
 
 .font-label {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    white-space: nowrap;
 }
 
 .font-input {
-  width: 60px;
-  padding: 0.2rem;
-  font-size: 1rem;
+    width: 60px;
+    padding: 0.2rem;
+    font-size: 1rem;
 }
 
 
