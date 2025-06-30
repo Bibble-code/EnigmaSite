@@ -17,25 +17,6 @@
                         label="Ringstellung:"
                         info="Hier wird die Ringstellung der Walzen eingestellt, also die Verdrehung zwischen der inneren und äußeren Verdrahtung. Die vierte Walze besitzt keine einstellbare Ringstellung." />
 
-                    <!-- <MultiSelectWithCheckbox label="Modell:"
-                        info="Model I (Wehrmacht) und M3 (Marine) unterscheiden sich nur im Walzensatz und den verfügbaren Umkehrwalzen (UKWs). Model M4 (Uboot-Flotte) hat 4 Walzen und eigene UKWs."
-                        :options="enigmaModels" v-model="uiType" :selectCount="1" />
-
-                    <MultiSelectWithCheckbox label="Umkehrwalze:"
-                        info="Die verfügbaren Umkehrwalzen (UKW) unterscheiden sich je nach Enigma-Modell."
-                        :options="reflectors" v-model="settings.enigma.reflector" :selectCount="1" />
-
-
-                    <MultiSelectWithCheckbox label="Walzenlage:"
-                        info="Hier wird die Reihenfolge der Walzen eingestellt. In der Simulation sind auch doppelte Walzen möglich. Anordnung [schnelle Walze, mittlere Walze, langsame Walze]"
-                        :options="rotorOptions" v-model="settings.enigma.rotors" :selectCount="rotorSpan" />
-
-                    <MultiSelectWithCheckbox label="Walzenstellung:"
-                        info="Hier wird die Startposition der Walzen eingestellt." :options="alphabetOptions"
-                        v-model="settings.enigma.positions" :selectCount="rotorSpan" />
-                    <MultiSelectWithCheckbox label="Ringstellung:"
-                        info="Hier wird die Ringstellung der Walzen eingestellt, also die Verdrehung zwischen der inneren und äußeren Verdrahtung. Die vierte Walze besitzt keine einstellbare Ringstellung."
-                        :options="alphabetOptions" v-model="ringsFirstThree" :selectCount="3" /> -->
 
                     <LabeledPlugboard v-model="settings.enigma.plugboard" label="Steckerbrett:"
                         info="Das Steckerbrett vertauscht Buchstaben. Auf die charakteristischen Zyklen hat das keinen Einfluss." />
@@ -121,6 +102,7 @@ import SubmitButton from '../components/SubmitButton.vue';
 import ToggleSwitch from '../components/ToggleSwitch.vue';
 import ReverseMultiSelect from '../components/ReverseMultiSelect.vue';
 import { useToast } from 'vue-toastification'
+import { debounce } from "lodash";
 
 import { ref, computed, watch, reactive, nextTick } from 'vue';
 
@@ -204,10 +186,6 @@ const outputIsUpperCase = ref(true);
 
 // 3. === COMPUTED PROPERTIES ===
 
-const rotorSpan = computed(() => {
-    return settings.enigma.model === 4 ? 4 : 3;
-});
-
 
 const reflectors = computed(() => reflectorOptionsByUiType[uiType.value] || []);
 
@@ -276,10 +254,21 @@ watch(outputIsUpperCase, (newVal) => {
 
 
 
-
+watch(() => settings.enigma.input, () => {
+    sanitizeInput();
+    debouncedSubmit();
+});
 
 
 // 5. === METHODEN ===
+
+const debouncedSubmit = debounce(() => {
+    if (!settings.enigma.input || settings.enigma.input.trim() === "") {
+        enigma_output.value = "";
+        return;
+    }
+    handleSubmit();
+}, 300);
 
 const Encrypt = async (data) => {
     try {
@@ -312,6 +301,12 @@ const Encrypt = async (data) => {
 const isLoading = ref(false);
 
 const handleSubmit = async () => {
+    if (!settings.enigma.input || settings.enigma.input.trim() === "") {
+        enigma_output.value = "";
+        // toast.warning("Bitte gib einen Text ein.");
+        return;
+    }
+
     isLoading.value = true;
 
     let plugboard = settings.enigma.plugboard || "";
@@ -324,7 +319,7 @@ const handleSubmit = async () => {
     try {
         await Encrypt(JSON.stringify(settings));
     } catch (error) {
-        error.response?.data?.message || error.message || "Fehler bei der Verarbeitung"
+        error.response?.data?.message || error.message || "Fehler bei der Verarbeitung";
     } finally {
         isLoading.value = false;
     }
@@ -332,12 +327,22 @@ const handleSubmit = async () => {
 
 
 
-const sanitizeInput = (event) => {
-    const raw = event.target.value;
-    const onlyLetters = raw.replace(/[^a-zA-Z]/g, "");
-    settings.enigma.input = inputIsUpperCase.value
-        ? onlyLetters.toUpperCase()
-        : onlyLetters.toLowerCase();
+
+
+const sanitizeInput = () => {
+  let input = settings.enigma.input || "";
+  
+  // Schneide auf 10.000 Zeichen ab
+  if (input.length > 10000) {
+    input = input.slice(0, 10000);
+    settings.enigma.input = input;
+    toast.warning("Maximal 10.000 Zeichen erlaubt.");
+  }
+
+  // Ausgabe ggf. anpassen (kannst du beibehalten)
+  if (enigma_output.value.length > input.length) {
+    enigma_output.value = enigma_output.value.slice(0, input.length);
+  }
 };
 
 

@@ -46,6 +46,9 @@ const singleStyle = computed(() => {
 const isSingleSelectEnabled = computed(() => props.isSingleEnabled && props.toggle)
 const isArraySelectEnabled = computed(() => props.isArrayEnabled && props.toggle)
 
+const showSeparator = computed(() => hasSingle.value && (props.array?.length ?? 0) > 0)
+
+
 function onSingleChange(e) {
   emit('update:single', e.target.value)
 }
@@ -77,24 +80,27 @@ function getArrayOptions(idx) {
     </label>
 
     <div class="select-row right-align" v-if="hasSingle">
-      <!-- Single Select -->
-      <select
-        :value="single"
-        @change="onSingleChange"
-        :style="singleStyle"
-        :disabled="!isSingleSelectEnabled"
-      >
-        <option
-          v-for="option in singleOptions"
-          :key="option.value"
-          :value="option.value"
-        >
-          {{ option.label }}
-        </option>
-      </select>
+<!-- Single Select -->
+<select
+  :value="single"
+  @change="onSingleChange"
+  :style="singleStyle"
+  :disabled="!isSingleSelectEnabled"
+>
+  <option
+    v-for="option in singleOptions"
+    :key="option.value"
+    :value="option.value"
+  >
+    {{ option.label }}
+  </option>
+</select>
 
-      <!-- Array Selects -->
-      <template v-for="(value, idx) in reversedArray" :key="idx">
+<!-- Separator -->
+<span v-if="showSeparator" class="separator">|</span>
+
+<!-- Array Selects -->
+<template v-for="(value, idx) in reversedArray" :key="idx">
         <select
           :value="value"
           @change="e => onArrayChange(e, array.length - 1 - idx)"
@@ -182,4 +188,15 @@ select:disabled {
   color: #000000;
   cursor: not-allowed;
 }
+
+.separator {
+  margin: 0 8px;
+  color: #aaa;
+  font-weight: bold;
+  font-size: 1.2rem;
+  user-select: none;
+  line-height: 1;
+}
+
+
 </style>

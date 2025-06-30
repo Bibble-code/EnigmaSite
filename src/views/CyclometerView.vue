@@ -32,31 +32,6 @@
 
 
 
-
-                        <!--                         <MultiSelectWithCheckbox label="Modell:"
-                            info="Das Zyklometer ist nur mit der Enigma I der Wehrmacht kompatibel."
-                            :options="enigmaModels" v-model="settings.enigma.model" :selectCount="1" :disabled="true" />
-
-                        <MultiSelectWithCheckbox label="Umkehrwalze:"
-                            info="Der Katalog der Charakteristiken wurde historisch zunächst mit Umkehrwalze A erstellt, später mit B. Diese Implementierung nutzt ausschließlich UKW B."
-                            :options="reflectors.map(r => ({ label: r, value: r }))" v-model="settings.enigma.reflector"
-                            :selectCount="1" :disabled="true" />
-
-
-                        <MultiSelectWithCheckbox label="Walzenlage:"
-                            info="Die Walzenauswahl erfolgt hier. In der Originalmaschine kamen keine Walzen doppelt vorkommen."
-                            :options="rotorOptions" v-model="settings.enigma.rotors" :selectCount="3" />
-
-                        <MultiSelectWithCheckbox label="Walzenstellung:"
-                            info="Anfangsstellung der Walzen – sie dreht sich bei jedem Tastendruck weiter."
-                            :options="alphabetOptions" v-model="settings.enigma.positions" :selectCount="3" />
-
-                        <MultiSelectWithCheckbox label="Ringstellung:"
-                            info="Der Katalog basiert auf neutraler Ringstellung. Bei anderer Ringstellung muss durch Rückrechnung die richtige Walzenstellung ermittelt werden."
-                            :options="alphabetOptions" v-model="settings.enigma.rings"
-                            v-model:checkboxModelValue="ringstellungEnabled" :selectCount="3" :disabled="false"
-                            :showCheckbox="true" /> -->
-
                         <LabeledPlugboard v-model="settings.enigma.plugboard" label="Steckerbrett:"
                             info="Das Steckerbrett vertauscht Buchstaben. Auf die charakteristischen Zyklen hat das keinen Einfluss." />
 
