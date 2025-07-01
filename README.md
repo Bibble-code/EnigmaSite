@@ -86,9 +86,11 @@ Make sure CORS settings in the backend (`application.properties`) allow access f
 
 ## Related Projects
 
-- **[Enigma-API](https://github.com/UPEV1sion/Enigma-API)** – Spring Boot API layer bridging to native code
-- **[EnigmaServer](https://github.com/UPEV1sion/Enigma/tree/server)** – Native C code for libenigma.so
-- **[EnigmaSite](https://github.com/Bibble-code/EnigmaSite)** – You are here
+- **[Enigma-API](https://github.com/UPEV1sion/Enigma-API)** – Spring Boot API layer bridging to native code  
+- **[EnigmaServer](https://github.com/UPEV1sion/Enigma/tree/server)** – Native C code for `libenigma.so`  
+- **[EnigmaSite](https://github.com/Bibble-code/EnigmaSite)** – You are here  
+- **[Enigma-Zyklometer-Notes](https://github.com/Bibble-code/Enigma-Zyklometer-Notes)** – Technical documentation and bachelor thesis
+
 
 ---
 
