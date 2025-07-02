@@ -2,6 +2,7 @@
     <div v-if="settings">
         <div class="form-container">
             <div class="left-form form-box">
+                <!-- Überschrift und Info zur Zyklometer-Simulation -->
                 <h2>Erstellen der charakteristischen Zyklen
                     <label class="label-with-tooltip">
                         <TooltipLabel label=""
@@ -9,32 +10,37 @@
                     </label>
                 </h2>
 
+                <!-- Formular zur Ausführung der Zyklometer-Simulation -->
                 <form @submit.prevent="handleCyclometer">
 
                     <div class="left-form-content">
 
-
+                        <!-- Auswahl des Enigma-Modells (Einfachauswahl) -->
                         <ReverseMultiSelect v-model:single="settings.enigma.model" :singleOptions="enigmaModels"
                             label="Modell:" info="Das Zyklometer ist nur mit der Enigma I der Wehrmacht kompatibel."
                             :isSingleEnabled="false" />
+
+                        <!-- Auswahl von Umkehrwalze und Walzenreihenfolge -->
                         <ReverseMultiSelect v-model:single="settings.enigma.reflector" :singleOptions="reflectors"
                             v-model:array="settings.enigma.rotors" :arrayOptions="rotorOptions" label="Walzenlage:"
                             info="Hier wird die Reihenfolge der Walzen eingestellt. In der Simulation sind auch doppelte Walzen möglich. Der Katalog der Charakteristiken wurde mit Umkehrwalze B erstellt."
                             :isSingleEnabled="false" />
 
+                        <!-- Auswahl der Startpositionen der Walzen -->
                         <ReverseMultiSelect v-model:array="settings.enigma.positions" :arrayOptions="alphabetOptions"
                             label="Walzenstellung:" info="Hier wird die Startposition der Walzen eingestellt." />
 
+                        <!-- Ringstellungen aktivieren/deaktivieren und auswählen -->
                         <ReverseMultiSelect v-model:array="settings.enigma.rings" :arrayOptions="alphabetOptions"
                             v-model:toggle="ringstellungEnabled"
                             :toggleLabel="ringstellungEnabled ? 'Deaktivieren' : 'Aktivieren'" label="Ringstellung:"
                             info="Der Katalog basiert auf neutraler Ringstellung. Bei anderer Ringstellung muss durch Rückrechnung die richtige Walzenstellung ermittelt werden." />
 
-
-
+                        <!-- Steckerbrett-Einstellungen -->
                         <LabeledPlugboard v-model="settings.enigma.plugboard" label="Steckerbrett:"
                             info="Das Steckerbrett vertauscht Buchstaben. Auf die charakteristischen Zyklen hat das keinen Einfluss." />
 
+                        <!-- Bereich zur Einstellung der Spruchschlüssel-Anzahl -->
                         <h3>
                             <label class="label-with-tooltip">
                                 <TooltipLabel label="Spruchschlüssel"
@@ -42,42 +48,43 @@
                             </label>
                         </h3>
 
-
-                        <!-- Zufällig generierte -->
+                        <!-- Zufällig generierte Spruchschlüssel -->
                         <div class="enigma-setting">
                             <label class="label-with-tooltip">
                                 <TooltipLabel label="Zufällig generierte:"
                                     info="Gibt an, wie viele Spruchschlüssel generiert werden sollen." />
                             </label>
                             <div class="keys full-width">
+                                <!-- Slider zur Auswahl der Anzahl -->
                                 <input type="range" min="0" :max="sliderMax" v-model="sliderValue"
                                     @input="onSliderInput" class="styled-slider flex-grow" />
+                                <!-- Zahleneingabe alternativ zum Slider -->
                                 <input type="number" min="0" :max="actualMax"
                                     v-model.number="settings.parameters.daily_key_count" @input="onNumberInput"
                                     class="styled-number-input" style="width: 4ch;" />
                             </div>
                         </div>
 
-                        <!-- Eigene -->
+                        <!-- Manuelle Eingabe von Spruchschlüsseln -->
                         <div class="enigma-setting">
                             <label class="label-with-tooltip">
                                 <TooltipLabel label="+ Eigene:"
                                     info="Hier können eigene unverschlüsselte Spruchschlüssel eingegeben werden..." />
                             </label>
                             <div class="keys full-width">
+                                <!-- Button zum Hinzufügen eines Schlüssels -->
                                 <button type="button" @click="addManualKey" class="manual-button flex-grow"
                                     :disabled="settings.parameters.manual_keys.length >= MAX_MANUAL_KEYS">
                                     Hinzufügen
                                 </button>
+                                <!-- Button zum Löschen des letzten manuell eingegebenen Schlüssels -->
                                 <button type="button" @click="deleteLastManualKey" class="manual-button flex-grow">
                                     Löschen
                                 </button>
                             </div>
                         </div>
 
-
-
-
+                        <!-- Eingabefelder für die manuellen Spruchschlüssel -->
                         <div class="manual-keys-grid">
                             <div v-for="(key, index) in settings.parameters.manual_keys" :key="index"
                                 class="manual-key-row">
@@ -89,14 +96,15 @@
                         </div>
                     </div>
 
+                    <!-- Absende-Button für die Zyklometer-Berechnung -->
                     <div class="form-footer">
                         <div>
                             <SubmitButton :loading="isLoadingCyclometer">Zyklen erzeugen</SubmitButton>
                         </div>
                     </div>
                 </form>
-
             </div>
+
 
             <div class="arrow-container" :style="arrowStyle">
                 <svg width="20" height="160" viewBox="0 0 20 160" xmlns="http://www.w3.org/2000/svg">
@@ -371,10 +379,6 @@
                 </tbody>
             </table>
         </div>
-
-
-
-
     </div>
 
     <!-- Buffer-->
@@ -396,9 +400,11 @@ import { useToast } from 'vue-toastification'
 import { ref, nextTick, computed, onMounted, onBeforeUnmount, watch } from 'vue';
 
 
+// === TOAST INITIALISIERUNG ===
 const toast = useToast()
-const arrowStyle = ref({})
 
+// === ARROW STYLE UND POSITION ===
+const arrowStyle = ref({})
 onMounted(() => {
     nextTick(() => {
         const topEl = document.querySelector('.topbox')
@@ -414,10 +420,7 @@ onMounted(() => {
     })
 })
 
-
-
 const arrowStyleBottom = ref({})
-
 function updateArrowPosition() {
     const rightFormEl = document.querySelector('.right-form')
     const arrowEl = document.querySelector('.arrow-container.bottom-arrow')
@@ -447,55 +450,32 @@ onMounted(() => {
         window.addEventListener('resize', updateArrowPosition)
     })
 })
-
 onBeforeUnmount(() => {
     window.removeEventListener('resize', updateArrowPosition)
 })
 
-
-
-
-
-
-
-// 1. Konstanten / statische Daten
+// === STATISCHE DATEN ===
 const enigmaModels = [
     { value: 1, label: "Enigma Ⅰ der Wehrmacht" },
     { value: 2, label: "Enigma Ⅰ der Wehrmacht" },
     { value: 3, label: "Enigma Ⅰ der Wehrmacht" },
     { value: 4, label: "IV" },
-];
-
+]
 const reflectors = [{ value: 'B', label: 'Umkehrwalze B' }]
-
 
 // Hilfsfunktion für römische Ziffern
 function toRoman(num) {
-    const romanUnicode = [
-        "Ⅰ", // U+2160
-        "Ⅱ", // U+2161
-        "Ⅲ", // U+2162
-        "Ⅳ", // U+2163
-        "Ⅴ", // U+2164
-        "Ⅵ", // U+2165
-        "Ⅶ", // U+2166
-        "Ⅷ", // U+2167
-        "Ⅸ", // U+2168
-        "Ⅹ"  // U+2169
-    ];
-    return romanUnicode[num - 1] || num.toString();
+    const romanUnicode = ["Ⅰ", "Ⅱ", "Ⅲ", "Ⅳ", "Ⅴ", "Ⅵ", "Ⅶ", "Ⅷ", "Ⅸ", "Ⅹ"]
+    return romanUnicode[num - 1] || num.toString()
 }
-const rotorOptions = [1, 2, 3, 4, 5].map(i => ({ value: i, label: toRoman(i) }));
-
+const rotorOptions = [1, 2, 3, 4, 5].map(i => ({ value: i, label: toRoman(i) }))
 
 const alphabetOptions = Array.from({ length: 26 }, (_, i) => ({
     value: i,
-    label: `${String.fromCharCode(65 + i)} (${i + 1})`,
-}));
+    label: `${String.fromCharCode(65 + i)} (${i + 1})`
+}))
 
-
-
-// 2. Reactive State / Refs
+// === REACTIVE STATE ===
 const settings = ref({
     enigma: {
         model: 3,
@@ -511,7 +491,7 @@ const settings = ref({
         daily_key_count: 100,
         manual_keys: [],
     },
-});
+})
 
 const cyclometerResponse = ref({
     cycles: {
@@ -519,9 +499,9 @@ const cyclometerResponse = ref({
         two_to_five_permut: [],
         three_to_six_permut: []
     }
-});
+})
 
-const catalogueres = ref();
+const catalogueres = ref()
 
 const cataloguerequest = ref({
     cycles: {
@@ -536,193 +516,149 @@ const cataloguerequest = ref({
         rotorOrder: [],
         rotorPosition: [],
     },
-});
+})
 
-// UI toggles
-const showRotorOrderFilter = ref(false);
-const showRotorPositionFilter = ref(false);
-const ringstellungEnabled = ref(false);
-const manualKeyRefs = ref([]);
-const isLoadingCyclometer = ref(false);
-const isLoadingCatalogue = ref(false);
+// UI Toggles
+const showRotorOrderFilter = ref(false)
+const showRotorPositionFilter = ref(false)
+const ringstellungEnabled = ref(false)
+const manualKeyRefs = ref([])
+const isLoadingCyclometer = ref(false)
+const isLoadingCatalogue = ref(false)
 
-
-// 3. Computed Properties
+// === COMPUTED PROPERTIES ===
 const availableRotors = computed(() => {
     return settings.value.enigma.rotors.map((currentValue, idx) => {
-        const otherSelected = settings.value.enigma.rotors.filter((_, i) => i !== idx);
-        return rotorOptions.filter(r => !otherSelected.includes(r.value) || r.value === currentValue);
-    });
-});
+        const otherSelected = settings.value.enigma.rotors.filter((_, i) => i !== idx)
+        return rotorOptions.filter(r => !otherSelected.includes(r.value) || r.value === currentValue)
+    })
+})
 
 const availableRotors_filter = computed(() => {
     return cataloguerequest.value.parameters.rotorOrder.map((currentValue, idx) => {
-        const otherSelected = cataloguerequest.value.parameters.rotorOrder.filter((_, i) => i !== idx);
-        return rotorOptions.filter(r => !otherSelected.includes(r.value) || r.value === currentValue);
-    });
-});
+        const otherSelected = cataloguerequest.value.parameters.rotorOrder.filter((_, i) => i !== idx)
+        return rotorOptions.filter(r => !otherSelected.includes(r.value) || r.value === currentValue)
+    })
+})
 
-// 4. Watchers
+// === WATCHERS ===
+watch(() => settings.value.parameters.daily_key_count, (newVal) => {
+    sliderValue.value = valueToSlider(newVal)
+})
 
-// 5. Hilfsfunktionen / Utils (keine reactive Daten, z.B. Formatierung)
+// === FORMATIERUNGS-FUNKTIONEN ===
 const formatRotorPositionCompact = (positions) => {
     const letters = positions.map(pos => {
-        const opt = alphabetOptions.find(o => o.value === pos);
-        return opt ? opt.label.split(' ')[0] : '?';
-    }).join('');
+        const opt = alphabetOptions.find(o => o.value === pos)
+        return opt ? opt.label.split(' ')[0] : '?'
+    }).join('')
 
     const numbers = positions
         .map(n => (n + 1 < 10 ? ' ' + (n + 1) : (n + 1).toString()))
-        .join(',');
+        .join(',')
 
-    return `${letters}  (${numbers})`;
-};
-
-
-const formatCycleNumbers = (numbers) => {
-    return numbers
-        //.map(n => (n < 10 ? ' ' + n : n.toString()))
-        .join(',');
-};
-
-
-
-
-function formatRotorOrder(rotorOrderValues) {
-    const romanMap = { 1: "I", 2: "II", 3: "III", 4: "IV", 5: "V" };
-
-    let rotorOrderRoman = rotorOrderValues.map(v => romanMap[v] || v).join(",");
-
-    const padded = rotorOrderRoman.padEnd(10, " ");
-    const numbersString = rotorOrderValues.join(",");
-
-    return `${padded} (${numbersString})`;
+    return `${letters}  (${numbers})`
 }
 
-const formatNumber = (value) => {
-    return new Intl.NumberFormat('de-DE').format(value);
-};
+const formatCycleNumbers = (numbers) => numbers.join(',')
 
+function formatRotorOrder(rotorOrderValues) {
+    const romanMap = { 1: "I", 2: "II", 3: "III", 4: "IV", 5: "V" }
+    let rotorOrderRoman = rotorOrderValues.map(v => romanMap[v] || v).join(",")
+    const padded = rotorOrderRoman.padEnd(10, " ")
+    const numbersString = rotorOrderValues.join(",")
+    return `${padded} (${numbersString})`
+}
 
-// 6. Action Handlers / Event Handlers
+const formatNumber = (value) => new Intl.NumberFormat('de-DE').format(value)
+
+// === HANDLER UND API-FUNKTIONEN ===
 const handleCyclometer = async () => {
-    isLoadingCyclometer.value = true;
+    isLoadingCyclometer.value = true
     try {
-        filterValidKeys();
+        filterValidKeys()
         if (
             settings.value.parameters.daily_key_count === null ||
             settings.value.parameters.daily_key_count === undefined ||
             settings.value.parameters.daily_key_count === ""
         ) {
-            settings.value.parameters.daily_key_count = 0;
+            settings.value.parameters.daily_key_count = 0
         }
-
-        let plugboard = settings.value.enigma.plugboard || "";
-
+        let plugboard = settings.value.enigma.plugboard || ""
         if (plugboard.length % 2 !== 0) {
-            plugboard = plugboard.slice(0, -1);
-            settings.value.enigma.plugboard = plugboard;
+            plugboard = plugboard.slice(0, -1)
+            settings.value.enigma.plugboard = plugboard
         }
-
-        await Cyclometer(settings.value);
+        await Cyclometer(settings.value)
     } finally {
-        isLoadingCyclometer.value = false;
+        isLoadingCyclometer.value = false
     }
-};
-
+}
 
 const Cyclometer = async (data) => {
     try {
-        const response = await BackendEnigma.getCyclometer(data);
-        cyclometerResponse.value.cycles = { ...response.data.computedCycles };
-        buildCatalogueRequestFromCyclometer();
+        const response = await BackendEnigma.getCyclometer(data)
+        cyclometerResponse.value.cycles = { ...response.data.computedCycles }
+        buildCatalogueRequestFromCyclometer()
     } catch (error) {
         if (error.response && error.response.data && error.response.data.errors) {
-            const errors = error.response.data.errors;
-            // Alle Fehlermeldungen ausgeben (falls mehrere)
-            Object.values(errors).forEach(msg => {
-                toast.error(msg);
-            });
+            const errors = error.response.data.errors
+            Object.values(errors).forEach(msg => toast.error(msg))
         } else {
-            // Fallback
-            toast.error(error.message || "Unbekannter Fehler");
+            toast.error(error.message || "Unbekannter Fehler")
         }
     }
-};
+}
 
 const handleCatalogue = async () => {
-    isLoadingCatalogue.value = true;
+    isLoadingCatalogue.value = true
     try {
-        cataloguerequest.value.parameters.page = 0;
-
-        const req = structuredClone(cataloguerequest.value);
-
-        if (!showRotorOrderFilter.value) req.parameters.rotorOrder = [];
-        if (!showRotorPositionFilter.value) req.parameters.rotorPosition = [];
-
-        await Catalogue(JSON.stringify(req));
+        cataloguerequest.value.parameters.page = 0
+        const req = structuredClone(cataloguerequest.value)
+        if (!showRotorOrderFilter.value) req.parameters.rotorOrder = []
+        if (!showRotorPositionFilter.value) req.parameters.rotorPosition = []
+        await Catalogue(JSON.stringify(req))
     } finally {
-        isLoadingCatalogue.value = false;
+        isLoadingCatalogue.value = false
     }
-};
-
+}
 
 const Catalogue = async (data) => {
     try {
-        const response = await BackendEnigma.getCatalogue(data);
-        catalogueres.value = response.data;
-
-        await nextTick(); // Warten, bis die Tabelle gerendert ist
-
-        // Nur scrollen, wenn die Seite ganz oben ist
+        const response = await BackendEnigma.getCatalogue(data)
+        catalogueres.value = response.data
+        await nextTick()
         if (window.scrollY === 0) {
-            window.scrollBy({
-                top: 200,
-                behavior: 'smooth' // optional smooth scroll
-            });
+            window.scrollBy({ top: 200, behavior: 'smooth' })
         }
-
     } catch (error) {
         if (error.response && error.response.data && error.response.data.errors) {
-            const errors = error.response.data.errors;
-            // Alle Fehlermeldungen ausgeben (falls mehrere)
-            Object.values(errors).forEach(msg => {
-                toast.error(msg);
-            });
+            const errors = error.response.data.errors
+            Object.values(errors).forEach(msg => toast.error(msg))
         } else {
-            // Fallback
-            toast.error(error.message || "Unbekannter Fehler");
+            toast.error(error.message || "Unbekannter Fehler")
         }
-
     }
-};
+}
 
-
-
-
-
-const MAX_MANUAL_KEYS = 35;
+// === MANUELLE SCHLÜSSEL ===
+const MAX_MANUAL_KEYS = 35
 const addManualKey = async () => {
     if (settings.value.parameters.manual_keys.length < MAX_MANUAL_KEYS) {
-        settings.value.parameters.manual_keys.push("");
-        await nextTick();
-        const lastInput = manualKeyRefs.value.at(-1);
-        if (lastInput) lastInput.focus();
+        settings.value.parameters.manual_keys.push("")
+        await nextTick()
+        const lastInput = manualKeyRefs.value.at(-1)
+        if (lastInput) lastInput.focus()
     }
-};
-
+}
 const deleteLastManualKey = () => {
     if (settings.value.parameters.manual_keys.length > 0) {
-        settings.value.parameters.manual_keys.pop();
+        settings.value.parameters.manual_keys.pop()
     }
-};
+}
 
-
-// 7. Validierungen / Filter
-//const isValidKey = (key) => /^([A-Z])([A-Z])([A-Z])\1\2\3$/.test(key);
-
-const MANUAL_KEY_REGEX = /^([A-Z])([A-Z])([A-Z])\1\2\3$/;
-
+// === VALIDIERUNGEN ===
+const MANUAL_KEY_REGEX = /^([A-Z])([A-Z])([A-Z])\1\2\3$/
 /**
  * Prüft, ob ein manueller Schlüssel dem Muster entspricht:
  * Drei Buchstaben (A-Z), gefolgt von genau denselben drei Buchstaben.
@@ -730,146 +666,92 @@ const MANUAL_KEY_REGEX = /^([A-Z])([A-Z])([A-Z])\1\2\3$/;
  * @param {string} key 
  * @returns {boolean}
  */
-const isValidKey = (key) => MANUAL_KEY_REGEX.test(key);
-
+const isValidKey = (key) => MANUAL_KEY_REGEX.test(key)
 
 const filterValidKeys = () => {
-    settings.value.parameters.manual_keys = settings.value.parameters.manual_keys.filter(isValidKey);
-};
+    settings.value.parameters.manual_keys = settings.value.parameters.manual_keys.filter(isValidKey)
+}
 
 const formatKey = (index) => {
-    const val = settings.value.parameters.manual_keys[index] || "";
-    settings.value.parameters.manual_keys[index] = val.toUpperCase().replace(/[^A-Z]/g, "");
-};
+    const val = settings.value.parameters.manual_keys[index] || ""
+    settings.value.parameters.manual_keys[index] = val.toUpperCase().replace(/[^A-Z]/g, "")
+}
 
-
-// 8. UI Toggles
+// === UI-TOGGLES ===
 const toggleRotorOrderFilter = () => {
-    showRotorOrderFilter.value = !showRotorOrderFilter.value;
+    showRotorOrderFilter.value = !showRotorOrderFilter.value
     if (!cataloguerequest.value.parameters) {
-        cataloguerequest.value.parameters = {};
+        cataloguerequest.value.parameters = {}
     }
-    cataloguerequest.value.parameters.rotorOrder = showRotorOrderFilter.value ? [1, 2, 3] : [];
-};
+    cataloguerequest.value.parameters.rotorOrder = showRotorOrderFilter.value ? [1, 2, 3] : []
+}
 
 const toggleRotorPositionFilter = () => {
-    showRotorPositionFilter.value = !showRotorPositionFilter.value;
-    cataloguerequest.value.parameters.rotorPosition = showRotorPositionFilter.value ? [0, 0, 0] : [];
-};
+    showRotorPositionFilter.value = !showRotorPositionFilter.value
+    cataloguerequest.value.parameters.rotorPosition = showRotorPositionFilter.value ? [0, 0, 0] : []
+}
 
-
-
-// 9. Sonstige Hilfsfunktionen
+// === SONSTIGE HILFSFUNKTIONEN ===
 const buildCatalogueRequestFromCyclometer = () => {
-    const sourceCycles = cyclometerResponse.value.cycles;
+    const sourceCycles = cyclometerResponse.value.cycles
 
     const reduceDuplicates = (arr) => {
-        const freqMap = {};
+        const freqMap = {}
         for (const num of arr) {
-            freqMap[num] = (freqMap[num] || 0) + 1;
+            freqMap[num] = (freqMap[num] || 0) + 1
         }
-        const reduced = [];
+        const reduced = []
         for (const num in freqMap) {
-            const count = freqMap[num];
-            const keepCount = Math.ceil(count / 2);
+            const count = freqMap[num]
+            const keepCount = Math.ceil(count / 2)
             for (let i = 0; i < keepCount; i++) {
-                reduced.push(Number(num));
+                reduced.push(Number(num))
             }
         }
-        reduced.sort((a, b) => b - a);
-        return reduced;
-    };
+        reduced.sort((a, b) => b - a)
+        return reduced
+    }
 
     cataloguerequest.value.cycles = {
         one_to_four_permut: reduceDuplicates(sourceCycles.one_to_four_permut),
         two_to_five_permut: reduceDuplicates(sourceCycles.two_to_five_permut),
         three_to_six_permut: reduceDuplicates(sourceCycles.three_to_six_permut),
-    };
-};
+    }
+}
 
-// Paging
-const isLoadingNextPage = ref(false);
-
+// === PAGING / SEITENLADESTATUS ===
+const isLoadingNextPage = ref(false)
 const loadNextPage = async () => {
-    if (isLoadingNextPage.value) return;
+    if (isLoadingNextPage.value) return
 
-    const nextPage = cataloguerequest.value.parameters.page + 1;
-    const maxPages = catalogueres.value?.totalPages ?? 0;
+    const nextPage = cataloguerequest.value.parameters.page + 1
+    const maxPages = catalogueres.value?.totalPages ?? 0
 
-    if (nextPage >= maxPages || nextPage >= 100) return;
+    if (nextPage >= maxPages || nextPage >= 100) return
 
-    isLoadingNextPage.value = true;
-
+    isLoadingNextPage.value = true
     try {
-        cataloguerequest.value.parameters.page = nextPage;
-
+        cataloguerequest.value.parameters.page = nextPage
         const { data } = await BackendEnigma.getCatalogue(
             JSON.stringify(cataloguerequest.value)
-        );
-
-        if (data?.content) {
-            catalogueres.value.content.push(...data.content);
+        )
+        if (catalogueres.value?.content && data?.content) {
+            catalogueres.value.content.push(...data.content)
+        } else {
+            catalogueres.value = data
         }
-
-        Object.assign(catalogueres.value, {
-            pageNumber: data.pageNumber,
-            totalPages: data.totalPages,
-            totalElements: data.totalElements,
-        });
-    } catch (error) {
-        console.error("loadNextPage error:", error);
     } finally {
-        isLoadingNextPage.value = false;
+        isLoadingNextPage.value = false
     }
-};
-
-
-
-
-
-
-
-const sliderMax = 10000
-const actualMax = 1024
-const targetMidValue = 100
-const base = Math.pow((actualMax / targetMidValue) + 1, 2)
-const A = actualMax / (base - 1)
-
-// Slider-Wert im großen Bereich
-const sliderValue = ref(valueToSlider(settings.value.parameters.daily_key_count))
-
-function sliderToValue(sliderVal) {
-    const t = sliderVal / sliderMax
-    const value = A * (Math.pow(base, t) - 1)
-    return Math.round(value)
 }
 
-function valueToSlider(actualVal) {
-    const t = Math.log((actualVal / A) + 1) / Math.log(base)
-    return Math.round(t * sliderMax)
+// === SLIDER & RANGE CONTROLS ===
+const sliderValue = ref(50)
+const valueToSlider = (val) => {
+    if (val === 0) return 0
+    if (val === 100) return 100
+    return val
 }
-
-
-// Wenn Slider bewegt wird, echten Wert aktualisieren
-function onSliderInput() {
-    settings.value.parameters.daily_key_count = sliderToValue(sliderValue.value)
-}
-
-// Wenn Nummerneingabe geändert wird, Slider anpassen
-function onNumberInput() {
-    if (settings.value.parameters.daily_key_count < 0) settings.value.parameters.daily_key_count = 0
-    if (settings.value.parameters.daily_key_count > actualMax) settings.value.parameters.daily_key_count = actualMax
-    sliderValue.value = valueToSlider(settings.value.parameters.daily_key_count)
-}
-
-// Synchronisieren, falls sich der Wert außerhalb von Slider ändert (optional)
-watch(() => settings.value.parameters.daily_key_count, (newVal) => {
-    sliderValue.value = valueToSlider(newVal)
-})
-
-
-
-
 </script>
 
 <style>
@@ -1050,7 +932,8 @@ form {
 
 .manual-keys-grid {
     display: grid;
-    grid-template-columns: repeat(5, 1fr); /* 5 Spalten mit gleicher Breite */
+    grid-template-columns: repeat(5, 1fr);
+    /* 5 Spalten mit gleicher Breite */
     gap: 0.1rem;
     padding: 0.1rem;
 }
