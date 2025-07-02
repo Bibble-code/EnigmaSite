@@ -5,12 +5,13 @@
                 <div class="left-form form-box">
 
                     <ReverseMultiSelect v-model:single="uiType" :singleOptions="enigmaModels" label="Modell:"
-                        info="Model I (Wehrmacht) und M3 (Marine) unterscheiden sich nur im Walzensatz und den verfügbaren Umkehrwalzen (UKWs). Model M4 (Uboot-Flotte) hat 4 Walzen und eigene UKWs.   Die verfügbaren Umkehrwalzen (UKW) unterscheiden sich je nach Enigma-Modell."
+                        info="Model I und M3 unterscheiden sich nur im Walzensatz und den verfügbaren Umkehrwalzen (UKWs). Model M4 ersetzt die große UKW durch eine 4. Walze und eigene, dünne UKWs. Die verfügbaren Umkehrwalzen (UKW) unterscheiden sich je nach Enigma-Modell."
                         s />
                     <ReverseMultiSelect v-model:single="settings.enigma.reflector" :singleOptions="reflectors"
                         v-model:array="settings.enigma.rotors" :arrayOptions="rotorOptions" label="Walzenlage:"
-                        info="Hier wird die Reihenfolge der Walzen eingestellt. In der Simulation sind auch doppelte Walzen möglich. Anordnung [schnelle Walze, mittlere Walze, langsame Walze]" />
-                    <ReverseMultiSelect v-model:array="settings.enigma.positions" :arrayOptions="alphabetOptions"
+                        info="Hier wird die Reihenfolge der Walzen eingestellt. In der Simulation sind auch doppelte Walzen möglich. Schnelle Walze befindet sich rechts." />
+
+                    <ReverseMultiSelect v-model:array="settings.enigma.positions" :arrayOptions="positionAlphabetOptions"
                         label="Walzenstellung:" info="Hier wird die Startposition der Walzen eingestellt." />
 
                     <ReverseMultiSelect v-model:array="ringsFirstThree" :arrayOptions="alphabetOptions"
@@ -345,6 +346,65 @@ const sanitizeInput = () => {
   }
 };
 
+
+
+// Notch-Positionen (Einkerbungen) für die Walzen 1-8 der Enigma-Maschine.
+// Für Walzen mit mehreren Einkerbungen werden die Positionen in Arrays angegeben.
+// Die Positionen sind 0-basiert, A=0, B=1, ..., Z=25.
+const starPositionsByRotor = {
+  1: 16,        // Rotor I hat Einkerbung bei Q (Index 16)
+  2: 4,         // Rotor II bei E (Index 4)
+  3: 21,        // Rotor III bei V (Index 21)
+  4: 9,         // Rotor IV bei J (Index 9)
+  5: 25,        // Rotor V bei Z (Index 25)
+  6: [25, 12],  // Rotor VI hat zwei Einkerbungen bei Z (25) und M (12)
+  7: [25, 12],  // Rotor VII gleich wie VI
+  8: [25, 12],  // Rotor VIII gleich wie VI
+};
+
+/**
+ * Erzeugt für eine gegebene Walze eine modifizierte Optionsliste
+ * mit Sternchen "*" an den Einkerbungspositionen.
+ *
+ * @param {number} rotorNumber - Nummer der Walze (1-8)
+ * @returns {Array} Array von Optionsobjekten mit modifizierten Labels
+ */
+function createAlphabetOptionsWithIndent(rotorNumber) {
+  const starPos = starPositionsByRotor[rotorNumber];
+
+  return alphabetOptions.map((opt, idx) => {
+    let label = opt.label;
+
+    // Prüfen, ob starPos ein Array ist (mehrere Einkerbungen)
+    if (Array.isArray(starPos)) {
+      if (starPos.includes(idx)) {
+        label += " *"; // Stern hinten anhängen bei allen Einkerbungen
+      }
+    } else {
+      // starPos ist eine einzelne Zahl
+      if (idx === starPos) {
+        label += " *";
+      }
+    }
+
+    return {
+      value: opt.value,
+      label: label
+    };
+  });
+}
+
+
+// Computed, welches abhängig von settings.enigma.rotors passende Optionen liefert
+const positionAlphabetOptions = computed(() => {
+  return settings.enigma.rotors.map(rotorId => {
+    // Erzeuge die Optionen für jeden Rotor on-the-fly
+    if (rotorId >= 1 && rotorId <= 8) {
+      return createAlphabetOptionsWithIndent(rotorId);
+    }
+    return alphabetOptions; // Fallback
+  });
+});
 
 
 

@@ -2,7 +2,7 @@
   <nav>
     <router-link to="/">Enigma</router-link> |
     <router-link to="/cyclometer">Zyklometer</router-link>  |
-    <router-link to="/manual">Bedienungsanleitung</router-link>
+    <router-link to="/manual">Informationen</router-link>
 
 
   </nav>

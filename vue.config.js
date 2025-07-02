@@ -1,5 +1,4 @@
 const { defineConfig } = require('@vue/cli-service');
-const webpack = require('webpack');
 
 module.exports = defineConfig({
   transpileDependencies: true,
@@ -21,5 +20,14 @@ module.exports = defineConfig({
       });
       return definitions;
     });
-  }
+  },
+
+  pages: {
+    index: {
+      entry: 'src/main.js',
+      template: 'public/index.html',
+      filename: 'index.html',
+      title: 'Enigma-Zyklometer',
+    },
+  },
 });
