@@ -14,9 +14,9 @@
         </select>
       </template>
 
-    <ToggleSwitch v-if="hasCheckbox" v-model="checkboxModelValue">
-      {{ checkboxModelValue ? 'Deaktivieren' : 'Aktivieren' }}
-    </ToggleSwitch>
+      <ToggleSwitch v-if="hasCheckbox" v-model="checkboxModelValue">
+        {{ checkboxModelValue ? 'Deaktivieren' : 'Aktivieren' }}
+      </ToggleSwitch>
     </div>
   </div>
 </template>
@@ -92,13 +92,6 @@ function onSelectChange(event, idx) {
 </script>
 
 
-<style>
+<style></style>
 
-
-
-</style>
-
-<style scoped>
-
-
-</style>
+<style scoped></style>

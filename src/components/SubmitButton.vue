@@ -1,7 +1,9 @@
 <template>
   <button :disabled="disabled || loading" class="submit-button">
     <span v-if="loading">Lädt...</span>
-    <span v-else><slot /></span>
+    <span v-else>
+      <slot />
+    </span>
   </button>
 </template>
 
@@ -29,9 +31,11 @@ defineProps({
   font-weight: bold;
   cursor: pointer;
   transition: background-color 0.2s;
-  width: 100%;    /* Button füllt die gesamte Breite des Containers */
+  width: 100%;
+  /* Button füllt die gesamte Breite des Containers */
   margin-top: 1rem;
-  box-sizing: border-box; /* wichtig, damit Padding in Breite eingerechnet wird */
+  box-sizing: border-box;
+  /* wichtig, damit Padding in Breite eingerechnet wird */
 }
 
 
@@ -39,5 +43,4 @@ defineProps({
   background-color: #8fa7ca;
   cursor: not-allowed;
 }
-
 </style>

@@ -1,7 +1,7 @@
-import axios from "axios"
+import axios from "axios";
 
-export default (url = '/api') => {
-    return axios.create({
-        baseURL: url
-    });
+export default (url = "/api") => {
+  return axios.create({
+    baseURL: url,
+  });
 };

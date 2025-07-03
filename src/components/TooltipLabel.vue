@@ -73,11 +73,9 @@ function resetPosition() {
   align-items: center;
   gap: 0.35rem;
 }
-
 </style>
 
 <style scoped>
-
 .info-icon {
   position: relative;
   font-style: normal;

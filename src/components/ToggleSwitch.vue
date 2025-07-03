@@ -2,7 +2,9 @@
   <label class="switch">
     <input type="checkbox" :checked="modelValue" @change="$emit('update:modelValue', $event.target.checked)" />
     <span class="slider"></span>
-    <span class="toggle-label"><slot /></span>
+    <span class="toggle-label">
+      <slot />
+    </span>
   </label>
 </template>
 
@@ -46,11 +48,11 @@ const props = defineProps({
   transition: transform 0.3s;
 }
 
-.switch input:checked + .slider {
+.switch input:checked+.slider {
   background-color: #007bff;
 }
 
-.switch input:checked + .slider::before {
+.switch input:checked+.slider::before {
   transform: translateX(20px);
 }
 

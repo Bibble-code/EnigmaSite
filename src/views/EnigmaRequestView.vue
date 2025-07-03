@@ -14,7 +14,7 @@
                     <!-- Walzenlage: Auswahl von Reflektor und Walzen -->
                     <ReverseMultiSelect v-model:single="settings.enigma.reflector" :singleOptions="reflectors"
                         v-model:array="settings.enigma.rotors" :arrayOptions="rotorOptions" label="Walzenlage:"
-                        info="Legt die Reihenfolge der drei Walzen im Walzensatz fest. Auch die UKW lässt sich hier einstellen." />
+                        info="Legt die Reihenfolge der drei Walzen im Walzensatz fest. Auch die Umkehrwalze (UKW) lässt sich hier einstellen." />
 
                     <!-- Walzenstellung: Startposition der Walzen mit Markierung der Einkerbung -->
                     <ReverseMultiSelect v-model:array="settings.enigma.positions"
@@ -214,7 +214,7 @@ const settings = reactive({
 });
 
 const enigma_output = ref("");
-const inputTextarea = ref(null);
+const inputTextarea = ref("");
 
 const inputFontSize = ref(20);
 const outputFontSize = ref(20);
@@ -281,6 +281,23 @@ watch(uiType, (newUiType) => {
 });
 
 
+watch(inputIsUpperCase, (val) => {
+    if (!settings.enigma.input) return;
+
+    settings.enigma.input = val
+        ? settings.enigma.input.toUpperCase()
+        : settings.enigma.input.toLowerCase();
+});
+
+
+
+
+watch(outputIsUpperCase, (val) => {
+    enigma_output.value = val
+        ? enigma_output.value.toUpperCase()
+        : enigma_output.value.toLowerCase();
+});
+
 
 // Bei Änderung der Eingabe automatisch verarbeiten (debounced)
 watch(() => settings.enigma.input, () => {
@@ -292,13 +309,18 @@ watch(() => settings.enigma.input, () => {
 // === METHODEN ===
 
 // Debounced Verarbeitung der Eingabe
+const lastSubmittedInput = ref("");
+
 const debouncedSubmit = debounce(() => {
-    if (!settings.enigma.input || settings.enigma.input.trim() === "") {
-        enigma_output.value = "";
-        return;
-    }
+    const current = (settings.enigma.input || "").replace(/[^a-zA-Z]/g, "").toLowerCase();
+
+    // Falls gleich wie zuletzt gesendet → nichts tun
+    if (current === lastSubmittedInput.value) return;
+
+    lastSubmittedInput.value = current;
     handleSubmit();
 }, 300);
+
 
 // Sendet Konfiguration an Backend zur Verschlüsselung
 const Encrypt = async (data) => {
@@ -320,6 +342,7 @@ const Encrypt = async (data) => {
         }
     }
 };
+
 // Übergibt das Formular zur Verarbeitung
 const handleSubmit = async () => {
     if (!settings.enigma.input || settings.enigma.input.trim() === "") {
@@ -347,43 +370,56 @@ const handleSubmit = async () => {
 };
 
 
-const sanitizeInput = () => {
-    let input = settings.enigma.input || "";
-    const originalInput = input;
+function sanitizeInput(event) {
+    const textarea = inputTextarea.value;
+    if (!textarea) return;
 
-    // Nur Buchstaben extrahieren (aber merken, ob was entfernt wurde)
-    const lettersOnly = originalInput.replace(/[^a-zA-Z]/g, "");
-    const hadInvalidChars = originalInput.length !== lettersOnly.length;
+    const original = textarea.value || "";
 
-    // Groß-/Kleinschreibung je nach Einstellung
-    input = inputIsUpperCase.value
-        ? lettersOnly.toUpperCase()
-        : lettersOnly.toLowerCase();
+    let sanitized = original.replace(/[^a-zA-Z]/g, "");
+    const hadInvalidChars = sanitized.length !== original.length;
 
-    // Nur Toast anzeigen, wenn wirklich ungültige Zeichen entfernt wurden
+    sanitized = inputIsUpperCase.value
+        ? sanitized.toUpperCase()
+        : sanitized.toLowerCase();
+
+    if (sanitized.length > 10000) {
+        sanitized = sanitized.slice(0, 10000);
+        showToastLimited("Maximal 10.000 Buchstaben erlaubt.");
+    }
+
     if (hadInvalidChars) {
         showToastLimited("Ungültige Zeichen wurden entfernt. Nur [A-Z][a-z] ist zulässig.", "warning");
     }
 
-    // Längenkontrolle
-    if (input.length > 10000) {
-        input = input.slice(0, 10000);
-        showToastLimited("Maximal 10.000 Buchstaben erlaubt.");
+    // Cursorposition speichern
+    const cursorPos = textarea.selectionStart;
+
+    // Wenn sich der Inhalt geändert hat, manuell setzen
+    if (sanitized !== original) {
+        textarea.value = sanitized;
+        settings.enigma.input = sanitized;
+
+        // Cursor wieder setzen
+        nextTick(() => {
+            textarea.setSelectionRange(cursorPos, cursorPos);
+        });
+    } else {
+        settings.enigma.input = sanitized;
     }
 
-    // Eingabe übernehmen
-    settings.enigma.input = input;
-
-    // Ausgabe kürzen
-    if (enigma_output.value.length > input.length) {
-        enigma_output.value = enigma_output.value.slice(0, input.length);
+    // Ausgabe ebenfalls synchronisieren
+    if (enigma_output.value.length > sanitized.length) {
+        enigma_output.value = enigma_output.value.slice(0, sanitized.length);
     }
 
-    // Ausgabe-Case synchronisieren
     enigma_output.value = outputIsUpperCase.value
         ? enigma_output.value.toUpperCase()
         : enigma_output.value.toLowerCase();
-};
+
+    debouncedSubmit?.(); // falls benötigt
+}
+
 
 
 

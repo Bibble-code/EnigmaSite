@@ -1,10 +1,9 @@
 <template>
-    <div class="plugboard-container">
-        <input v-for="(pair, index) in pairs" :key="index" v-model="pairs[index]" @input="onInput(index, $event)"
-            maxlength="2" type="text" spellcheck="false" autocomplete="off" autocorrect="off"
-            autocapitalize="characters" />
+  <div class="plugboard-container">
+    <input v-for="(pair, index) in pairs" :key="index" v-model="pairs[index]" @input="onInput(index, $event)"
+      maxlength="2" type="text" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="characters" />
 
-    </div>
+  </div>
 </template>
 
 <script setup>
@@ -26,14 +25,14 @@ const showToastLimited = (msg, type = 'info', options = {}) => {
 
 
 const props = defineProps({
-    modelValue: {
-        type: String,
-        default: ""
-    },
-    pairCount: {
-        type: Number,
-        default: 10
-    }
+  modelValue: {
+    type: String,
+    default: ""
+  },
+  pairCount: {
+    type: Number,
+    default: 10
+  }
 })
 
 const emit = defineEmits(['update:modelValue'])
@@ -41,19 +40,19 @@ const emit = defineEmits(['update:modelValue'])
 const pairs = ref([])
 
 const initPairs = () => {
-    const rawPairs = props.modelValue.match(/.{1,2}/g) || []
-    pairs.value = Array(props.pairCount).fill("").map((_, i) => rawPairs[i] || "")
+  const rawPairs = props.modelValue.match(/.{1,2}/g) || []
+  pairs.value = Array(props.pairCount).fill("").map((_, i) => rawPairs[i] || "")
 }
 initPairs()
 
 watch(() => props.modelValue, (newVal) => {
-    const rawPairs = newVal.match(/.{1,2}/g) || []
-    pairs.value = Array(props.pairCount).fill("").map((_, i) => rawPairs[i] || "")
+  const rawPairs = newVal.match(/.{1,2}/g) || []
+  pairs.value = Array(props.pairCount).fill("").map((_, i) => rawPairs[i] || "")
 })
 
 watch(pairs, (newPairs) => {
-    const combined = newPairs.join('')
-    emit('update:modelValue', combined)
+  const combined = newPairs.join('')
+  emit('update:modelValue', combined)
 }, { deep: true })
 
 
@@ -110,26 +109,26 @@ const sanitizePairs = () => {
 
 <style scoped>
 .plugboard-container {
-    display: grid;
-    grid-template-columns: repeat(5, 4ch);
-    grid-template-rows: repeat(2, auto);
-    gap: 19px;
-    justify-content: flex-end;
-    margin-right: 14px;
-    margin-top: 1rem;
+  display: grid;
+  grid-template-columns: repeat(5, 4ch);
+  grid-template-rows: repeat(2, auto);
+  gap: 19px;
+  justify-content: flex-end;
+  margin-right: 14px;
+  margin-top: 1rem;
 }
 
 .plugboard-container input {
-    min-width: 4ch !important;
-    max-width: 4ch !important;
-    width: 4ch !important;
-    padding: 2px 2px;
-    border: 2px solid #808080;
-    box-sizing: border-box;
-    font-family: 'Courier New, monospace';
-    text-align: center;
-    text-transform: uppercase;
-    font-size: 1.2rem;
-    line-height: 1;
+  min-width: 4ch;
+  max-width: 4ch;
+  width: 4ch;
+  padding: 2px 2px;
+  border: 2px solid #808080;
+  box-sizing: border-box;
+  font-family: inherit;
+  text-align: center;
+  text-transform: uppercase;
+  font-size: 1.2rem;
+  line-height: 1;
 }
 </style>

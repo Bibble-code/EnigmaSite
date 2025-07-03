@@ -25,12 +25,12 @@ const routes = [
     name: "about",
     component: InstructionsView,
   },
-    {
+  {
     path: "/enigma-instructions",
     name: "enigma-instructions",
     component: EnigmaInstructionsView,
   },
-    {
+  {
     path: "/cyclometer-instructions",
     name: "cyclometer-instructions",
     component: CyclometerInstructionsView,

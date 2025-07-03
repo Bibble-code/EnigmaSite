@@ -29,7 +29,8 @@
 
                         <!-- Auswahl der Startpositionen der Walzen -->
                         <ReverseMultiSelect v-model:array="settings.enigma.positions" :arrayOptions="alphabetOptions"
-                            label="Walzenstellung:" info="Für jede der drei Walzen wird eine Anfangsstellung (A–Z) definiert. Die eingeblendeten Sterne markieren die Stellung der Einkerbung." />
+                            label="Walzenstellung:"
+                            info="Für jede der drei Walzen wird eine Anfangsstellung (A–Z) definiert. Die eingeblendeten Sterne markieren die Stellung der Einkerbung." />
 
                         <!-- Ringstellungen aktivieren/deaktivieren und auswählen -->
                         <ReverseMultiSelect v-model:array="rings" :arrayOptions="alphabetOptions"
@@ -39,16 +40,14 @@
                     Nur bei aktivierter Option wird die Ringstellung in der Verschlüsselung berücksichtigt." />
 
                         <!-- Steckerbrett-Einstellungen -->
-                        <LabeledPlugboard v-model="settings.enigma.plugboard" label="Steckerbrett:"
-                            info="Buchstabenpaare zur zusätzlichen Verschlüsselungsänderung verbinden
+                        <LabeledPlugboard v-model="settings.enigma.plugboard" label="Steckerbrett:" info="Buchstabenpaare zur zusätzlichen Verschlüsselungsänderung verbinden
                     (z. B. AB für A mit B). Maximal 10 Paare möglich. Diese Einstellung hat für die erstellten
                     Zyklenlängen keinen Einfluss." />
 
                         <!-- Bereich zur Einstellung der Spruchschlüssel-Anzahl -->
                         <h3>
                             <label class="label-with-tooltip">
-                                <TooltipLabel label="Spruchschlüssel"
-                                    info="Hier wird festgelegt, mit wie vielen unverschlüsselten Spruchschlüsseln die Zyklometer-Simulation ausgeführt wird. Ein Spruchschlüssel besteht aus drei sich wiederholenden
+                                <TooltipLabel label="Spruchschlüssel" info="Hier wird festgelegt, mit wie vielen unverschlüsselten Spruchschlüsseln die Zyklometer-Simulation ausgeführt wird. Ein Spruchschlüssel besteht aus drei sich wiederholenden
                     Buchstaben, z. B. ABCABC." />
                             </label>
                         </h3>
@@ -56,8 +55,7 @@
                         <!-- Zufällig generierte Spruchschlüssel -->
                         <div class="enigma-setting">
                             <label class="label-with-tooltip">
-                                <TooltipLabel label="Zufällig generierte:"
-                                    info="Über den Schieberegler wird festgelegt, wie viele zufällige
+                                <TooltipLabel label="Zufällig generierte:" info="Über den Schieberegler wird festgelegt, wie viele zufällige
                     Spruchschlüssel generiert werden." />
                             </label>
                             <div class="keys full-width">
@@ -75,8 +73,7 @@
                         <!-- Manuelle Eingabe von Spruchschlüsseln -->
                         <div class="enigma-setting">
                             <label class="label-with-tooltip">
-                                <TooltipLabel label="+ Eigene:"
-                                    info="Hiermit werden die eingestellten oder zufällig generierten
+                                <TooltipLabel label="+ Eigene:" info="Hiermit werden die eingestellten oder zufällig generierten
                     Spruchschlüssel zur Liste hinzugefügt, bzw. gelöscht." />
                             </label>
                             <div class="keys full-width">
@@ -128,8 +125,7 @@
                 <div class="form-box topbox">
                     <h2>
                         <label class="label-with-tooltip">
-                            <TooltipLabel label="Zyklen mit Verdoppelungen"
-                                info="Zeigt die Zyklen an, die vom Zyklometer gefunden wurden. Ein Zyklus beschreibt eine Abfolge von
+                            <TooltipLabel label="Zyklen mit Verdoppelungen" info="Zeigt die Zyklen an, die vom Zyklometer gefunden wurden. Ein Zyklus beschreibt eine Abfolge von
                 Positionen im verschlüsselten Spruchschlüssel, die miteinander verknüpft sind." />
                         </label>
                     </h2>
@@ -464,16 +460,16 @@ onBeforeUnmount(() => {
 
 // === STATISCHE DATEN ===
 const enigmaModels = [
-    { value: 1, label: "Enigma Ⅰ der Wehrmacht" },
-    { value: 2, label: "Enigma Ⅰ der Wehrmacht" },
-    { value: 3, label: "Enigma Ⅰ der Wehrmacht" },
+    { value: 1, label: "Enigma I der Wehrmacht" },
+    { value: 2, label: "Enigma I der Wehrmacht" },
+    { value: 3, label: "Enigma I der Wehrmacht" },
     { value: 4, label: "IV" },
 ]
 const reflectors = [{ value: 'B', label: 'Umkehrwalze B' }]
 
 // Hilfsfunktion für römische Ziffern
 function toRoman(num) {
-    const romanUnicode = ["Ⅰ", "Ⅱ", "Ⅲ", "Ⅳ", "Ⅴ", "Ⅵ", "Ⅶ", "Ⅷ", "Ⅸ", "Ⅹ"]
+    const romanUnicode = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"]
     return romanUnicode[num - 1] || num.toString()
 }
 const rotorOptions = [1, 2, 3, 4, 5].map(i => ({ value: i, label: toRoman(i) }))
@@ -511,7 +507,7 @@ const cyclometerResponse = ref({
     }
 })
 
-const catalogueres = ref()
+const catalogueres = ref({ totalElements: 0 })
 
 const cataloguerequest = ref({
     cycles: {
@@ -581,6 +577,23 @@ function formatRotorOrder(rotorOrderValues) {
 }
 
 const formatNumber = (value) => new Intl.NumberFormat('de-DE').format(value)
+
+
+
+const triggerCount = ref(0) // zweite Variable
+
+watch([() => catalogueres.value.totalElements, triggerCount], ([newVal]) => {
+    toast.success(`Es gibt jetzt ${newVal} Einträge.`, {
+        timeout: 3000,
+        position: 'top-right',
+    })
+})
+
+// Beispiel: Diese Funktion rufst du auf, wenn neue Daten kommen
+function updateCatalogueres(newTotal) {
+    catalogueres.value.totalElements = newTotal
+    triggerCount.value++ // immer erhöhen, auch wenn der Wert gleich bleibt
+}
 
 // === HANDLER UND API-FUNKTIONEN ===
 const handleCyclometer = async () => {
@@ -945,6 +958,7 @@ form {
     font-weight: bold;
     padding-top: 0.4rem;
     text-align: left;
+
 }
 
 .filter-switch input[type="checkbox"] {
@@ -957,6 +971,7 @@ form {
     margin-right: 0.5rem;
     /* etwas Abstand zum Slider/Text */
     cursor: pointer;
+    justify-content: flex-start;
 }
 
 
@@ -1352,6 +1367,28 @@ additional-keys {
 }
 
 
+.filter-wrapper .right-align {
+    justify-content: flex-start;
+}
+
+.filter-wrapper.select {
+    width: var(--select-width);
+    font-size: 1rem;
+    text-align: center;
+    padding: 0.3rem;
+    box-sizing: border-box;
+    border-radius: 6px;
+    border: 1px solid #bbb;
+    font-family: inherit;
+    height: 35px;
+}
+
+
+
+.filter-wrapper.select:disabled {
+    cursor: not-allowed;
+    color: #6c6c6c;
+}
 
 @media (max-width: 1000px) {
     .form-container {

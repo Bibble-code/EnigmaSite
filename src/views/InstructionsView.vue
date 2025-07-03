@@ -1,4 +1,3 @@
-
 <template>
     <div class="container">
         <h1>Projekt im Rahmen einer Bachelorarbeit</h1>
@@ -36,13 +35,15 @@ body {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     display: flex;
     flex-wrap: wrap;
-    gap: 20px; /* Abstand zwischen den Spalten */
+    gap: 20px;
+    /* Abstand zwischen den Spalten */
 }
 
 h1 {
     color: #2c3e50;
     text-align: center;
-    width: 100%; /* Nimmt die volle Breite ein */
+    width: 100%;
+    /* Nimmt die volle Breite ein */
     margin-bottom: 20px;
 }
 
@@ -73,9 +74,12 @@ strong {
 }
 
 /* Layout für die beiden Hauptteile */
-.section-left, .section-right {
-    flex: 1; /* Nimmt den verfügbaren Platz gleichmäßig ein */
-    min-width: 400px; /* Mindestbreite, damit es nicht zu schmal wird auf kleinen Bildschirmen */
+.section-left,
+.section-right {
+    flex: 1;
+    /* Nimmt den verfügbaren Platz gleichmäßig ein */
+    min-width: 400px;
+    /* Mindestbreite, damit es nicht zu schmal wird auf kleinen Bildschirmen */
     padding: 15px;
     border: 1px solid #eee;
     border-radius: 5px;
@@ -83,11 +87,13 @@ strong {
 }
 
 .section-left {
-    border-left: 5px solid #28a745; /* Grüner Rand für "Links" */
+    border-left: 5px solid #28a745;
+    /* Grüner Rand für "Links" */
 }
 
 .section-right {
-    border-left: 5px solid #007bff; /* Blauer Rand für "Rechts" */
+    border-left: 5px solid #007bff;
+    /* Blauer Rand für "Rechts" */
 }
 
 /* Wichtiger Hinweis */
@@ -98,31 +104,37 @@ strong {
     border-radius: 5px;
     margin-top: 20px;
     color: #856404;
-    width: 100%; /* Nimmt die volle Breite ein */
+    width: 100%;
+    /* Nimmt die volle Breite ein */
     text-align: center;
 }
 
 .video-container {
-            width: 100%;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .video-container video {
-            max-width: 100%;
-            height: auto;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
+    width: 100%;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.video-container video {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
 
 /* Responsive Design */
 @media (max-width: 768px) {
     .container {
-        flex-direction: column; /* Stapelt die Abschnitte untereinander auf kleinen Bildschirmen */
+        flex-direction: column;
+        /* Stapelt die Abschnitte untereinander auf kleinen Bildschirmen */
     }
 
-    .section-left, .section-right {
-        min-width: unset; /* Setzt Mindestbreite zurück */
-        width: 100%; /* Nimmt volle Breite ein */
+    .section-left,
+    .section-right {
+        min-width: unset;
+        /* Setzt Mindestbreite zurück */
+        width: 100%;
+        /* Nimmt volle Breite ein */
     }
 }
 </style>

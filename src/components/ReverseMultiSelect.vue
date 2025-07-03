@@ -80,37 +80,21 @@ function getArrayOptions(idx) {
     </label>
 
     <div class="select-row right-align" v-if="hasSingle">
-<!-- Single Select -->
-<select
-  :value="single"
-  @change="onSingleChange"
-  :style="singleStyle"
-  :disabled="!isSingleSelectEnabled"
->
-  <option
-    v-for="option in singleOptions"
-    :key="option.value"
-    :value="option.value"
-  >
-    {{ option.label }}
-  </option>
-</select>
+      <!-- Single Select -->
+      <select :value="single" @change="onSingleChange" :style="singleStyle" :disabled="!isSingleSelectEnabled">
+        <option v-for="option in singleOptions" :key="option.value" :value="option.value">
+          {{ option.label }}
+        </option>
+      </select>
 
-<!-- Separator -->
-<span v-if="showSeparator" class="separator">|</span>
+      <!-- Separator -->
+      <span v-if="showSeparator" class="separator">|</span>
 
-<!-- Array Selects -->
-<template v-for="(value, idx) in reversedArray" :key="idx">
-        <select
-          :value="value"
-          @change="e => onArrayChange(e, array.length - 1 - idx)"
-          :disabled="!isArraySelectEnabled"
-        >
-          <option
-            v-for="option in getArrayOptions(array.length - 1 - idx)"
-            :key="option.value"
-            :value="option.value"
-          >
+      <!-- Array Selects -->
+      <template v-for="(value, idx) in reversedArray" :key="idx">
+        <select :value="value" @change="e => onArrayChange(e, array.length - 1 - idx)"
+          :disabled="!isArraySelectEnabled">
+          <option v-for="option in getArrayOptions(array.length - 1 - idx)" :key="option.value" :value="option.value">
             {{ option.label }}
           </option>
         </select>
@@ -118,26 +102,16 @@ function getArrayOptions(idx) {
     </div>
 
     <div class="select-row right-align" v-else>
-      <ToggleSwitch
-        v-if="toggle !== undefined && toggleLabel !== undefined"
-        :model-value="toggle"
-        @update:model-value="onToggleChange"
-      >
+      <ToggleSwitch v-if="toggle !== undefined && toggleLabel !== undefined" :model-value="toggle"
+        @update:model-value="onToggleChange">
         {{ toggleLabel }}
       </ToggleSwitch>
 
       <!-- Array Selects (no single) -->
       <template v-for="(value, idx) in reversedArray" :key="idx">
-        <select
-          :value="value"
-          @change="e => onArrayChange(e, array.length - 1 - idx)"
-          :disabled="!isArraySelectEnabled"
-        >
-          <option
-            v-for="option in getArrayOptions(array.length - 1 - idx)"
-            :key="option.value"
-            :value="option.value"
-          >
+        <select :value="value" @change="e => onArrayChange(e, array.length - 1 - idx)"
+          :disabled="!isArraySelectEnabled">
+          <option v-for="option in getArrayOptions(array.length - 1 - idx)" :key="option.value" :value="option.value">
             {{ option.label }}
           </option>
         </select>
@@ -146,9 +120,7 @@ function getArrayOptions(idx) {
   </div>
 </template>
 
-<style>
-
-</style>
+<style></style>
 
 <style scoped>
 .select-row {
@@ -161,7 +133,7 @@ function getArrayOptions(idx) {
   justify-content: flex-start;
 }
 
-.label{
+.label {
   font-weight: bold;
 }
 
@@ -184,9 +156,8 @@ select {
 
 
 select:disabled {
-  background-color: #fff;
-  color: #000000;
   cursor: not-allowed;
+  color: #6c6c6c;
 }
 
 .separator {
@@ -197,6 +168,4 @@ select:disabled {
   user-select: none;
   line-height: 1;
 }
-
-
 </style>

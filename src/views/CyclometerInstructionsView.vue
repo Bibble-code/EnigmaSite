@@ -16,6 +16,7 @@
             Auf dieser Seite wird das Verfahren rund um das Zylometer simuliert.
 
             Derzeit wird das Verfahren in zwei Abschnitte eingeteilt:
+        </p>
         <ul>
             <li><strong>Zyklen erstellen:</strong> Hier wird aus einer Einstellungen der Enigma und Spruchschlüsseln
                 Zyklen mit dem Zyklometer erstellt. Dabei werden die Spruchschlüssel intern erst mit der Einstellung
@@ -24,7 +25,7 @@
             <li><strong>Katalog abfragen:</strong> Hier kann der Katalog der Charakteristiken nach den Zyklen abgefragt
                 werden. In der Antwortliste wird die vorher eingestellte Einstellungen der Enigma auftauchen.</li>
         </ul>
-        </p>
+
 
         <section class="section-left">
             <h2>Teil 1: Charakteristische Zyklen erstellen (Links)</h2>
@@ -37,9 +38,11 @@
                 <li><strong>Walzenstellung:</strong> Für jede der drei Walzen wird eine Anfangsstellung (A–Z) definiert.
                     Sie bestimmt die Ausgangsposition des Walzenkerns relativ zur Eintrittsscheibe beim Start der
                     Verschlüsselung.</li>
-                <li><strong>Ringstellung:</strong> Die Ringstellung jeder der drei Walzen wird mit (A bis Z) eingestellt.
+                <li><strong>Ringstellung:</strong> Die Ringstellung jeder der drei Walzen wird mit (A bis Z)
+                    eingestellt.
                     Nur bei aktivierter Option wird die Ringstellung in der Verschlüsselung berücksichtigt. Der
-                    Katalog ist mit neutraler Ringstellung erstellt worden. Bei veränderter Ringstellung muss diese auf die Walzenstellung angerechnet werden. 
+                    Katalog ist mit neutraler Ringstellung erstellt worden. Bei veränderter Ringstellung muss diese auf
+                    die Walzenstellung angerechnet werden.
                     (beide voneinander abziehen und modulo 26 rechnen)</li>
                 <li><strong>Steckerbrett:</strong> Buchstabenpaare zur zusätzlichen Verschlüsselungsänderung verbinden
                     (z. B. AB für A mit B). Maximal 10 Paare möglich. Diese Einstellung hat für die erstellten
@@ -65,7 +68,8 @@
 
             <h3>Zyklen mit Verdoppelungen:</h3>
             <p>Zeigt die Zyklen an, die vom Zyklometer gefunden wurden. Ein Zyklus beschreibt eine Abfolge von
-                Positionen im verschlüsselten Spruchschlüssel, die miteinander verknüpft sind. Zum Beispiel bedeutet „1 – 4“, dass der
+                Positionen im verschlüsselten Spruchschlüssel, die miteinander verknüpft sind. Zum Beispiel bedeutet „1
+                – 4“, dass der
                 Zyklus die Buchstaben an der ersten und vierten Position im Schlüssel umfasst. Die maximale Summe der
                 Zykluslängen beträgt 26; Zykluslängen treten immer paarweise auf.</p>
 
@@ -85,24 +89,25 @@
             <h3>Sortiere nach:</h3>
             <p>Die Reihenfolge der angezeigten Zyklen kann hier geändert werden:</p>
             <ul>
-                <li>Im ersten Feld legst du fest, nach welchem Kriterium sortiert werden soll.</li>
-                <li>WIm zweiten Feld wählst du die Sortierreihenfolge: „Aufsteigend“ (von A nach Z, von klein nach groß)
-                    oder „Absteigend“ (von Z nach A, von groß nach klein).</li>
+                <li>Im ersten Feld wird das Sortierkriterium definiert.</li>
+                <li>Im zweiten Feld wird die Sortierreihenfolge festgelegt: „Aufsteigend“ (A–Z, klein–groß) oder
+                    „Absteigend“ (Z–A, groß–klein).</li>
             </ul>
         </section>
 
 
         <ul>
             <li>Wenn keine Spruchschlüssel verwendet werden, so werden auch keine Zyklen gefunden.</li>
-            <li>Wenn leere Zyklen im Katalog abgefragt werden, so wird der komplette Katalog zurückgegeben. (1.054.560)
+            <li>Wenn leere Zyklen im Katalog abgefragt werden, so wird der komplette Katalog zurückgegeben (1.054.560).
             </li>
             <li>Wenn der komplette Katalog nach einer bestimmten Walzenlage gefiltert wird, so werden alle möglichen
-                Walzenstellungen zurückgegeben. (17.576)</li>
+                Walzenstellungen zurückgegeben (17.576) . </li>
             <li>Wenn der komplette Katalog nach einer bestimmten Walzenstellung gefiltert, so werden alle möglichen
-                Walzenlagen zurückgegeben. (60)</li>
+                Walzenlagen zurückgegeben (60). </li>
             <li>Wird sowohl nach Walzenlage und Walzenstellung gefiltert, so kann maximal ein Wert zurückgegeben werden.
             </li>
-            <li>Der Informationsgehalt der Zyklen hängt lediglich von den Zyklen ohne Verdoppelung ab, weitere Zyklen enthalten keine weitere Information.</li>
+            <li>Der Informationsgehalt der Zyklen hängt lediglich von den Zyklen ohne Verdoppelung ab, weitere Zyklen
+                enthalten keine weitere Information.</li>
         </ul>
         <p class="important-note"><strong>Wichtig:</strong> Der Zyklometer ist ein Werkzeug, mit dem Kryptoanalysten
             Muster in der Enigma erkannt haben, um die Maschineneinstellungen zu bestimmen.
@@ -117,12 +122,20 @@
 
 <style scoped>
 /* Grundlegende Stile */
-body {
+/* body {
     font-family: Arial, sans-serif;
     line-height: 1.6;
     margin: 20px;
     background-color: #f4f4f4;
     color: #333;
+} */
+
+p {
+    text-align: left;
+}
+
+li {
+    text-align: left;
 }
 
 .container {
@@ -205,7 +218,7 @@ strong {
     color: #856404;
     width: 100%;
     /* Nimmt die volle Breite ein */
-    text-align: center;
+    text-align: left;
 }
 
 .video-container {
