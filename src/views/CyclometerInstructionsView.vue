@@ -9,54 +9,106 @@
             </video>
         </div>
 
-        <p>Der Zyklometer hilft dir, Muster in der Enigma-Verschlüsselung zu finden, die man "Zyklen" nennt. Das ist nützlich, wenn man versucht, geheime Nachrichten zu knacken.</p>
+        <p>Das Zyklometer wurde in den 1930er Jahren von den polnischen Kryptoanalysten rund um Rejewski entwickelt um
+            die deutsche Enigma-Maschine zu Entschlüsseln. Dabei wurde ein Verfahrenstechnischer Fehler der
+            Spruchschlüsselübermittelung ausgenutz, da diese doppelt übertragen wurden (z.B. ASDASD).
+
+            Auf dieser Seite wird das Verfahren rund um das Zylometer simuliert.
+
+            Derzeit wird das Verfahren in zwei Abschnitte eingeteilt:
+        <ul>
+            <li><strong>Zyklen erstellen:</strong> Hier wird aus einer Einstellungen der Enigma und Spruchschlüsseln
+                Zyklen mit dem Zyklometer erstellt. Dabei werden die Spruchschlüssel intern erst mit der Einstellung
+                verschlüsselt. Anschließend werden diese verschlüsselten Spruchschlüssel an das Zyklometer übergeben,
+                welches daraus Zyklen bildet.</li>
+            <li><strong>Katalog abfragen:</strong> Hier kann der Katalog der Charakteristiken nach den Zyklen abgefragt
+                werden. In der Antwortliste wird die vorher eingestellte Einstellungen der Enigma auftauchen.</li>
+        </ul>
+        </p>
 
         <section class="section-left">
             <h2>Teil 1: Charakteristische Zyklen erstellen (Links)</h2>
-            <p>Hier legst du fest, welche Enigma-Einstellungen der Zyklometer untersuchen soll.</p>
+            <p>Hier wird festgelegt, mit welcher Enigma-Einstellungen der Zyklometer die Zyklen erstellen soll.</p>
 
             <ul>
-                <li><strong>Modell:</strong> Hier kannst du die verschiedenen Modelle einstellen.</li>
-                <li><strong>Walzenlage:</strong> Wähle aus, in welcher Reihenfolge die drei Walzen (I, II, III, IV, V, VI, VII, VIII) in der Enigma sitzen. Du kannst sie hier frei anordnen.</li>
-                <li><strong>Walzenstellung:</strong> Für jede der drei Walzen stellst du einen Startbuchstaben ein (A bis Z). Dies ist der Ausgangspunkt der Walzen.</li>
-                <li><strong>Ringstellung:</strong> Für jede der drei Walzen stellst du die Ringstellung ein (A bis Z). Wenn das Kästchen "Aktivieren" angekreuzt ist, wird die Ringstellung berücksichtigt.</li>
-                <li><strong>Steckerbrett:</strong> Hier kannst du Buchstabenpaare verbinden (z.B. AB für A mit B). Diese Verbindungen ändern die Verschlüsselung zusätzlich. Du kannst bis zu 10 Paare eingeben.</li>
+                <li><strong>Modell:</strong> Der Katalog der Charakteristiken wurde nur für UKW B erstellt.</li>
+                <li><strong>Walzenlage:</strong>Bestimmung der Reihenfolge der drei Walzen (I–V) im Walzensatz der
+                    Enigma. Position jeder Walze kann beliebig definiert werden.</li>
+                <li><strong>Walzenstellung:</strong> Für jede der drei Walzen wird eine Anfangsstellung (A–Z) definiert.
+                    Sie bestimmt die Ausgangsposition des Walzenkerns relativ zur Eintrittsscheibe beim Start der
+                    Verschlüsselung.</li>
+                <li><strong>Ringstellung:</strong> Die Ringstellung jeder der drei Walzen wird mit (A bis Z) eingestellt.
+                    Nur bei aktivierter Option wird die Ringstellung in der Verschlüsselung berücksichtigt. Der
+                    Katalog ist mit neutraler Ringstellung erstellt worden. Bei veränderter Ringstellung muss diese auf die Walzenstellung angerechnet werden. 
+                    (beide voneinander abziehen und modulo 26 rechnen)</li>
+                <li><strong>Steckerbrett:</strong> Buchstabenpaare zur zusätzlichen Verschlüsselungsänderung verbinden
+                    (z. B. AB für A mit B). Maximal 10 Paare möglich. Diese Einstellung hat für die erstellten
+                    Zyklenlängen keinen Einfluss.</li>
             </ul>
 
             <h3>Spruchschlüssel:</h3>
             <ul>
-                <li><strong>Zufällig generieren:</strong> Du kannst einen Schieberegler nutzen, um eine Anzahl (z.B. 100) von zufälligen Spruchschlüsseln erstellen zu lassen. Ein Spruchschlüssel ist eine kurze, oft dreibuchstabige Anfangsstellung für die Verschlüsselung einer Nachricht.</li>
-                <li><strong>Hinzufügen:</strong> Klicke hier, um die von dir eingestellten Spruchschlüssel oder die zufällig generierten zu deiner Liste hinzuzufügen.</li>
+                <li><strong>Zufällig generieren:</strong> Über den Schieberegler wird festgelegt, wie viele zufällige
+                    Spruchschlüssel generiert werden. Ein Spruchschlüssel besteht aus drei sich wiederholenden
+                    Buchstaben, z. B. ABCABC.</li>
+                <li><strong>Hinzufügen:</strong> Hiermit werden die eingestellten oder zufällig generierten
+                    Spruchschlüssel zur Liste hinzugefügt.</li>
                 <li><strong>Löschen:</strong> Löscht die aktuell ausgewählten Spruchschlüssel aus der Liste.</li>
             </ul>
         </section>
 
         <section class="section-right">
             <h2>Teil 2: Ergebnisse anzeigen und filtern (Rechts)</h2>
-            <p>Hier siehst du die Zyklen, die der Zyklometer gefunden hat, und kannst danach suchen.</p>
+            <p>An dieser Stelle werden die vom Zyklometer gefundenen Zyklen angezeigt und können durchsucht werden.
+
+                Die maximale Summe beträgt 26; Zykluslängen treten stets paarweise auf.</p>
 
             <h3>Zyklen mit Verdoppelungen:</h3>
-            <p>Zeigt die Zyklen an, die auftreten, wenn ein Buchstabe zweimal hintereinander im Spruchschlüssel vorkommt (z.B. "AA", "BB", "CC"). Jeder "Zyklus" ist hier eine spezielle mathematische Abfolge, die der Enigma-Algorithmus erzeugt. Die Zahlen (z.B. "1 - 4") geben die Länge der Zyklen an.</p>
+            <p>Zeigt die Zyklen an, die vom Zyklometer gefunden wurden. Ein Zyklus beschreibt eine Abfolge von
+                Positionen im verschlüsselten Spruchschlüssel, die miteinander verknüpft sind. Zum Beispiel bedeutet „1 – 4“, dass der
+                Zyklus die Buchstaben an der ersten und vierten Position im Schlüssel umfasst. Die maximale Summe der
+                Zykluslängen beträgt 26; Zykluslängen treten immer paarweise auf.</p>
 
             <h3>Zyklen ohne Verdoppelungen:</h3>
-            <p>Zeigt die Zyklen an, die entstehen, wenn die Buchstaben im Spruchschlüssel nicht doppelt vorkommen.</p>
+            <p>Die Verdoppelung der Zyklen wird bei der Datenbankabfrage entfernt, da sie keine zusätzlichen
+                Informationen liefert.</p>
 
             <h3>Filtern nach:</h3>
-            <p>Du kannst die angezeigten Zyklen weiter eingrenzen:</p>
+            <p>Zyklen können hier weiter gefiltert werden:</p>
             <ul>
-                <li><strong>Nach Walzenlage filtern:</strong> Wenn du dies ankreuzt, werden nur Zyklen angezeigt, die zu einer bestimmten Walzenlage gehören.</li>
-                <li><strong>Nach Walzenstellung filtern:</strong> Wenn du dies ankreuzt, werden nur Zyklen angezeigt, die zu einer bestimmten Walzenstellung gehören.</li>
+                <li><strong>Nach Walzenlage filtern:</strong> Bei Aktivierung dieser Option werden nur Zyklen angezeigt,
+                    die einer bestimmten Walzenlage zugeordnet sind.</li>
+                <li><strong>Nach Walzenstellung filtern:</strong> Bei Aktivierung dieser Option werden nur Zyklen
+                    angezeigt, die zu einer bestimmten Walzenstellung gehören.</li>
             </ul>
 
             <h3>Sortiere nach:</h3>
-            <p>Du kannst die Reihenfolge der angezeigten Zyklen ändern:</p>
+            <p>Die Reihenfolge der angezeigten Zyklen kann hier geändert werden:</p>
             <ul>
-                <li>Wähle im ersten Feld, wonach sortiert werden soll (z.B. "Walzenlage").</li>
-                <li>Wähle im zweiten Feld, ob es "Aufsteigend" (von A nach Z, von klein nach groß) oder "Absteigend" (von Z nach A, von groß nach klein) sortiert werden soll.</li>
+                <li>Im ersten Feld legst du fest, nach welchem Kriterium sortiert werden soll.</li>
+                <li>WIm zweiten Feld wählst du die Sortierreihenfolge: „Aufsteigend“ (von A nach Z, von klein nach groß)
+                    oder „Absteigend“ (von Z nach A, von groß nach klein).</li>
             </ul>
         </section>
 
-        <p class="important-note"><strong>Wichtig:</strong> Der Zyklometer ist ein Werkzeug, das Kryptoanalysten (Menschen, die geheime Nachrichten knacken) geholfen hat, Muster in der Enigma zu finden, um die Einstellungen der Maschine zu erraten.</p>
+
+        <ul>
+            <li>Wenn keine Spruchschlüssel verwendet werden, so werden auch keine Zyklen gefunden.</li>
+            <li>Wenn leere Zyklen im Katalog abgefragt werden, so wird der komplette Katalog zurückgegeben. (1.054.560)
+            </li>
+            <li>Wenn der komplette Katalog nach einer bestimmten Walzenlage gefiltert wird, so werden alle möglichen
+                Walzenstellungen zurückgegeben. (17.576)</li>
+            <li>Wenn der komplette Katalog nach einer bestimmten Walzenstellung gefiltert, so werden alle möglichen
+                Walzenlagen zurückgegeben. (60)</li>
+            <li>Wird sowohl nach Walzenlage und Walzenstellung gefiltert, so kann maximal ein Wert zurückgegeben werden.
+            </li>
+            <li>Der Informationsgehalt der Zyklen hängt lediglich von den Zyklen ohne Verdoppelung ab, weitere Zyklen enthalten keine weitere Information.</li>
+        </ul>
+        <p class="important-note"><strong>Wichtig:</strong> Der Zyklometer ist ein Werkzeug, mit dem Kryptoanalysten
+            Muster in der Enigma erkannt haben, um die Maschineneinstellungen zu bestimmen.
+
+            Auf dieser Seite können entschlüsselte Nachrichten nicht direkt mit dem Zyklometer entschlüsselt werden; es
+            ist lediglich möglich, den Zyklometer-Prozess nachzuvollziehen.</p>
     </div>
 </template>
 
@@ -82,13 +134,15 @@ body {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     display: flex;
     flex-wrap: wrap;
-    gap: 20px; /* Abstand zwischen den Spalten */
+    gap: 20px;
+    /* Abstand zwischen den Spalten */
 }
 
 h1 {
     color: #2c3e50;
     text-align: center;
-    width: 100%; /* Nimmt die volle Breite ein */
+    width: 100%;
+    /* Nimmt die volle Breite ein */
     margin-bottom: 20px;
 }
 
@@ -119,9 +173,12 @@ strong {
 }
 
 /* Layout für die beiden Hauptteile */
-.section-left, .section-right {
-    flex: 1; /* Nimmt den verfügbaren Platz gleichmäßig ein */
-    min-width: 350px; /* Mindestbreite, damit es nicht zu schmal wird auf kleinen Bildschirmen */
+.section-left,
+.section-right {
+    flex: 1;
+    /* Nimmt den verfügbaren Platz gleichmäßig ein */
+    min-width: 350px;
+    /* Mindestbreite, damit es nicht zu schmal wird auf kleinen Bildschirmen */
     padding: 15px;
     border: 1px solid #eee;
     border-radius: 5px;
@@ -129,11 +186,13 @@ strong {
 }
 
 .section-left {
-    border-left: 5px solid #28a745; /* Grüner Rand für "Links" */
+    border-left: 5px solid #28a745;
+    /* Grüner Rand für "Links" */
 }
 
 .section-right {
-    border-left: 5px solid #007bff; /* Blauer Rand für "Rechts" */
+    border-left: 5px solid #007bff;
+    /* Blauer Rand für "Rechts" */
 }
 
 /* Wichtiger Hinweis */
@@ -144,31 +203,37 @@ strong {
     border-radius: 5px;
     margin-top: 20px;
     color: #856404;
-    width: 100%; /* Nimmt die volle Breite ein */
+    width: 100%;
+    /* Nimmt die volle Breite ein */
     text-align: center;
 }
 
 .video-container {
-            width: 100%;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .video-container video {
-            max-width: 100%;
-            height: auto;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
+    width: 100%;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.video-container video {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
 
 /* Responsive Design */
 @media (max-width: 768px) {
     .container {
-        flex-direction: column; /* Stapelt die Abschnitte untereinander auf kleinen Bildschirmen */
+        flex-direction: column;
+        /* Stapelt die Abschnitte untereinander auf kleinen Bildschirmen */
     }
 
-    .section-left, .section-right {
-        min-width: unset; /* Setzt Mindestbreite zurück */
-        width: 100%; /* Nimmt volle Breite ein */
+    .section-left,
+    .section-right {
+        min-width: unset;
+        /* Setzt Mindestbreite zurück */
+        width: 100%;
+        /* Nimmt volle Breite ein */
     }
 }
 </style>

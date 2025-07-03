@@ -23,28 +23,33 @@
                         <!-- Auswahl von Umkehrwalze und Walzenreihenfolge -->
                         <ReverseMultiSelect v-model:single="settings.enigma.reflector" :singleOptions="reflectors"
                             v-model:array="settings.enigma.rotors" :arrayOptions="rotorOptions" label="Walzenlage:"
-                            info="Hier wird die Reihenfolge der Walzen eingestellt. In der Simulation sind auch doppelte Walzen möglich. Der Katalog der Charakteristiken wurde mit Umkehrwalze B erstellt."
+                            info="Bestimmung der Reihenfolge der drei Walzen (I–V) im Walzensatz der
+                    Enigma. Der Katalog der Charakteristiken wurde mit Umkehrwalze B erstellt und ist deshalb nicht auswählbar."
                             :isSingleEnabled="false" />
 
                         <!-- Auswahl der Startpositionen der Walzen -->
                         <ReverseMultiSelect v-model:array="settings.enigma.positions" :arrayOptions="alphabetOptions"
-                            label="Walzenstellung:" info="Hier wird die Startposition der Walzen eingestellt." />
+                            label="Walzenstellung:" info="Für jede der drei Walzen wird eine Anfangsstellung (A–Z) definiert. Die eingeblendeten Sterne markieren die Stellung der Einkerbung." />
 
                         <!-- Ringstellungen aktivieren/deaktivieren und auswählen -->
-                        <ReverseMultiSelect v-model:array="settings.enigma.rings" :arrayOptions="alphabetOptions"
+                        <ReverseMultiSelect v-model:array="rings" :arrayOptions="alphabetOptions"
                             v-model:toggle="ringstellungEnabled"
                             :toggleLabel="ringstellungEnabled ? 'Deaktivieren' : 'Aktivieren'" label="Ringstellung:"
-                            info="Der Katalog basiert auf neutraler Ringstellung. Bei anderer Ringstellung muss durch Rückrechnung die richtige Walzenstellung ermittelt werden." />
+                            info="Die Ringstellung jeder der drei Walzen (A bis Z) wird eingestellt.
+                    Nur bei aktivierter Option wird die Ringstellung in der Verschlüsselung berücksichtigt." />
 
                         <!-- Steckerbrett-Einstellungen -->
                         <LabeledPlugboard v-model="settings.enigma.plugboard" label="Steckerbrett:"
-                            info="Das Steckerbrett vertauscht Buchstaben. Auf die charakteristischen Zyklen hat das keinen Einfluss." />
+                            info="Buchstabenpaare zur zusätzlichen Verschlüsselungsänderung verbinden
+                    (z. B. AB für A mit B). Maximal 10 Paare möglich. Diese Einstellung hat für die erstellten
+                    Zyklenlängen keinen Einfluss." />
 
                         <!-- Bereich zur Einstellung der Spruchschlüssel-Anzahl -->
                         <h3>
                             <label class="label-with-tooltip">
                                 <TooltipLabel label="Spruchschlüssel"
-                                    info="Hier wird festgelegt, mit wie vielen unverschlüsselten Spruchschlüsseln die Zyklometer-Simulation ausgeführt wird." />
+                                    info="Hier wird festgelegt, mit wie vielen unverschlüsselten Spruchschlüsseln die Zyklometer-Simulation ausgeführt wird. Ein Spruchschlüssel besteht aus drei sich wiederholenden
+                    Buchstaben, z. B. ABCABC." />
                             </label>
                         </h3>
 
@@ -52,16 +57,18 @@
                         <div class="enigma-setting">
                             <label class="label-with-tooltip">
                                 <TooltipLabel label="Zufällig generierte:"
-                                    info="Gibt an, wie viele Spruchschlüssel generiert werden sollen." />
+                                    info="Über den Schieberegler wird festgelegt, wie viele zufällige
+                    Spruchschlüssel generiert werden." />
                             </label>
                             <div class="keys full-width">
                                 <!-- Slider zur Auswahl der Anzahl -->
                                 <input type="range" min="0" :max="sliderMax" v-model="sliderValue"
                                     @input="onSliderInput" class="styled-slider flex-grow" />
                                 <!-- Zahleneingabe alternativ zum Slider -->
-                                <input type="number" min="0" :max="actualMax"
+                                <input type="number" min="0" :max="actualMax" step="1"
                                     v-model.number="settings.parameters.daily_key_count" @input="onNumberInput"
-                                    class="styled-number-input" style="width: 4ch;" />
+                                    class="styled-number-input" style="width: 4ch;" inputmode="numeric" />
+
                             </div>
                         </div>
 
@@ -69,7 +76,8 @@
                         <div class="enigma-setting">
                             <label class="label-with-tooltip">
                                 <TooltipLabel label="+ Eigene:"
-                                    info="Hier können eigene unverschlüsselte Spruchschlüssel eingegeben werden..." />
+                                    info="Hiermit werden die eingestellten oder zufällig generierten
+                    Spruchschlüssel zur Liste hinzugefügt, bzw. gelöscht." />
                             </label>
                             <div class="keys full-width">
                                 <!-- Button zum Hinzufügen eines Schlüssels -->
@@ -121,7 +129,8 @@
                     <h2>
                         <label class="label-with-tooltip">
                             <TooltipLabel label="Zyklen mit Verdoppelungen"
-                                info="Das Zyklometer berechnet Zyklen, deren Vollständigkeit von der Anzahl der Spruchschlüssel abhängt. Vollständige Zyklen haben eine Summe von 26, und alle Werte treten paarweise auf." />
+                                info="Zeigt die Zyklen an, die vom Zyklometer gefunden wurden. Ein Zyklus beschreibt eine Abfolge von
+                Positionen im verschlüsselten Spruchschlüssel, die miteinander verknüpft sind." />
                         </label>
                     </h2>
                     <div class="cycle">
@@ -287,7 +296,6 @@
                         <div class="sort-dropdowns">
                             <select v-model="cataloguerequest.parameters.sortBy">
                                 <option value="rotor_order">Walzenlage</option>
-                                <option value="rotor_position">Walzenstellung</option>
                             </select>
                             <select v-model="cataloguerequest.parameters.sortDir">
                                 <option value="asc">Aufsteigend</option>
@@ -350,7 +358,7 @@
                     <tr>
                         <th>#</th>
                         <th>Walzenlage</th>
-                        <th>Walzenposition</th>
+                        <th>Walzenstellung</th>
                         <th>Zyklen 1 → 4</th>
                         <th>Zyklen 2 → 5</th>
                         <th>Zyklen 3 → 6</th>
@@ -493,6 +501,8 @@ const settings = ref({
     },
 })
 
+const rings = ref([0, 0, 0])
+
 const cyclometerResponse = ref({
     cycles: {
         one_to_four_permut: [],
@@ -574,26 +584,33 @@ const formatNumber = (value) => new Intl.NumberFormat('de-DE').format(value)
 
 // === HANDLER UND API-FUNKTIONEN ===
 const handleCyclometer = async () => {
-    isLoadingCyclometer.value = true
+    isLoadingCyclometer.value = true;
     try {
-        filterValidKeys()
+        filterValidKeys();
+
         if (
             settings.value.parameters.daily_key_count === null ||
             settings.value.parameters.daily_key_count === undefined ||
             settings.value.parameters.daily_key_count === ""
         ) {
-            settings.value.parameters.daily_key_count = 0
+            settings.value.parameters.daily_key_count = 0;
         }
-        let plugboard = settings.value.enigma.plugboard || ""
+
+        let plugboard = settings.value.enigma.plugboard || "";
         if (plugboard.length % 2 !== 0) {
-            plugboard = plugboard.slice(0, -1)
-            settings.value.enigma.plugboard = plugboard
+            plugboard = plugboard.slice(0, -1);
         }
-        await Cyclometer(settings.value)
+
+        // Lokale Kopie der Settings erzeugen
+        const localSettings = structuredClone(settings.value);
+        localSettings.enigma.plugboard = plugboard;
+        localSettings.enigma.rings = ringstellungEnabled.value ? rings.value : [0, 0, 0];
+
+        await Cyclometer(localSettings);
     } finally {
-        isLoadingCyclometer.value = false
+        isLoadingCyclometer.value = false;
     }
-}
+};
 
 const Cyclometer = async (data) => {
     try {
@@ -746,29 +763,66 @@ const loadNextPage = async () => {
 }
 
 // === SLIDER & RANGE CONTROLS ===
-const sliderValue = ref(50)
-const valueToSlider = (val) => {
-    if (val === 0) return 0
-    if (val === 100) return 100
-    return val
+
+const sliderMax = 10000
+const actualMax = 1024
+const targetMidValue = 100
+const base = Math.pow((actualMax / targetMidValue) + 1, 2)
+const A = actualMax / (base - 1)
+
+// Slider-Wert im großen Bereich
+const sliderValue = ref(valueToSlider(settings.value.parameters.daily_key_count))
+
+function sliderToValue(sliderVal) {
+    const t = sliderVal / sliderMax
+    const value = A * (Math.pow(base, t) - 1)
+    return Math.round(value)
 }
+
+function valueToSlider(actualVal) {
+    const t = Math.log((actualVal / A) + 1) / Math.log(base)
+    return Math.round(t * sliderMax)
+}
+
+
+// Wenn Slider bewegt wird, echten Wert aktualisieren
+function onSliderInput() {
+    settings.value.parameters.daily_key_count = sliderToValue(sliderValue.value)
+}
+
+// Wenn Nummerneingabe geändert wird, Slider anpassen
+function onNumberInput(event) {
+    // Event enthält den aktuellen Wert im Eingabefeld als String
+    let rawValue = event.target.value;
+
+    // Alle Nicht-Ziffern entfernen
+    rawValue = rawValue.replace(/\D/g, '');
+
+    // In Zahl umwandeln und auf Ganzzahl abrunden
+    let val = rawValue ? Math.floor(Number(rawValue)) : 0;
+
+    // Min/Max begrenzen
+    if (val < 0) val = 0;
+    if (val > actualMax) val = actualMax;
+
+    // Wert ins Model schreiben
+    settings.value.parameters.daily_key_count = val;
+    sliderValue.value = valueToSlider(val);
+
+    // Eingabefeld neu setzen (optional, falls du den Input direkt korrigieren willst)
+    event.target.value = val;
+}
+
+
+
+// Synchronisieren, falls sich der Wert außerhalb von Slider ändert (optional)
+watch(() => settings.value.parameters.daily_key_count, (newVal) => {
+    sliderValue.value = valueToSlider(newVal)
+})
+
+
 </script>
 
-<style>
-body {
-    background-color: #eaeaea;
-    /* einfache Hintergrundfarbe */
-    /* oder mit Bild */
-    /* background-image: url('dein-bild.jpg'); */
-    /* background-size: cover; */
-    /* background-repeat: no-repeat; */
-    /* background-position: center center; */
-    margin: 0;
-    /* Optional, um Standardabstände zu entfernen */
-    min-height: 100vh;
-    /* Damit der Hintergrund immer die ganze Höhe hat */
-}
-</style>
 
 <style scoped>
 /* =========[ 1. Layout & Struktur ]========= */
@@ -1043,7 +1097,7 @@ table td:nth-child(2) {
     white-space: nowrap;
 }
 
-/* Spalte 3: Walzenposition */
+/* Spalte 3: Walzenstellung */
 table th:nth-child(3),
 table td:nth-child(3) {
     width: 170px;

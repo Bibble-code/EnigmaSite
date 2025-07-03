@@ -10,26 +10,36 @@
         </div>
 
         <section class="section-left">
-            <h2>Was muss ich einstellen?</h2>
+            <h2>Was kann eingestellt werden?</h2>
             <ul>
-                <li><strong>Modell:</strong> Hier kannst du auswählen, welches Modell du simulieren möchtest.</li>
-                <li><strong>Walzenlage:</strong> Du siehst drei Kästchen mit römischen Zahlen (I, II, III). Wähle aus, in welcher Reihenfolge die Walzen liegen sollen. Das ist wichtig für die Geheimschrift.</li>
-                <li><strong>Walzenstellung:</strong> Du siehst wieder drei Kästchen mit Buchstaben (A). Wähle für jedes Kästchen einen Start-Buchstaben aus (A bis Z). Das ist wie ein Startpunkt.</li>
-                <li><strong>Ringstellung:</strong> Auch hier siehst du drei Kästchen mit Buchstaben (A). Wähle für jedes Kästchen einen Buchstaben aus (A bis Z). Das ist ein weiterer wichtiger Punkt für die Geheimschrift.</li>
-                <li><strong>Steckerbrett:</strong> Hier kannst du Buchstabenpaare verbinden. Zum Beispiel schreibst du "AB" in ein Kästchen. Dann sind A und B miteinander verbunden. Das macht die Geheimschrift noch schwerer zu knacken. Du kannst bis zu 10 Paare machen.</li>
+                <li><strong>Modell:</strong> Bestimmt das zu simulierende Enigma-Modell. Die Modellwahl beeinflusst die verfügbaren Walzen, Reflektoren sowie das Verhalten des Steckbretts und damit die resultierende Verschlüsselungslogik. Bei dem Modell M4 wird die Umkehrwalze durch eine dünne Umkehrwalze, und eine vierte, dünne Walze, welche keine Ringstellung besitzt, ersetzt.</li>
+                <li><strong>Walzenlage:</strong> Legt die Reihenfolge der drei Walzen im Walzensatz fest. Die Position jeder Walze beeinflusst maßgeblich die interne Verdrahtung und damit das Verschlüsselungsergebnis.</li>
+                <li><strong>Umkehrwalze:</strong> Links neben den drei Walzenfeldern befindet sich die Auswahl der Umkehrwalze (UKW). Welche Reflektoren verfügbar sind, hängt vom gewählten Enigma-Modell ab. Der Reflektor bestimmt maßgeblich die Rückführung des Signals und beeinflusst so das Verschlüsselungsergebnis.</li>
+                <li><strong>Walzenstellung:</strong> Drei Eingabefelder erlauben die Festlegung der Startposition jeder Walze (Buchstabe A–Z). Diese Startbuchstaben entsprechen der initial sichtbaren Walzenposition bei Inbetriebnahme. Die eingeblendeten Sterne markieren die Stellung der Einkerbung ("Notch") der jeweiligen Walze bei neutraler Ringstellung – entscheidend für den Walzenfortschalt beim Verschlüsseln.</li>
+                <li><strong>Ringstellung:</strong> Drei Felder ermöglichen die Einstellung der Ringstellung (A–Z) für jede Walze. Diese legt fest, wie die interne Verdrahtung relativ zur äußeren Beschriftung verschoben ist. Solange keine Einkerbung (Notch) erreicht wird, bleibt die Verschlüsselung bei gemeinsamer Drehung von Walzenstellung und Ringstellung identisch.</li>
+                <li><strong>Steckerbrett:</strong> Hier können bis zu zehn Buchstabenpaare (z.B. „AB“) eingegeben werden, die den Steckbrett-Einstellungen der Enigma entsprechen. Jedes Paar vertauscht die beiden Buchstaben vor und nach der Walzenlogik und erhöht so die kryptographische Komplexität der Maschine.</li>
             </ul>
         </section>
 
         <section class="section-right">
-            <h2>Wie schreibe oder lese ich geheime Nachrichten?</h2>
+            <h2>Wie erfolgt die Verschlüsselung und Entschlüsselung geheimer Nachrichten?</h2>
             <ul>
-                <li>Schreibe deinen Text in das große Feld unter "Eingabe".</li>
-                <li>Klicke auf den grauen Knopf unter den Einstellungen, wo "Bitte Text eingeben" steht.</li>
-                <li>Dein geheimer Text erscheint dann im großen Feld unter "Ausgabe".</li>
+                <li>Text in das Eingabefeld unter „Eingabe“ eingeben.</li>
+                <li>Klicke auf den grauen Knopf unter den Einstellungen mit der Beschriftung „Text rechts eingeben“ oder warte kurz, der Text wird automatisch verschlüsselt.</li>
+                <li>Die Walzenstellung wird für den Anfangspunkt der Nachricht gesetzt, danach läuft diese intern für jeden Buchstaben weiter.</li>
+                <li>Der verschlüsselte Text wird im großen Feld unter „Ausgabe“ angezeigt.</li>
+            </ul>
+
+                <h2>Interessant:</h2>
+            <ul>
+                <li>Der verschlüsselte Text kann erneut als Eingabe verwendet werden, wodurch die ursprüngliche Klartextnachricht als Ausgabe zurückgegeben wird. Dies ist möglich, weil die Enigma-Verschlüsselung involutorisch ist.</li>
+                <li>Die Enigma M4 ist in bestimmten Einstellungen abwärtskompatibel zur M3: 
+                    Dafür muss die M4 die dünne UKW b zusammen mit der Walze Beta in neutraler Stellung (A) verwenden um mit der M3 mit UKW B kompatibel zu sein. 
+                    Analog dazu ist UKW C mit dünner UKW c zusammen mit Gamma-Walze kompatibel.</li>
             </ul>
         </section>
 
-        <p class="important-note"><strong>Ganz wichtig:</strong> Wenn du eine geheime Nachricht verschickst oder liest, müssen alle Einstellungen (Walzenlage, Walzenstellung, Ringstellung und Steckerbrett) genau gleich sein wie bei der Person, die die Nachricht bekommt oder schickt. Sonst klappt es nicht!</p>
+        <p class="important-note"><strong>Wichtig:</strong> Für eine erfolgreiche Ver- oder Entschlüsselung müssen Walzenlage, Walzenstellung, Ringstellung und Steckerbrett auf beiden Seiten exakt übereinstimmen. Abweichungen führen zu falscher Ausgabe.</p>
     </div>
 </template>
 

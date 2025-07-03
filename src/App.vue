@@ -5,8 +5,6 @@
     <router-link to="/enigma-instructions">Anleitung Enigma</router-link>  |
     <router-link to="/cyclometer-instructions">Anleitung Zyklometer</router-link>  |
     <router-link to="/about">About</router-link>
-
-
   </nav>
   <router-view/>
 </template>
@@ -32,5 +30,24 @@ nav a {
 
 nav a.router-link-exact-active {
   color: #42b983;
+}
+
+html {
+  overflow-y: scroll;
+}
+
+body {
+    background-color: #eaeaea;
+    /* einfache Hintergrundfarbe */
+    /* oder mit Bild */
+    /* background-image: url('dein-bild.jpg'); */
+    /* background-size: cover; */
+    /* background-repeat: no-repeat; */
+    /* background-position: center center; */
+    margin: 0;
+    /* Optional, um Standardabstände zu entfernen */
+    min-height: 100vh;
+    /* Damit der Hintergrund immer die ganze Höhe hat */
+    scrollbar-gutter: stable;
 }
 </style>

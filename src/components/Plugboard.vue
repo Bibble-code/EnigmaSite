@@ -1,12 +1,29 @@
 <template>
     <div class="plugboard-container">
-        <input v-for="(pair, index) in pairs" :key="index" v-model="pairs[index]" @input="onInput(index)" maxlength="2"
-            type="text" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="characters" />
+        <input v-for="(pair, index) in pairs" :key="index" v-model="pairs[index]" @input="onInput(index, $event)"
+            maxlength="2" type="text" spellcheck="false" autocomplete="off" autocorrect="off"
+            autocapitalize="characters" />
+
     </div>
 </template>
 
 <script setup>
 import { ref, watch } from 'vue'
+import { useToast } from 'vue-toastification';
+
+
+// === TOAST INITIALISIERUNG ===
+const toast = useToast();
+const lastToastTime = ref(0)
+
+const showToastLimited = (msg, type = 'info', options = {}) => {
+  const now = Date.now();
+  if (now - lastToastTime.value > 1000) {
+    toast[type](msg, options);
+    lastToastTime.value = now;
+  }
+};
+
 
 const props = defineProps({
     modelValue: {
@@ -39,20 +56,56 @@ watch(pairs, (newPairs) => {
     emit('update:modelValue', combined)
 }, { deep: true })
 
-const onInput = (index) => {
-    let raw = pairs.value[index]
-        .toUpperCase()
-        .replace(/[^A-Z]/g, '')
-        .slice(0, 2)
 
-    const usedElsewhere = pairs.value
-        .map((v, i) => (i === index ? '' : v))
-        .join('')
-        .split('')
+const onInput = (index, event) => {
+  // Schritt 1: Eingabe grob bereinigen (nur A-Z, Großbuchstaben, max 2)
+  let raw = event.target.value.toUpperCase().replace(/[^A-Z]/g, '').slice(0, 2);
 
-    const unique = [...new Set(raw)].filter(char => !usedElsewhere.includes(char))
-    pairs.value[index] = unique.join('')
-}
+  pairs.value[index] = raw;
+
+  // Schritt 2: Gesamten Wert sanitizen
+  sanitizePairs();
+};
+
+const sanitizePairs = () => {
+  // 1. Kompletten String aus allen pairs holen
+  let allChars = pairs.value.join('').toUpperCase();
+
+  // 2. Nur Buchstaben behalten, alle anderen Zeichen entfernen
+  allChars = allChars.replace(/[^A-Z]/g, '');
+
+  const seen = new Set();
+  let changed = false;
+  let filteredChars = '';
+
+  // 3. Duplikate entfernen, nur erste Vorkommen behalten
+  for (const char of allChars) {
+    if (!seen.has(char)) {
+      seen.add(char);
+      filteredChars += char;
+    } else {
+      changed = true;
+    }
+  }
+
+  // 4. Paare neu zusammensetzen (je 2 chars)
+  const chunkedPairs = [];
+  for (let i = 0; i < filteredChars.length; i += 2) {
+    chunkedPairs.push(filteredChars.slice(i, i + 2));
+  }
+
+  // 5. Auffüllen bis pairCount
+  while (chunkedPairs.length < props.pairCount) {
+    chunkedPairs.push('');
+  }
+
+  // 6. Nur neu setzen, wenn sich was geändert hat
+  if (changed || chunkedPairs.some((val, i) => val !== pairs.value[i])) {
+    pairs.value = chunkedPairs;
+    showToastLimited("Doppelte Buchstaben wurden entfernt.")
+  }
+};
+
 </script>
 
 <style scoped>

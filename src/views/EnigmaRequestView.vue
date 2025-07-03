@@ -9,29 +9,30 @@
 
                     <!-- Enigma-Modell Auswahl -->
                     <ReverseMultiSelect v-model:single="uiType" :singleOptions="enigmaModels" label="Modell:"
-                        info="Model I und M3 unterscheiden sich nur im Walzensatz..." s />
+                        info="Bestimmt das zu simulierende Enigma-Modell." />
 
                     <!-- Walzenlage: Auswahl von Reflektor und Walzen -->
                     <ReverseMultiSelect v-model:single="settings.enigma.reflector" :singleOptions="reflectors"
                         v-model:array="settings.enigma.rotors" :arrayOptions="rotorOptions" label="Walzenlage:"
-                        info="Hier wird die Reihenfolge der Walzen eingestellt..." />
+                        info="Legt die Reihenfolge der drei Walzen im Walzensatz fest. Auch die UKW lässt sich hier einstellen." />
 
                     <!-- Walzenstellung: Startposition der Walzen mit Markierung der Einkerbung -->
                     <ReverseMultiSelect v-model:array="settings.enigma.positions"
                         :arrayOptions="positionAlphabetOptions" label="Walzenstellung:"
-                        info="Startposition der Walzen, * markiert Einkerbung" />
+                        info="Drei Eingabefelder erlauben die Festlegung der Startposition jeder Walze (Buchstabe A–Z). Die eingeblendeten Sterne markieren die Stellung der Einkerbung." />
 
                     <!-- Ringstellung: Position der Ringverdrehung -->
                     <ReverseMultiSelect v-model:array="ringsFirstThree" :arrayOptions="alphabetOptions"
-                        label="Ringstellung:" info="Einstellung der Ringstellung für die ersten 3 Walzen" />
+                        label="Ringstellung:"
+                        info="Drei Felder ermöglichen die Einstellung der Ringstellung (A–Z) für jede Walze." />
 
                     <!-- Steckerbrett: Buchstabenpaare -->
                     <LabeledPlugboard v-model="settings.enigma.plugboard" label="Steckerbrett:"
-                        info="Vertauscht Buchstaben, beeinflusst keine Zyklen" />
+                        info="Hier können bis zu zehn Buchstabenpaare (z.B. „AB“) eingegeben werden, die den Steckbrett-Einstellungen der Enigma entsprechen." />
 
                     <!-- Absenden-Button: aktiviert, wenn Text eingegeben ist -->
                     <SubmitButton :disabled="!settings.enigma.input" :loading="isLoading">
-                        {{ settings.enigma.input ? 'Verschlüsseln' : 'Bitte Text eingeben' }}
+                        {{ settings.enigma.input ? 'Verschlüsseln' : 'Text rechts eingeben' }}
                     </SubmitButton>
 
                 </div>
@@ -92,8 +93,9 @@
                                     Schrift:
                                     <input type="range" min="10" max="35" v-model="outputFontSize"
                                         style="width: 100px;" />
-                                    <input type="number" min="10" max="35" v-model="outputFontSize"
-                                        class="font-input" />
+                                    <input type="number" min="10" max="35" step="1" v-model="outputFontSize"
+                                        inputmode="numeric" class="font-input" />
+
                                     px
                                 </label>
 
@@ -131,6 +133,25 @@ import { ref, computed, watch, reactive, nextTick } from 'vue';
 
 // === TOAST INITIALISIERUNG ===
 const toast = useToast();
+const lastToastTimeShow = ref(0);
+const lastToastTimeRun = ref(0);
+
+const showToastLimited = (msg, type = 'info', options = {}) => {
+    const now = Date.now();
+    if (now - lastToastTimeShow.value > 1000) {
+        toast[type](msg, options);
+        lastToastTimeShow.value = now;
+    }
+};
+
+const runToastLimited = (callback) => {
+    const now = Date.now();
+    if (now - lastToastTimeRun.value > 1000) {
+        callback();
+        lastToastTimeRun.value = now;
+    }
+};
+
 
 
 // === KONSTANTEN UND OPTIONEN ===
@@ -145,14 +166,14 @@ const enigmaModels = [
 // UKW-Auswahl basierend auf Modell
 const reflectorOptionsByUiType = {
     2: [{ value: "A", label: "Umkehrwalze A" }, { value: "B", label: "Umkehrwalze B" }, { value: "C", label: "Umkehrwalze C" }],
-    3: [{ value: "B", label: "Umkehrwalze B" }, { value: "C", label: "Umkehrwalze C" }],
+    3: [{ value: "A", label: "Umkehrwalze A" }, { value: "B", label: "Umkehrwalze B" }, { value: "C", label: "Umkehrwalze C" }],
     4: [{ value: "b", label: "UKW b" }, { value: "c", label: "UKW c" }]
 };
 
 // Hilfsfunktion: Zahl zu römischer Ziffer
 function toRoman(num) {
-const romanLatin = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"];
-return romanLatin[num - 1] || num.toString();
+    const romanLatin = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"];
+    return romanLatin[num - 1] || num.toString();
 
 }
 
@@ -195,8 +216,8 @@ const settings = reactive({
 const enigma_output = ref("");
 const inputTextarea = ref(null);
 
-const inputFontSize = ref(16);
-const outputFontSize = ref(16);
+const inputFontSize = ref(20);
+const outputFontSize = ref(20);
 
 const inputIsUpperCase = ref(false);
 const outputIsUpperCase = ref(true);
@@ -214,7 +235,7 @@ const rotorOptions = computed(() => {
     if (currentUiType === 2) return [rotorOptions_m2, rotorOptions_m2, rotorOptions_m2];
     if (currentUiType === 3) return [rotorOptions_m3, rotorOptions_m3, rotorOptions_m3];
     if (currentUiType === 4) return [rotorOptions_m3, rotorOptions_m3, rotorOptions_m3, rotorOptions_m4];
-    console.warn("Unexpected uiType value:", currentUiType);
+    showToastLimited("Unexpected uiType value.", "warning");
     return [];
 });
 
@@ -259,23 +280,7 @@ watch(uiType, (newUiType) => {
     settings.enigma.rings = [...defaults.rings];
 });
 
-// Bei Umschaltung Groß-/Kleinschreibung für Eingabe
-watch(inputIsUpperCase, (newVal) => {
-    settings.enigma.input = newVal
-        ? settings.enigma.input.toUpperCase()
-        : settings.enigma.input.toLowerCase();
 
-    nextTick(() => {
-        inputTextarea.value?.focus();
-    });
-});
-
-// Groß-/Kleinschreibung Ausgabe synchron halten
-watch(outputIsUpperCase, (newVal) => {
-    enigma_output.value = newVal
-        ? enigma_output.value.toUpperCase()
-        : enigma_output.value.toLowerCase();
-});
 
 // Bei Änderung der Eingabe automatisch verarbeiten (debounced)
 watch(() => settings.enigma.input, () => {
@@ -307,13 +312,14 @@ const Encrypt = async (data) => {
 
     } catch (error) {
         if (error.response?.data?.errors) {
-            Object.values(error.response.data.errors).forEach(msg => toast.error(msg));
+            runToastLimited(() => {
+                Object.values(error.response.data.errors).forEach(msg => toast.error(msg));
+            });
         } else {
-            toast.error(error.message || "Unbekannter Fehler");
+            showToastLimited(error.message || "Unbekannter Fehler", "error", { timeout: 5000 });
         }
     }
 };
-
 // Übergibt das Formular zur Verarbeitung
 const handleSubmit = async () => {
     if (!settings.enigma.input || settings.enigma.input.trim() === "") {
@@ -321,6 +327,7 @@ const handleSubmit = async () => {
         return;
     }
 
+    sanitizeInput();
     isLoading.value = true;
 
     let plugboard = settings.enigma.plugboard || "";
@@ -332,25 +339,54 @@ const handleSubmit = async () => {
     try {
         await Encrypt(JSON.stringify(settings));
     } catch (error) {
-        error.response?.data?.message || error.message || "Fehler bei der Verarbeitung";
+        const errorMsg = error.response?.data?.message || error.message || "Unbekannter Fehler";
+        showToastLimited(errorMsg, "error", { timeout: 5000 });
     } finally {
         isLoading.value = false;
     }
 };
 
-// Bereinigt Eingabetext, begrenzt Länge und synchronisiert Ausgabe
+
 const sanitizeInput = () => {
     let input = settings.enigma.input || "";
-    if (input.length > 10000) {
-        input = input.slice(0, 10000);
-        settings.enigma.input = input;
-        toast.warning("Maximal 10.000 Zeichen erlaubt.");
+    const originalInput = input;
+
+    // Nur Buchstaben extrahieren (aber merken, ob was entfernt wurde)
+    const lettersOnly = originalInput.replace(/[^a-zA-Z]/g, "");
+    const hadInvalidChars = originalInput.length !== lettersOnly.length;
+
+    // Groß-/Kleinschreibung je nach Einstellung
+    input = inputIsUpperCase.value
+        ? lettersOnly.toUpperCase()
+        : lettersOnly.toLowerCase();
+
+    // Nur Toast anzeigen, wenn wirklich ungültige Zeichen entfernt wurden
+    if (hadInvalidChars) {
+        showToastLimited("Ungültige Zeichen wurden entfernt. Nur [A-Z][a-z] ist zulässig.", "warning");
     }
 
+    // Längenkontrolle
+    if (input.length > 10000) {
+        input = input.slice(0, 10000);
+        showToastLimited("Maximal 10.000 Buchstaben erlaubt.");
+    }
+
+    // Eingabe übernehmen
+    settings.enigma.input = input;
+
+    // Ausgabe kürzen
     if (enigma_output.value.length > input.length) {
         enigma_output.value = enigma_output.value.slice(0, input.length);
     }
+
+    // Ausgabe-Case synchronisieren
+    enigma_output.value = outputIsUpperCase.value
+        ? enigma_output.value.toUpperCase()
+        : enigma_output.value.toLowerCase();
 };
+
+
+
 
 
 // === HILFSFUNKTIONEN ===

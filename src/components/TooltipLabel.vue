@@ -101,7 +101,7 @@ function resetPosition() {
   white-space: normal;
   z-index: 10;
   transition: opacity 0.2s;
-  font-size: 1.25rem;
+  font-size: 1rem;
   pointer-events: none;
   max-width: 600px;
   /* Maximalbreite */
