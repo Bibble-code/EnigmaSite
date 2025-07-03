@@ -73,7 +73,7 @@ const onInput = (index) => {
     padding: 2px 2px;
     border: 2px solid #808080;
     box-sizing: border-box;
-    font-family: monospace;
+    font-family: 'Courier New, monospace';
     text-align: center;
     text-transform: uppercase;
     font-size: 1.2rem;

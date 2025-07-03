@@ -955,7 +955,7 @@ form {
 
 .manual-key-row input {
     width: 10ch;
-    padding: 0.1rem;
+    padding: 0.3rem;
     font-size: 0.9rem;
 }
 

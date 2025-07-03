@@ -4,7 +4,7 @@
         <p>
             Diese Webseite wurde im Zuge meiner Bachelorarbeit an der
             <strong>Hochschule Ravensburg-Weingarten</strong> entwickelt.<br />
-            Der Quellcode zur Umsetzung der Thesis ist auf GitHub verfügbar:<br />
+            Der Quellcode zur Umsetzung der Thesis und diese selbst ist auf GitHub verfügbar:<br />
             <a href="https://github.com/Bibble-code/Enigma-Zyklometer-Notes" target="_blank" rel="noopener noreferrer">
                 https://github.com/Bibble-code/Enigma-Zyklometer-Notes
             </a><br />

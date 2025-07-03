@@ -151,8 +151,9 @@ const reflectorOptionsByUiType = {
 
 // Hilfsfunktion: Zahl zu römischer Ziffer
 function toRoman(num) {
-    const romanUnicode = ["Ⅰ", "Ⅱ", "Ⅲ", "Ⅳ", "Ⅴ", "Ⅵ", "Ⅶ", "Ⅷ", "Ⅸ", "Ⅹ"];
-    return romanUnicode[num - 1] || num.toString();
+const romanLatin = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"];
+return romanLatin[num - 1] || num.toString();
+
 }
 
 // Rotoroptionen je Modell
@@ -431,7 +432,7 @@ function createAlphabetOptionsWithIndent(rotorNumber) {
     border-radius: 6px;
     border: 1px solid #bbb;
     font-family: inherit;
-    line-height: 1.2;
+    line-height: 1.2rem;
 }
 
 .dropdowns select:disabled {
@@ -575,6 +576,7 @@ function createAlphabetOptionsWithIndent(rotorNumber) {
     height: 100%;
     min-height: 0;
 }
+
 
 .textarea-wrapper {
     display: flex;

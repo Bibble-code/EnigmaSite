@@ -178,7 +178,7 @@ select {
   border-radius: 6px;
   border: 1px solid #bbb;
   font-family: inherit;
-  line-height: 1.2;
+  height: 35px;
 }
 
 
