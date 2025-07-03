@@ -282,12 +282,25 @@ watch(uiType, (newUiType) => {
 
 
 watch(inputIsUpperCase, (val) => {
-    if (!settings.enigma.input) return;
+  if (!inputTextarea.value) return;
 
-    settings.enigma.input = val
-        ? settings.enigma.input.toUpperCase()
-        : settings.enigma.input.toLowerCase();
+  let text = settings.enigma.input || "";
+
+  text = val ? text.toUpperCase() : text.toLowerCase();
+
+  // Flag setzen, damit sanitizeInput nicht nochmal das debouncedSubmit auslöst
+  sanitizing.value = true;
+
+  settings.enigma.input = text;
+  inputTextarea.value.value = text;
+
+  // Cursor ans Ende oder vorherige Position setzen (hier einfach ans Ende)
+  nextTick(() => {
+    inputTextarea.value.setSelectionRange(text.length, text.length);
+    sanitizing.value = false;
+  });
 });
+
 
 
 
@@ -369,55 +382,49 @@ const handleSubmit = async () => {
     }
 };
 
+const sanitizing = ref(false);
 
-function sanitizeInput(event) {
-    const textarea = inputTextarea.value;
-    if (!textarea) return;
+watch(() => settings.enigma.input, () => {
+  if (sanitizing.value) return; // während sanitizeInput läuft nicht erneut ausführen
+  sanitizeInput();
+  debouncedSubmit();
+});
 
-    const original = textarea.value || "";
 
-    let sanitized = original.replace(/[^a-zA-Z]/g, "");
-    const hadInvalidChars = sanitized.length !== original.length;
+function sanitizeInput() {
+  const textarea = inputTextarea.value;
+  if (!textarea) return;
 
-    sanitized = inputIsUpperCase.value
-        ? sanitized.toUpperCase()
-        : sanitized.toLowerCase();
+  const original = textarea.value || "";
 
-    if (sanitized.length > 10000) {
-        sanitized = sanitized.slice(0, 10000);
-        showToastLimited("Maximal 10.000 Buchstaben erlaubt.");
-    }
+  let sanitized = original.replace(/[^a-zA-Z]/g, "");
+  const hadInvalidChars = sanitized.length !== original.length;
 
-    if (hadInvalidChars) {
-        showToastLimited("Ungültige Zeichen wurden entfernt. Nur [A-Z][a-z] ist zulässig.", "warning");
-    }
+  sanitized = inputIsUpperCase.value
+    ? sanitized.toUpperCase()
+    : sanitized.toLowerCase();
 
-    // Cursorposition speichern
-    const cursorPos = textarea.selectionStart;
+  if (sanitized.length > 10000) {
+    sanitized = sanitized.slice(0, 10000);
+    showToastLimited("Maximal 10.000 Buchstaben erlaubt.");
+  }
 
-    // Wenn sich der Inhalt geändert hat, manuell setzen
-    if (sanitized !== original) {
-        textarea.value = sanitized;
-        settings.enigma.input = sanitized;
+  if (hadInvalidChars) {
+    showToastLimited("Ungültige Zeichen wurden entfernt. Nur [A-Z][a-z] ist zulässig.", "warning");
+  }
 
-        // Cursor wieder setzen
-        nextTick(() => {
-            textarea.setSelectionRange(cursorPos, cursorPos);
-        });
-    } else {
-        settings.enigma.input = sanitized;
-    }
+  const cursorPos = textarea.selectionStart;
 
-    // Ausgabe ebenfalls synchronisieren
-    if (enigma_output.value.length > sanitized.length) {
-        enigma_output.value = enigma_output.value.slice(0, sanitized.length);
-    }
+  if (sanitized !== original) {
+    sanitizing.value = true;          // Flag setzen
+    settings.enigma.input = sanitized; // setze reactive value
+    textarea.value = sanitized;
 
-    enigma_output.value = outputIsUpperCase.value
-        ? enigma_output.value.toUpperCase()
-        : enigma_output.value.toLowerCase();
-
-    debouncedSubmit?.(); // falls benötigt
+    nextTick(() => {
+      textarea.setSelectionRange(cursorPos, cursorPos);
+      sanitizing.value = false;       // Flag wieder entfernen
+    });
+  }
 }
 
 
